@@ -1,0 +1,9 @@
+Package: mpg123
+Version: 1.31.3
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config, yasm-tool-helper
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 7917c76038ab0e3436b26c1854b6455d2c468e4fffff2894f8c21763760406c3
+Description: mpg123 is a real time MPEG 1.0/2.0/2.5 audio player/decoder for layers 1, 2 and 3 (MPEG 1.0 layer 3 also known as MP3).
+Status: install ok installed

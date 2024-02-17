@@ -1,0 +1,10 @@
+^C:\USERS\JESSE\DOWNLOADS\DEV\DXX-REDUX\D1\CMAKEFILES\48BE1C75AB694C4C528F6D9360FB1D72\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/d1x-redux.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

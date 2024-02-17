@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\ai.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\aipath.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\automap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\bm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\bmread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\cntrlcen.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\collide.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\config.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\console.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\controls.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\credits.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\custom.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\digiobj.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\dumpmine.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\effects.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\endlevel.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\fireball.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\fuelcen.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\fvi.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\game.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamecntl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamefont.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamemine.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamerend.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamesave.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gameseg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gameseq.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gauges.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\hostage.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\hud.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\inferno.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\kconfig.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\kmatrix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\laser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\lighting.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\menu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\mglobal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\mission.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\morph.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\multi.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\multibot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\newdemo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\newmenu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\object.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\paging.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\physics.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\piggy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\player.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\playsave.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\polyobj.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\powerup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\render.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\robot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\scores.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\slew.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\snddecom.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\songs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\state.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\switch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\terrain.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\texmerge.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\text.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\titles.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\vclip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\wall.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\weapon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\net_udp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\vers_id.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\win32\d1x-rebirth.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\win32\d1x-rebirth.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{7480831C-C916-3D0E-A250-E4FC518641D9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

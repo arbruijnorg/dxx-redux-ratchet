@@ -56,7 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CLOAK_TIME_MAX          (F1_0*30)
 #define INVULNERABLE_TIME_MAX   (F1_0*30)
 
-#define PLAYER_STRUCT_VERSION 	16		//increment this every time player struct changes
+#define PLAYER_STRUCT_VERSION 	18		//increment this every time player struct changes
 
 // defines for teams
 #define TEAM_BLUE   0
@@ -102,6 +102,16 @@ typedef struct player {
 	int     score;                  // Current score.
 	fix     time_level;             // Level time played
 	fix     time_total;             // Game time played (high word = seconds)
+	                                // Below doubles are used for ranks mod.
+	double  deathCount;             // Number of times the player died during the level.
+	double  rankScore;              // Number of relevant entities destroyed/collected in a level.
+	double  maxScore;				// How many relevant entities there are to destroy/collect in a level.
+	double  damageDealt;            // Amount of damage done to robots in a level.
+	double  level_time;             // Amount of time taken in a level. Stops when going in exit or running out of time.
+	double  quickload;				// Whether the player has quickloaded into the current level.
+	double  missionRanks;           // Whether the mission select menu is being used to see best ranks.
+	double  levelCount;             // Tracks how many levels are in a mission to create best ranks list.
+	double  rank;                   // The letter rank awarded based on player performance, in numerical form.
 
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable

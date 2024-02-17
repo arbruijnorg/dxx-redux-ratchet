@@ -56,6 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "mission.h"
 #include "songs.h"
+#include "player.h"
 #ifdef USE_SDLMIXER
 #include "jukebox.h" // for jukebox_exts
 #endif
@@ -84,6 +85,7 @@ enum MENUS
     MENU_GAME,
     MENU_EDITOR,
     MENU_VIEW_SCORES,
+	MENU_VIEW_RANKS,
     MENU_QUIT,
     MENU_LOAD_GAME,
     MENU_SAVE_GAME,
@@ -481,6 +483,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
+	ADD_ITEM("Best ranks", MENU_VIEW_RANKS);
 	if (!PHYSFSX_exists("warning.pcx",1)) /* SHAREWARE */
 		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
@@ -536,6 +539,7 @@ int do_option ( int select)
 {
 	switch (select) {
 		case MENU_NEW_GAME:
+			Players[Player_num].missionRanks = 0;
 			select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
 			break;
 		case MENU_GAME:
@@ -560,6 +564,10 @@ int do_option ( int select)
 		#endif
 		case MENU_VIEW_SCORES:
 			scores_view(NULL, -1);
+			break;
+		case MENU_VIEW_RANKS:
+			Players[Player_num].missionRanks = 1;
+			select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
 			break;
 #if 1 //def SHAREWARE
 		case MENU_ORDER_INFO:

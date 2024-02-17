@@ -57,6 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "multi.h"
 #include "makesig.h"
+#include "player.h"
 
 #ifndef NDEBUG
 void dump_mine_info(void);

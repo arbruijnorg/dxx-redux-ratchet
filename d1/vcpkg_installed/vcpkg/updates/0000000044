@@ -1,0 +1,9 @@
+Package: libmikmod
+Version: 3.3.11.1
+Port-Version: 12
+Depends: openal-soft, vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 19be91afb3d780010b28bd30879035e45c409cb7bea3ca167df392e83299574c
+Description: Mikmod is a module player and library supporting many formats, including mod, s3m, it, and xm.
+Status: install ok half-installed

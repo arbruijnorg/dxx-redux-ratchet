@@ -69,6 +69,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "collide.h"
 #include "multibot.h"
+#include "gameseq.h"
+#include "object.h"
 
 #define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
 #define WALL_DAMAGE_THRESHOLD (F1_0/3)
@@ -130,7 +132,7 @@ int apply_damage_to_clutter(object *clutter, fix damage)
 void apply_force_damage(object *obj,fix force,object *other_obj)
 {
 	int	result;
-	fix damage;
+	double damage;
 
 	if (obj->flags & (OF_EXPLODING|OF_SHOULD_BE_DEAD))
 		return;		//already exploding or dead
@@ -147,13 +149,11 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 			if (Robot_info[obj->id].attack_type == 1) {
 				if (other_obj->type == OBJ_WEAPON)
 					result = apply_damage_to_robot(obj,damage/4, other_obj->ctype.laser_info.parent_num);
-				else
-					result = apply_damage_to_robot(obj,damage/4, other_obj-Objects);
 			}
 			else {
 				if (other_obj->type == OBJ_WEAPON)
 					result = apply_damage_to_robot(obj,damage/2, other_obj->ctype.laser_info.parent_num);
-				else
+			else
 					result = apply_damage_to_robot(obj,damage/2, other_obj-Objects);
 			}
 
@@ -323,7 +323,7 @@ void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short
 					multi_send_damage(damage, Players[Player_num].shields, OBJ_WALL, 0, DAMAGE_WALL, NULL);
 				}
 			  	#endif
-			  	apply_damage_to_player( player, player, damage, 0 );			  	
+			  	apply_damage_to_player( player, player, damage, 0 );
 			}
 		}
 	}
@@ -712,6 +712,8 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 {
 	int	whotype;
 
+	Players[Player_num].damageDealt += damage;
+
 	//	Only allow a player to damage the control center.
 
 	if ((who < 0) || (who > Highest_object_index))
@@ -757,6 +759,7 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 		if (!(Game_mode & GM_MULTI))
 			add_points_to_score(CONTROL_CEN_SCORE);
+		Players[Player_num].rankScore++;
 
 		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_DESTROYED, controlcen->segnum, 0, &controlcen->pos, 0, F1_0 );
 
@@ -877,6 +880,8 @@ void collide_weapon_and_clutter( object * weapon, object *clutter, vms_vector *c
 //	Return 1 if robot died, else return 0
 int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 {
+	Players[Player_num].damageDealt += damage;
+
 	if ( robot->flags&OF_EXPLODING) return 0;
 
 	if (robot->shields < 0 ) return 0;	//robot already dead...
@@ -892,6 +897,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	if (robot->shields < 0) {
 		Players[Player_num].num_kills_level++;
 		Players[Player_num].num_kills_total++;
+		Players[Player_num].rankScore++;
 
 #ifndef SHAREWARE
 #ifdef NETWORK
@@ -1031,8 +1037,9 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
 		add_points_to_score(HOSTAGE_SCORE);
+		Players[Player_num].rankScore++;
 
-		// Do effect
+			// Do effect
 		hostage_rescue(hostage->id);
 
 		// Remove the hostage object.

@@ -57,6 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct stats_info {
   	char	name[CALLSIGN_LEN+1];
 	int		score;
+	int     rank;
 	sbyte   starting_level;
 	sbyte   ending_level;
 	sbyte   diff_level;
@@ -72,6 +73,11 @@ typedef struct all_scores {
 	stats_info	stats[MAX_HIGH_SCORES];
 } __pack__ all_scores;
 
+typedef struct all_ranks {
+	char			signature[3];			// DHS
+	sbyte           version;				// version
+	stats_info	stats[Players[Player_num].levelCount];
+} __pack__ all_ranks;
 
 void scores_read(all_scores *scores)
 {
@@ -119,6 +125,42 @@ void scores_read(all_scores *scores)
 	}
 }
 
+void ranks_read(all_ranks* ranks)
+{
+	PHYSFS_file* fp;
+	int fsize;
+
+	// clear rank array...
+	memset(ranks, 0, sizeof(all_ranks));
+
+	fp = PHYSFS_openRead("ranks.hi");
+	if (fp == NULL) {
+		int i;
+
+		// No error message needed, code will work without a ranks file
+		sprintf(ranks->stats[0].name, "No ranks set yet. Go beat some levels!");
+
+		for (i = 0; i < 10; i++)
+			ranks->stats[i].rank = (10 - i) * 1000;
+		return;
+	}
+
+	fsize = PHYSFS_fileLength(fp);
+
+	if (fsize != sizeof(all_ranks)) {
+		PHYSFS_close(fp);
+		return;
+	}
+	// Read 'em in...
+	PHYSFS_read(fp, ranks, sizeof(all_ranks), 1);
+	PHYSFS_close(fp);
+
+	if ((ranks->version != VERSION_NUMBER) || (ranks->signature[0] != 'D') || (ranks->signature[1] != 'H') || (ranks->signature[2] != 'S')) {
+		memset(ranks, 0, sizeof(all_ranks));
+		return;
+	}
+}
+
 void scores_write(all_scores *scores)
 {
 	PHYSFS_file *fp;
@@ -134,6 +176,24 @@ void scores_write(all_scores *scores)
 	scores->signature[2]='S';
 	scores->version = VERSION_NUMBER;
 	PHYSFS_write(fp, scores,sizeof(all_scores), 1);
+	PHYSFS_close(fp);
+}
+
+void ranks_write(all_ranks* ranks)
+{
+	PHYSFS_file* fp;
+
+	fp = PHYSFS_openWrite("ranks.hi");
+	if (fp == NULL) {
+		nm_messagebox("Warning!", 1, "Ok", "%s\n'%s'", "Unable to open ranks.hi");
+		return;
+	}
+
+	ranks->signature[0] = 'D';
+	ranks->signature[1] = 'H';
+	ranks->signature[2] = 'S';
+	ranks->version = VERSION_NUMBER;
+	PHYSFS_write(fp, ranks, sizeof(all_ranks), 1);
 	PHYSFS_close(fp);
 }
 
@@ -184,6 +244,11 @@ void scores_fill_struct(stats_info * stats)
 
 	stats->diff_level = Difficulty_level;
 	stats->starting_level = Players[Player_num].starting_level;
+}
+
+void ranks_fill_struct(stats_info* stats)
+{
+	stats->rank = Players[Player_num].rank;
 }
 
 static inline const char *get_placement_slot_string(const unsigned position)
@@ -259,6 +324,55 @@ void scores_maybe_add_player(int abort_flag)
 		window_close(Game_wind);	// prevent the next game from doing funny things
 }
 
+void ranks_maybe_add_player(int abort_flag)
+{
+	newmenu_item m[10];
+	int i, position;
+	all_ranks ranks;
+	stats_info last_game;
+
+	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
+		return;
+
+	ranks_read(&ranks);
+
+	position = Players[Player_num].levelCount;
+	for (i = 0; i < Players[Player_num].levelCount; i++) {
+		if (Players[Player_num].rank > ranks.stats[i].rank) {
+			position = i;
+			break;
+		}
+	}
+
+	if (position == Players[Player_num].levelCount) {
+		if (abort_flag)
+			return;
+		ranks_fill_struct(&last_game);
+	}
+	else {
+		if (position == 0) {
+			newmenu_do(TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, 2, m, NULL, NULL);
+		}
+		else {
+			nm_messagebox(TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
+		}
+
+		// move everyone down...
+		for (i = Players[Player_num].levelCount - 1; i > position; i--) {
+			ranks.stats[i] = ranks.stats[i - 1];
+		}
+
+		ranks_fill_struct(&ranks.stats[position]);
+
+		ranks_write(&ranks);
+
+	}
+	ranks_view(&last_game, position);
+
+	if (Game_wind)
+		window_close(Game_wind);	// prevent the next game from doing funny things
+}
+
 void scores_rprintf(int x, int y, char * format, ... )
 {
 	va_list args;
@@ -279,6 +393,25 @@ void scores_rprintf(int x, int y, char * format, ... )
 	gr_string( FSPACX(x)-w, FSPACY(y), buffer );
 }
 
+void ranks_rprintf(int x, int y, char* format, ...)
+{
+	va_list args;
+	char buffer[128];
+	int w, h, aw;
+	char* p;
+
+	va_start(args, format);
+	vsprintf(buffer, format, args);
+	va_end(args);
+
+	//replace the digit '1' with special wider 1
+	for (p = buffer; *p; p++)
+		if (*p == '1') *p = 132;
+
+	gr_get_string_size(buffer, &w, &h, &aw);
+
+	gr_string(FSPACX(x) - w, FSPACY(y), buffer);
+}
 
 void scores_draw_item( int i, stats_info * stats )
 {
@@ -327,6 +460,42 @@ void scores_draw_item( int i, stats_info * stats )
 	}
 }
 
+void ranks_draw_item(int i, stats_info* stats)
+{
+	char buffer[20];
+
+	int y;
+
+	y = 77 + i * 9;
+
+	if (i == 0)
+		y -= 8;
+
+	if (i == Players[Player_num].levelCount)
+		y += 8;
+	else
+		scores_rprintf(57, y - 3, "%d.", i + 1);
+
+	y -= 3;
+
+	if (strlen(stats->name) == 0) {
+		gr_string(FSPACX(66), FSPACY(y), TXT_EMPTY);
+		return;
+	}
+	gr_printf(FSPACX(66), FSPACY(y), "%s", stats->name);
+	int_to_string(stats->rank, buffer);
+	ranks_rprintf(149, y, "%s", buffer);
+
+	{
+		int h, m, s;
+		h = stats->seconds / 3600;
+		s = stats->seconds % 3600;
+		m = s / 60;
+		s = s % 60;
+		ranks_rprintf(276, y, "%d:%02d:%02d", h, m, s);
+	}
+}
+
 typedef struct scores_menu
 {
 	int			citem;
@@ -335,6 +504,15 @@ typedef struct scores_menu
 	all_scores	scores;
 	stats_info	last_game;
 } scores_menu;
+
+typedef struct ranks_menu
+{
+	int			citem;
+	fix64			t1;
+	int			looper;
+	all_ranks	ranks;
+	stats_info	last_game;
+} ranks_menu;
 
 int scores_handler(window *wind, d_event *event, scores_menu *menu)
 {
@@ -445,6 +623,113 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 	return 0;
 }
 
+int ranks_handler(window* wind, d_event* event, ranks_menu* menu)
+{
+	int i;
+	int k;
+	sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
+	int w = FSPACX(290), h = FSPACY(170);
+
+	switch (event->type)
+	{
+	case EVENT_WINDOW_ACTIVATED:
+		game_flush_inputs();
+		break;
+
+	case EVENT_KEY_COMMAND:
+		k = event_key_get(event);
+		switch (k) {
+		case KEY_CTRLED + KEY_R:
+			if (menu->citem < 0) {
+				// Reset ranks...
+				if (nm_messagebox(NULL, 2, "No", "Yes", "Reset the high scores?") == 1) {
+					PHYSFS_delete(SCORES_FILENAME);
+					ranks_view(&menu->last_game, menu->citem);	// create new ranks window
+					window_close(wind);			// then remove the old one
+				}
+			}
+			return 1;
+
+		case KEY_ENTER:
+		case KEY_SPACEBAR:
+		case KEY_ESC:
+			window_close(wind);
+			return 1;
+		}
+		break;
+
+	case EVENT_MOUSE_BUTTON_DOWN:
+	case EVENT_MOUSE_BUTTON_UP:
+		if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
+		{
+			window_close(wind);
+			return 1;
+		}
+		break;
+
+	case EVENT_IDLE:
+		timer_delay2(50);
+		break;
+
+	case EVENT_WINDOW_DRAW:
+		gr_set_current_canvas(NULL);
+
+		nm_draw_background(((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
+
+		gr_set_current_canvas(window_get_canvas(wind));
+
+		grd_curcanv->cv_font = MEDIUM3_FONT;
+
+		gr_string(0x8000, FSPACY(15), "BEST RANKS");
+
+		grd_curcanv->cv_font = GAME_FONT;
+
+		gr_set_fontcolor(BM_XRGB(31, 26, 5), -1);
+		gr_string(FSPACX(71), FSPACY(50), TXT_NAME);
+		gr_string(FSPACX(122), FSPACY(50), TXT_SCORE);
+		gr_string(FSPACX(167), FSPACY(50), TXT_SKILL);
+		gr_string(FSPACX(210), FSPACY(50), TXT_LEVELS);
+		gr_string(FSPACX(253), FSPACY(50), TXT_TIME);
+
+		if (menu->citem < 0)
+			gr_string(0x8000, FSPACY(175), "Press <Ctrl-R> to reset");
+
+		gr_set_fontcolor(BM_XRGB(28, 28, 28), -1);
+
+		for (i = 0; i < Players[Player_num].levelCount; i++) {
+			gr_set_fontcolor(BM_XRGB(28 - i * 2, 28 - i * 2, 28 - i * 2), -1);
+			ranks_draw_item(i, &menu->ranks.stats[i]);
+		}
+
+		if (menu->citem > -1) {
+
+			gr_set_fontcolor(BM_XRGB(7 + fades[menu->looper], 7 + fades[menu->looper], 7 + fades[menu->looper]), -1);
+			if (timer_query() >= menu->t1 + F1_0 / 128)
+			{
+				menu->t1 = timer_query();
+				menu->looper++;
+				if (menu->looper > 63) menu->looper = 0;
+			}
+
+			if (menu->citem == Players[Player_num].levelCount)
+				ranks_draw_item(Players[Player_num].levelCount, &menu->last_game);
+			else
+				ranks_draw_item(menu->citem, &menu->ranks.stats[menu->citem]);
+		}
+		gr_set_current_canvas(NULL);
+		break;
+
+	case EVENT_WINDOW_CLOSE:
+		d_free(menu);
+		break;
+
+	default:
+		break;
+	}
+
+	return 0;
+}
+
 void scores_view(stats_info *last_game, int citem)
 {
 	scores_menu *menu;
@@ -468,4 +753,29 @@ void scores_view(stats_info *last_game, int citem)
 
 	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200),
 				  (int (*)(window *, d_event *, void *))scores_handler, menu);
+}
+
+void ranks_view(stats_info* last_game, int citem)
+{
+	ranks_menu* menu;
+
+	MALLOC(menu, ranks_menu, 1);
+	if (!menu)
+		return;
+
+	menu->citem = citem;
+	menu->t1 = timer_query();
+	menu->looper = 0;
+	if (last_game)
+		menu->last_game = *last_game;
+
+	newmenu_free_background();
+
+	ranks_read(&menu->ranks);
+
+	set_screen_mode(SCREEN_MENU);
+	show_menus();
+
+	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320)) / 2, (SHEIGHT - FSPACY(200)) / 2, FSPACX(320), FSPACY(200),
+		(int (*)(window*, d_event*, void*))ranks_handler, menu);
 }

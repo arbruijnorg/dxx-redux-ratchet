@@ -1,0 +1,492 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{674905ED-1CA0-390B-B84D-13C992D24617}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <VcpkgEnabled>false</VcpkgEnabled>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>d1x-redux</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="do_not_import_user.props" Condition="exists('do_not_import_user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">d1x-redux.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">d1x-redux</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">d1x-redux.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">d1x-redux</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">d1x-redux.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">d1x-redux</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">d1x-redux.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">d1x-redux</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/jesse/Downloads/dev/dxx-redux/d1/vcpkg_installed/x64-windows/include"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/jesse/Downloads/dev/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/Debug/d1x-redux.exe -installedDir C:/Users/jesse/Downloads/dev/dxx-redux/d1/vcpkg_installed/x64-windows/debug/bin -OutVariable out
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\arch\ogl\Debug\arch_ogl.lib;..\xmodel\Debug\xmodel.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL_mixer.lib;glu32.lib;winmm.lib;ws2_32.lib;..\arch\win32\Debug\arch_win32.lib;..\2d\Debug\2d.lib;..\3d\Debug\3d.lib;..\arch\sdl\Debug\arch_sdl.lib;..\iff\Debug\iff.lib;..\maths\Debug\maths.lib;..\mem\Debug\mem.lib;..\misc\Debug\misc.lib;..\texmap\Debug\texmap.lib;opengl32.lib;glu32.lib;..\vcpkg_installed\x64-windows\lib\manual-link\SDLmain.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL_mixer.lib;..\vcpkg_installed\x64-windows\debug\lib\physfs.lib;..\vcpkg_installed\x64-windows\debug\lib\libpng16d.lib;..\vcpkg_installed\x64-windows\debug\lib\glew32d.lib;winmm.lib;ws2_32.lib;..\vcpkg_installed\x64-windows\lib\manual-link\SDLmain.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL.lib;..\vcpkg_installed\x64-windows\debug\lib\physfs.lib;..\vcpkg_installed\x64-windows\debug\lib\libpng16d.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/Debug/d1x-redux.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/Debug/d1x-redux.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/jesse/Downloads/dev/dxx-redux/d1/vcpkg_installed/x64-windows/include"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/jesse/Downloads/dev/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/Release/d1x-redux.exe -installedDir C:/Users/jesse/Downloads/dev/dxx-redux/d1/vcpkg_installed/x64-windows/bin -OutVariable out
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\arch\ogl\Release\arch_ogl.lib;..\xmodel\Release\xmodel.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL_mixer.lib;glu32.lib;winmm.lib;ws2_32.lib;..\arch\win32\Release\arch_win32.lib;..\2d\Release\2d.lib;..\3d\Release\3d.lib;..\arch\sdl\Release\arch_sdl.lib;..\iff\Release\iff.lib;..\maths\Release\maths.lib;..\mem\Release\mem.lib;..\misc\Release\misc.lib;..\texmap\Release\texmap.lib;opengl32.lib;glu32.lib;..\vcpkg_installed\x64-windows\lib\manual-link\SDLmain.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL_mixer.lib;..\vcpkg_installed\x64-windows\lib\physfs.lib;..\vcpkg_installed\x64-windows\lib\libpng16.lib;..\vcpkg_installed\x64-windows\lib\glew32.lib;winmm.lib;ws2_32.lib;..\vcpkg_installed\x64-windows\lib\manual-link\SDLmain.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL.lib;..\vcpkg_installed\x64-windows\lib\physfs.lib;..\vcpkg_installed\x64-windows\lib\libpng16.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/Release/d1x-redux.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/Release/d1x-redux.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/jesse/Downloads/dev/dxx-redux/d1/vcpkg_installed/x64-windows/include"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/jesse/Downloads/dev/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/MinSizeRel/d1x-redux.exe -installedDir C:/Users/jesse/Downloads/dev/dxx-redux/d1/vcpkg_installed/x64-windows/bin -OutVariable out
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\arch\ogl\MinSizeRel\arch_ogl.lib;..\xmodel\MinSizeRel\xmodel.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL_mixer.lib;glu32.lib;winmm.lib;ws2_32.lib;..\arch\win32\MinSizeRel\arch_win32.lib;..\2d\MinSizeRel\2d.lib;..\3d\MinSizeRel\3d.lib;..\arch\sdl\MinSizeRel\arch_sdl.lib;..\iff\MinSizeRel\iff.lib;..\maths\MinSizeRel\maths.lib;..\mem\MinSizeRel\mem.lib;..\misc\MinSizeRel\misc.lib;..\texmap\MinSizeRel\texmap.lib;opengl32.lib;glu32.lib;..\vcpkg_installed\x64-windows\lib\manual-link\SDLmain.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL_mixer.lib;..\vcpkg_installed\x64-windows\lib\physfs.lib;..\vcpkg_installed\x64-windows\lib\libpng16.lib;..\vcpkg_installed\x64-windows\lib\glew32.lib;winmm.lib;ws2_32.lib;..\vcpkg_installed\x64-windows\lib\manual-link\SDLmain.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL.lib;..\vcpkg_installed\x64-windows\lib\physfs.lib;..\vcpkg_installed\x64-windows\lib\libpng16.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/MinSizeRel/d1x-redux.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/MinSizeRel/d1x-redux.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/jesse/Downloads/dev/dxx-redux/d1/vcpkg_installed/x64-windows/include"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/jesse/Downloads/dev/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/RelWithDebInfo/d1x-redux.exe -installedDir C:/Users/jesse/Downloads/dev/dxx-redux/d1/vcpkg_installed/x64-windows/bin -OutVariable out
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\arch\ogl\RelWithDebInfo\arch_ogl.lib;..\xmodel\RelWithDebInfo\xmodel.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL_mixer.lib;glu32.lib;winmm.lib;ws2_32.lib;..\arch\win32\RelWithDebInfo\arch_win32.lib;..\2d\RelWithDebInfo\2d.lib;..\3d\RelWithDebInfo\3d.lib;..\arch\sdl\RelWithDebInfo\arch_sdl.lib;..\iff\RelWithDebInfo\iff.lib;..\maths\RelWithDebInfo\maths.lib;..\mem\RelWithDebInfo\mem.lib;..\misc\RelWithDebInfo\misc.lib;..\texmap\RelWithDebInfo\texmap.lib;opengl32.lib;glu32.lib;..\vcpkg_installed\x64-windows\lib\manual-link\SDLmain.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL_mixer.lib;..\vcpkg_installed\x64-windows\lib\physfs.lib;..\vcpkg_installed\x64-windows\lib\libpng16.lib;..\vcpkg_installed\x64-windows\lib\glew32.lib;winmm.lib;ws2_32.lib;..\vcpkg_installed\x64-windows\lib\manual-link\SDLmain.lib;..\vcpkg_installed\x64-windows\debug\lib\SDL.lib;..\vcpkg_installed\x64-windows\lib\physfs.lib;..\vcpkg_installed\x64-windows\lib\libpng16.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/RelWithDebInfo/d1x-redux.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/RelWithDebInfo/d1x-redux.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.28\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckIncludeFileCXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckTypeSize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPNG.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPhysFS.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindSDL.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindSDL_mixer.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindZLIB.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\SelectLibraryConfigurations.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\CopyImportedTargetProperties.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-config.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets-debug.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets-release.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\physfs\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\png\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\zlib\vcpkg-cmake-wrapper.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.28\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckIncludeFileCXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckTypeSize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPNG.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPhysFS.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindSDL.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindSDL_mixer.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindZLIB.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\SelectLibraryConfigurations.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\CopyImportedTargetProperties.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-config.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets-debug.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets-release.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\physfs\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\png\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\zlib\vcpkg-cmake-wrapper.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.28\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckIncludeFileCXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckTypeSize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPNG.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPhysFS.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindSDL.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindSDL_mixer.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindZLIB.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\SelectLibraryConfigurations.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\CopyImportedTargetProperties.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-config.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets-debug.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets-release.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\physfs\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\png\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\zlib\vcpkg-cmake-wrapper.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/main/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.28\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckIncludeFileCXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CheckTypeSize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPNG.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindPhysFS.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindSDL.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindSDL_mixer.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\FindZLIB.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\SelectLibraryConfigurations.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\CopyImportedTargetProperties.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-config.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets-debug.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets-release.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\glew-targets.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\glew\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\physfs\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\png\vcpkg-cmake-wrapper.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\share\zlib\vcpkg-cmake-wrapper.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\ai.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\aipath.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\automap.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\bm.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\bmread.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\cntrlcen.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\collide.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\config.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\console.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\controls.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\credits.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\custom.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\digiobj.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\dumpmine.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\effects.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\endlevel.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\fireball.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\fuelcen.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\fvi.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\game.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamecntl.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamefont.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamemine.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamerend.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gamesave.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gameseg.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gameseq.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\gauges.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\hostage.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\hud.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\inferno.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\kconfig.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\kmatrix.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\laser.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\lighting.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\menu.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\mglobal.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\mission.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\morph.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\multi.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\multibot.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\newdemo.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\newmenu.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\object.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\paging.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\physics.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\piggy.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\player.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\playsave.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\polyobj.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\powerup.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\render.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\robot.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\scores.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\slew.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\snddecom.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\songs.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\state.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\switch.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\terrain.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\texmerge.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\text.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\titles.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\vclip.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\wall.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\weapon.c" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\net_udp.c" />
+    <None Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\win32\d1x-rebirth.ico">
+    </None>
+    <ResourceCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\win32\d1x-rebirth.rc" />
+    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\vers_id.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\ZERO_CHECK.vcxproj">
+      <Project>{EE26F9E3-68C6-319D-B16D-BA67008B409E}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\2d\2d.vcxproj">
+      <Project>{43C1A953-EFE3-3326-896E-BBFF80419DF9}</Project>
+      <Name>2d</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\3d\3d.vcxproj">
+      <Project>{F1B380D3-3DA4-3ED3-B884-7E7880001880}</Project>
+      <Name>3d</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\ogl\arch_ogl.vcxproj">
+      <Project>{47D72387-0FFB-35DB-A96E-3E632A457B92}</Project>
+      <Name>arch_ogl</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\sdl\arch_sdl.vcxproj">
+      <Project>{2242B536-319B-3C43-93C9-DDC141DBDAB0}</Project>
+      <Name>arch_sdl</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\win32\arch_win32.vcxproj">
+      <Project>{85501F90-F171-3A75-9C00-094AF71C4F7D}</Project>
+      <Name>arch_win32</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\iff\iff.vcxproj">
+      <Project>{60EB3BCD-0395-3CD6-8E4D-4DF74BFE0E9F}</Project>
+      <Name>iff</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\maths\maths.vcxproj">
+      <Project>{32EDF0CF-F4AD-398A-865E-6965CEEFFCBD}</Project>
+      <Name>maths</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\mem\mem.vcxproj">
+      <Project>{DD8A0187-C5A3-3AF1-A1AC-B775170C380D}</Project>
+      <Name>mem</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\misc\misc.vcxproj">
+      <Project>{60061297-727C-33F1-9B10-2A7909226868}</Project>
+      <Name>misc</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\texmap\texmap.vcxproj">
+      <Project>{1E8FA7E4-610C-38CC-8D32-5696334152F6}</Project>
+      <Name>texmap</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\xmodel\xmodel.vcxproj">
+      <Project>{59BF092D-11D0-3974-B8E5-3433CD0818D0}</Project>
+      <Name>xmodel</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

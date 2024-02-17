@@ -1126,6 +1126,7 @@ int state_restore_all_sub(char *filename)
 	fix tmptime32 = 0;
 	player_rw *pl_rw;
 	int rebirth = 0;
+	Players[Player_num].quickload = 1;
 
 	#ifndef NDEBUG
 	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))

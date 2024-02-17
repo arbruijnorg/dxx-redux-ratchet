@@ -786,32 +786,32 @@ int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 	return 0;
 }
 
-int select_mission(int anarchy_mode, char *message, int (*when_selected)(void))
+int select_mission(int anarchy_mode, char* message, int (*when_selected)(void))
 {
-    mle *mission_list = build_mission_list(anarchy_mode);
+	mle* mission_list = build_mission_list(anarchy_mode);
 	int new_mission_num;
 
-    if (num_missions <= 1)
+	if (num_missions <= 1)
 	{
-        new_mission_num = load_mission(mission_list) ? 0 : -1;
+		new_mission_num = load_mission(mission_list) ? 0 : -1;
 		free_mission_list(mission_list);
 		(*when_selected)();
-		
+
 		return (new_mission_num >= 0);
-    }
+	}
 	else
 	{
-		mission_menu *mm;
-        int i, default_mission;
-        char **m;
-		
-		MALLOC(m, char *, num_missions);
+		mission_menu* mm;
+		int i, default_mission;
+		char** m;
+
+		MALLOC(m, char*, num_missions);
 		if (!m)
 		{
 			free_mission_list(mission_list);
 			return 0;
 		}
-		
+
 		MALLOC(mm, mission_menu, 1);
 		if (!mm)
 		{
@@ -819,20 +819,24 @@ int select_mission(int anarchy_mode, char *message, int (*when_selected)(void))
 			free_mission_list(mission_list);
 			return 0;
 		}
-
+		if (Players[Player_num].missionRanks = 0)
+	{
 		mm->mission_list = mission_list;
 		mm->when_selected = when_selected;
-		
-        default_mission = 0;
-        for (i = 0; i < num_missions; i++) {
-            m[i] = mission_list[i].mission_name;
-            if ( !d_stricmp( m[i], GameCfg.LastMission ) )
-                default_mission = i;
-        }
 
-        newmenu_listbox1( message, num_missions, m, 1, default_mission, (int (*)(listbox *, d_event *, void *))mission_menu_handler, mm );
-    }
-
+		default_mission = 0;
+		for (i = 0; i < num_missions; i++) {
+			m[i] = mission_list[i].mission_name;
+			if (!d_stricmp(m[i], GameCfg.LastMission))
+				default_mission = i;
+		}
+		newmenu_listbox1(message, num_missions, m, 1, default_mission, (int (*)(listbox*, d_event*, void*))mission_menu_handler, mm);
+	}
+	else
+	{
+		Players[Player_num].levelCount = num_missions;
+		ranks_view(NULL, -1);
+	}
     return 1;	// presume success
 }
 
