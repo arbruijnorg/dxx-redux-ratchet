@@ -7,6 +7,11 @@
 *.o
 *.so
 *.pyc
+*.obj
+*.tlog
+*.recipe
+*.lib
+*.pdb
 build
 
 # Packages #
@@ -54,10 +59,15 @@ Thumbs.db
 .vscode/*
 /.vs
 */.vs
+/.vcxproj
+/.vcxproj.filters
+/.cmake
+/.sln
 
 # Executables #
 ###############
 *.app
 d*x-rebirth
 /*/out/install
-/d1/ps1ost.dxa
+/d1/vcpkg.json
+/d1/vcpkg-manifest-install.log

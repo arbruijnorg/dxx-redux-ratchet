@@ -101,7 +101,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "multibot.h"
 #include "player.h"
-#include "math.h"
 
 void init_player_stats_new_ship(ubyte pnum);
 void copy_defaults_to_robot_all(void);
@@ -727,73 +726,73 @@ void StartNewGame(int start_level)
 
 void DoEndLevelRankGlitz(int network)
 {
-	double parTime, rankPoints, rankTime, travelTime = 0, damageDealt = Players[Player_num].damageDealt / 65536;	//A separate variable is used for damage dealt to avoid having to divide by 65536 several times.
-	parTime = travelTime + (damageDealt / 80);	//Ending value is base laser 1's DPS.
-	if (Players[Player_num].level_time < parTime) {
-		rankTime = 1;
-	}
-	else {
-		rankTime = Players[Player_num].level_time / parTime;
-	}
 	int minutes = Players[Player_num].level_time / 60;
 	int seconds = Players[Player_num].level_time - (minutes * 60);
+	double r, rankPoints, timePoints;
+	if (Players[Player_num].maxScore > 0)
+		r = (Players[Player_num].rankScore / Players[Player_num].maxScore) / 2 + (double)Difficulty_level / 8 - Players[Player_num].deathCount * 1.5;
+	else
+		r = 0.5 + (double)Difficulty_level / 8 - Players[Player_num].deathCount * 1.5;
+	timePoints = 4 / (Players[Player_num].level_time / (5 * Players[Player_num].maxScore));
+	if (r == 1 || timePoints > 4)
+		timePoints = 4;
 	char* rank = 0;
-	rankPoints = (Players[Player_num].rankScore / Players[Player_num].maxScore) * 4 + 8 * pow(0.5, rankTime) - (Players[Player_num].deathCount * 1.5) + Difficulty_level;
+	rankPoints = 8 * r + timePoints;
 	if (rankPoints < 0) {
 		rank = "E";
-		Players[Player_num].rank = 0;
+		Players[Player_num].rank = 1;
 	}
 	if (rankPoints >= 0) {
 		rank = "D-";
-		Players[Player_num].rank = 1;
+		Players[Player_num].rank = 2;
 	}
 	if (rankPoints >= 1) {
 		rank = "D";
-		Players[Player_num].rank = 2;
+		Players[Player_num].rank = 3;
 	}
 	if (rankPoints >= 2) {
 		rank = "D+";
-		Players[Player_num].rank = 3;
+		Players[Player_num].rank = 4;
 	}
 	if (rankPoints >= 3) {
 		rank = "C-";
-		Players[Player_num].rank = 4;
+		Players[Player_num].rank = 5;
 	}
 	if (rankPoints >= 4) {
 		rank = "C";
-		Players[Player_num].rank = 5;
+		Players[Player_num].rank = 6;
 	}
 	if (rankPoints >= 5) {
 		rank = "C+";
-		Players[Player_num].rank = 6;
+		Players[Player_num].rank = 7;
 	}
 	if (rankPoints >= 6) {
 		rank = "B-";
-		Players[Player_num].rank = 7;
+		Players[Player_num].rank = 8;
 	}
 	if (rankPoints >= 7) {
 		rank = "B";
-		Players[Player_num].rank = 8;
+		Players[Player_num].rank = 9;
 	}
 	if (rankPoints >= 8) {
 		rank = "B+";
-		Players[Player_num].rank = 9;
+		Players[Player_num].rank = 10;
 	}
 	if (rankPoints >= 9) {
 		rank = "A-";
-		Players[Player_num].rank = 10;
+		Players[Player_num].rank = 11;
 	}
 	if (rankPoints >= 10) {
 		rank = "A";
-		Players[Player_num].rank = 11;
+		Players[Player_num].rank = 12;
 	}
 	if (rankPoints >= 11) {
 		rank = "A+";
-		Players[Player_num].rank = 12;
+		Players[Player_num].rank = 13;
 	}
 	if (rankPoints >= 12) {
 		rank = "S";
-		Players[Player_num].rank = 13;
+		Players[Player_num].rank = 14;
 	}
 #define N_GLITZITEMS 10
 	char			m_str[N_GLITZITEMS][30];
@@ -828,17 +827,16 @@ void DoEndLevelRankGlitz(int network)
 	else {
 		sprintf(m_str[c++], "Time: %0.0i:%0.0i", minutes, seconds);
 	}
-	sprintf(m_str[c++], "Damage dealt: %0.0f", damageDealt);
 	sprintf(m_str[c++], "Deaths: %0.0f", Players[Player_num].deathCount);
 	if (Players[Player_num].quickload == 0)
 		if (cheats.enabled) {
 			sprintf(m_str[c++], "\nRank: %s (Cheated, not saved)", rank);
 		}
 		else {
-			sprintf(m_str[c++], "\nRank: %s", Players[Player_num].rank);
+			sprintf(m_str[c++], "\nRank: %s", rank);
 		}
 	else
-		sprintf(m_str[c++], "\nRank: %s (Quickloaded, not saved, results wrong)", Players[Player_num].rank);
+		sprintf(m_str[c++], "\nRank: %s (Quickloaded, not saved, results wrong)", rank);
 	for (i = 0; i < c; i++) {
 		m[i].type = NM_TYPE_TEXT;
 		m[i].text = m_str[i];
@@ -1422,8 +1420,6 @@ void StartNewLevel(int level_num)
 	Players[Player_num].rankScore = 0;
 
 	Players[Player_num].maxScore = -1;
-
-	Players[Player_num].damageDealt = 0;
 
 	Players[Player_num].quickload = 0;
 

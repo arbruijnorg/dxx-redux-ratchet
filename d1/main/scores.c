@@ -74,10 +74,21 @@ typedef struct all_scores {
 } __pack__ all_scores;
 
 typedef struct all_ranks {
-	char			signature[3];			// DHS
-	sbyte           version;				// version
-	stats_info	stats[Players[Player_num].levelCount];
+	char signature[3]; // DMR (mission ranks)
+	sbyte version;
+	int num_missions;
+	// Should probably add checksums as well, for disambiguation and version
+	// changes, but that would require zlib or something hacky
+	char** mission_names;
+	uint* mission_offsets;
 } __pack__ all_ranks;
+
+typedef struct mission_ranks {
+	uint num_levels;
+	uint num_secret_levels;
+	int* level_ranks;
+	int* level_completion_times; // in seconds
+} __pack__ mission_ranks;
 
 void scores_read(all_scores *scores)
 {
@@ -125,40 +136,89 @@ void scores_read(all_scores *scores)
 	}
 }
 
-void ranks_read(all_ranks* ranks)
+void set_default_mission_ranks(mission_ranks* ranks)
 {
+	int num_total_levels;
+
+	memset(ranks, 0, sizeof(mission_ranks);
+	ranks->num_levels = Last_level;
+	ranks->num_secret_levels = N_secret_levels;
+
+	num_total_levels = ranks->num_levels + ranks->num_secret_levels;
+	ranks->level_ranks = malloc(num_total_levels * sizeof(int));
+	memset(ranks->level_ranks, 0, malloc(num_total_levels * sizeof(int));
+	ranks->level_completion_times = malloc(num_total_levels * sizeof(int));
+	memset(ranks->level_completion_times, 0, malloc(num_total_levels * sizeof(int));
+}
+
+void ranks_read(mission_ranks* ranks)
+{
+	char filename[PATH_MAX];
 	PHYSFS_file* fp;
 	int fsize;
+	all_ranks all_ranks;
+	int requested_mission_num = -1;
 
 	// clear rank array...
-	memset(ranks, 0, sizeof(all_ranks));
+	memset(all_ranks, 0, sizeof(all_ranks);
 
-	fp = PHYSFS_openRead("ranks.hi");
+	// Open the ranks data file. This is per-player.
+	memset(filename, '\0', PATH_MAX);
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir ? "Players/%.8s.mrk" : "%.8s.mrk", Players[Player_num].callsign);
+	fp = PHYSFS_openRead(filename);
 	if (fp == NULL) {
-		int i;
-
-		// No error message needed, code will work without a ranks file
-		sprintf(ranks->stats[0].name, "No ranks set yet. Go beat some levels!");
-
-		for (i = 0; i < 10; i++)
-			ranks->stats[i].rank = (10 - i) * 1000;
+		// Ranks file doesn't exist; create a new mission_ranks entry
+		set_default_mission_ranks(ranks);
 		return;
 	}
 
-	fsize = PHYSFS_fileLength(fp);
+	fsize = PHYSFS_fileLength(fp); // this could be used for error checking but right now we're ignoring it
 
-	if (fsize != sizeof(all_ranks)) {
-		PHYSFS_close(fp);
-		return;
-	}
-	// Read 'em in...
-	PHYSFS_read(fp, ranks, sizeof(all_ranks), 1);
-	PHYSFS_close(fp);
+	// Read the header (up to but not including the mission_names field)
+	PHYSFS_read(fp, &all_ranks, offsetof(all_ranks, mission_names), 1);
+	// Allocate space for the mission names/offsets, then read them in
+	// (mission filenames use 9 character buffers to leave space for a
+	// null terminator)
+	all_ranks.mission_names = malloc(all_ranks.num_missions * 9);
+	all_ranks.mission_offsets = malloc(all_ranks.num_missions * sizeof(uint));
+	for (int mission_num = 0; mission_num < all_ranks.num_missions; mission_num++) {
+		PHYSFS_read(fp, all_ranks.mission_names[mission_num], 8, 1);
+		PHYSFS_read(fp, all_ranks.mission_offsets[mission_num], sizeof(uint), 1);
 
-	if ((ranks->version != VERSION_NUMBER) || (ranks->signature[0] != 'D') || (ranks->signature[1] != 'H') || (ranks->signature[2] != 'S')) {
-		memset(ranks, 0, sizeof(all_ranks));
-		return;
+		if (_stricmp(all_ranks.mission_names[mission_num], Current_mission_filename) == 0)
+			requested_mission_num = mission_num;
 	}
+
+	if (requested_mission_num == -1) {
+		// Requested mission not found; create a new mission_ranks entry
+		set_default_mission_ranks(ranks);
+	}
+	else {
+		int num_total_levels;
+
+		// Move to the section of the ranks file where the data for the
+		// requested mission is
+		PHYSFS_seek(fp, all_ranks.mission_offsets[requested_mission_num]);
+
+		memset(ranks, 0, sizeof(mission_ranks);
+
+		// Now read the data in. Secret levels come after the regular levels
+		ranks->num_levels = PHYSFSX_readInt(fp);
+		ranks->num_secret_levels = PHYSFSX_readInt(fp);
+		num_total_levels = ranks->num_levels + ranks->num_secret_levels;
+		ranks->level_ranks = malloc(num_total_levels * sizeof(int));
+		ranks->level_completion_times = malloc(num_total_levels * sizeof(int));
+
+		for (int level_num = 0; level_num < num_total_levels; level_num++) {
+			ranks->level_ranks[level_num] = PHYSFSX_readInt(fp);
+			ranks->level_completion_times[level_num] = PHYSFSX_readInt(fp);
+		}
+	}
+
+	// Since we're not passing back all_ranks, we have to free the dynamically
+	// allocated sections now, so we don't leak them
+	free(all_ranks.mission_names);
+	free(all_ranks.mission_offsets);
 }
 
 void scores_write(all_scores *scores)

@@ -132,7 +132,7 @@ int apply_damage_to_clutter(object *clutter, fix damage)
 void apply_force_damage(object *obj,fix force,object *other_obj)
 {
 	int	result;
-	double damage;
+	fix damage;
 
 	if (obj->flags & (OF_EXPLODING|OF_SHOULD_BE_DEAD))
 		return;		//already exploding or dead
@@ -149,6 +149,8 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 			if (Robot_info[obj->id].attack_type == 1) {
 				if (other_obj->type == OBJ_WEAPON)
 					result = apply_damage_to_robot(obj,damage/4, other_obj->ctype.laser_info.parent_num);
+				else
+					result = apply_damage_to_robot(obj,damage/4, other_obj-Objects);
 			}
 			else {
 				if (other_obj->type == OBJ_WEAPON)
@@ -712,8 +714,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 {
 	int	whotype;
 
-	Players[Player_num].damageDealt += damage;
-
 	//	Only allow a player to damage the control center.
 
 	if ((who < 0) || (who > Highest_object_index))
@@ -880,8 +880,6 @@ void collide_weapon_and_clutter( object * weapon, object *clutter, vms_vector *c
 //	Return 1 if robot died, else return 0
 int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 {
-	Players[Player_num].damageDealt += damage;
-
 	if ( robot->flags&OF_EXPLODING) return 0;
 
 	if (robot->shields < 0 ) return 0;	//robot already dead...
@@ -897,6 +895,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	if (robot->shields < 0) {
 		Players[Player_num].num_kills_level++;
 		Players[Player_num].num_kills_total++;
+		if (robot->matcen_creator == 0)
 		Players[Player_num].rankScore++;
 
 #ifndef SHAREWARE

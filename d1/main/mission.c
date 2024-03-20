@@ -36,6 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "u_mem.h"
 #include "ignorecase.h"
+#include "scores.c"
 
 //values that describe where a mission is located
 enum mle_loc
@@ -790,7 +791,6 @@ int select_mission(int anarchy_mode, char* message, int (*when_selected)(void))
 {
 	mle* mission_list = build_mission_list(anarchy_mode);
 	int new_mission_num;
-
 	if (num_missions <= 1)
 	{
 		new_mission_num = load_mission(mission_list) ? 0 : -1;
@@ -819,11 +819,10 @@ int select_mission(int anarchy_mode, char* message, int (*when_selected)(void))
 			free_mission_list(mission_list);
 			return 0;
 		}
-		if (Players[Player_num].missionRanks = 0)
-	{
-		mm->mission_list = mission_list;
-		mm->when_selected = when_selected;
-
+		if (Players[Player_num].missionRanks == 0)
+		{
+			mm->mission_list = mission_list;
+			mm->when_selected = when_selected;
 		default_mission = 0;
 		for (i = 0; i < num_missions; i++) {
 			m[i] = mission_list[i].mission_name;
@@ -831,11 +830,13 @@ int select_mission(int anarchy_mode, char* message, int (*when_selected)(void))
 				default_mission = i;
 		}
 		newmenu_listbox1(message, num_missions, m, 1, default_mission, (int (*)(listbox*, d_event*, void*))mission_menu_handler, mm);
-	}
-	else
-	{
-		Players[Player_num].levelCount = num_missions;
-		ranks_view(NULL, -1);
+		}
+		else
+		{
+			Players[Player_num].levelCount = Current_mission->last_level + Current_mission->n_secret_levels;
+			ranks->stats = malloc(sizeof(stats_info) * Players[Player_num].levelCount);
+			ranks_view(NULL, -1);
+		}
 	}
     return 1;	// presume success
 }

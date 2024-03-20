@@ -1511,7 +1511,7 @@ void dead_player_frame(void)
 
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (!Player_exploded) {
-
+				Players[Player_num].rankScore -= Players[Player_num].hostages_on_board;
 				if (Players[Player_num].hostages_on_board > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, Players[Player_num].hostages_on_board);
 				else if (Players[Player_num].hostages_on_board == 1)

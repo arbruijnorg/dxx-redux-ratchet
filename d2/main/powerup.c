@@ -270,6 +270,8 @@ int do_powerup(object *obj)
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
 			Players[Player_num].lives++;
+			if (Current_level_num > 0)
+			Players[Player_num].rankScore++;
 			powerup_basic(15, 15, 15, 0, "%s", TXT_EXTRA_LIFE);
 			used=1;
 			break;

@@ -43,6 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "byteswap.h"
 #include "args.h"
+#include "player.h"
 
 //@@vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 //@@vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
@@ -225,6 +226,8 @@ void do_countdown_frame()
 			reset_palette_add();							//restore palette for death message
 			//controlcen->MaxCapacity = Fuelcen_max_amount;
 			//gauge_message( "Control Center Reset" );
+			Players[Player_num].deathCount++;
+			Players[Player_num].level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 			DoPlayerDead();		//kill_player();
 		}																				
 	}

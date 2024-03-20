@@ -106,8 +106,7 @@ typedef struct player {
 	double  deathCount;             // Number of times the player died during the level.
 	double  rankScore;              // Number of relevant entities destroyed/collected in a level.
 	double  maxScore;				// How many relevant entities there are to destroy/collect in a level.
-	double  damageDealt;            // Amount of damage done to robots in a level.
-	double  level_time;             // Amount of time taken in a level. Stops when going in exit or running out of time.
+	double  level_time;             // Amount of time taken in a level, based on time_level. Stops when going in exit or running out of time, but also updates upon any death to prevent circumvention.
 	double  quickload;				// Whether the player has quickloaded into the current level.
 	double  missionRanks;           // Whether the mission select menu is being used to see best ranks.
 	double  levelCount;             // Tracks how many levels are in a mission to create best ranks list.

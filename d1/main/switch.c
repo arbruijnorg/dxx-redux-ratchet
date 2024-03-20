@@ -147,6 +147,7 @@ int check_trigger_sub(int trigger_num, int pnum, int shot)
 		}
 
 		if (Triggers[trigger_num].flags & TRIGGER_SECRET_EXIT) {
+			Players[Player_num].level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 

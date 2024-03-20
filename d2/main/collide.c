@@ -1094,6 +1094,8 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 		if (!(Game_mode & GM_MULTI))
 			add_points_to_score(CONTROL_CEN_SCORE);
+		if (Current_level_num > 0)
+		Players[Player_num].rankScore++;
 
 		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_DESTROYED, controlcen->segnum, 0, &controlcen->pos, 0, F1_0 );
 
@@ -1372,6 +1374,8 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	if (robot->shields < 0) {
 		Players[Player_num].num_kills_level++;
 		Players[Player_num].num_kills_total++;
+		if (robot->matcen_creator == 0 && Current_level_num > 0)
+		Players[Player_num].rankScore++;
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI) {
 		 if (Robot_info[robot->id].thief)
@@ -1736,6 +1740,8 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 	if ( player == ConsoleObject )	{
 		detect_escort_goal_accomplished(hostage-Objects);
 		add_points_to_score(HOSTAGE_SCORE);
+		if (Current_level_num > 0)
+		Players[Player_num].rankScore++;
 
 		// Do effect
 		hostage_rescue(hostage->id);

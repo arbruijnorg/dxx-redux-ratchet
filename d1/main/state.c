@@ -658,7 +658,7 @@ int state_get_save_file(char * fname, char * dsc, int blind_save)
 
 int state_get_restore_file(char * fname)
 {
-	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", 0);
+	return state_get_savegame_filename(fname, NULL, "Select Game to Restore\nWill invalidate your rank on that level", 0);
 }
 
 int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player, 

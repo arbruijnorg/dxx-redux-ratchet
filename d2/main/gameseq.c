@@ -841,6 +841,142 @@ void StartNewGame(int start_level)
 	init_seismic_disturbances();
 }
 
+void DoEndLevelRankGlitz(int network)
+{
+	int minutes = Players[Player_num].level_time / 60;
+	int seconds = Players[Player_num].level_time - (minutes * 60);
+	double r, rankPoints, timePoints;
+	if (Players[Player_num].maxScore > 0)
+		r = (Players[Player_num].rankScore / Players[Player_num].maxScore) / 2 + (double)Difficulty_level / 8 - Players[Player_num].deathCount * 0.1875;
+	else
+		r = 0.5 + (double)Difficulty_level / 8 - Players[Player_num].deathCount * 0.1875;
+		timePoints = 4 / (Players[Player_num].level_time / (5 * Players[Player_num].maxScore));
+	if (r == 1 || timePoints > 4)
+		timePoints = 4;
+	char* rank = 0;
+	rankPoints = 8 * r + timePoints;
+	if (rankPoints < 0) {
+		rank = "E";
+		Players[Player_num].rank = 0;
+	}
+	if (rankPoints >= 0) {
+		rank = "D-";
+		Players[Player_num].rank = 1;
+	}
+	if (rankPoints >= 1) {
+		rank = "D";
+		Players[Player_num].rank = 2;
+	}
+	if (rankPoints >= 2) {
+		rank = "D+";
+		Players[Player_num].rank = 3;
+	}
+	if (rankPoints >= 3) {
+		rank = "C-";
+		Players[Player_num].rank = 4;
+	}
+	if (rankPoints >= 4) {
+		rank = "C";
+		Players[Player_num].rank = 5;
+	}
+	if (rankPoints >= 5) {
+		rank = "C+";
+		Players[Player_num].rank = 6;
+	}
+	if (rankPoints >= 6) {
+		rank = "B-";
+		Players[Player_num].rank = 7;
+	}
+	if (rankPoints >= 7) {
+		rank = "B";
+		Players[Player_num].rank = 8;
+	}
+	if (rankPoints >= 8) {
+		rank = "B+";
+		Players[Player_num].rank = 9;
+	}
+	if (rankPoints >= 9) {
+		rank = "A-";
+		Players[Player_num].rank = 10;
+	}
+	if (rankPoints >= 10) {
+		rank = "A";
+		Players[Player_num].rank = 11;
+	}
+	if (rankPoints >= 11) {
+		rank = "A+";
+		Players[Player_num].rank = 12;
+	}
+	if (rankPoints >= 12) {
+		rank = "S";
+		Players[Player_num].rank = 13;
+	}
+#define N_GLITZITEMS 10
+	char			m_str[N_GLITZITEMS][30];
+	newmenu_item	m[10];
+	int				i = 0, c = 0;
+	char			title[128];
+	int				is_last_level;
+	if (!cheats.enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level)) {		//player has finished the game!
+		is_last_level = 1;
+	}
+	else
+		is_last_level = 0;
+	if (Difficulty_level == 0) {
+		sprintf(m_str[c++], "Difficulty: Trainee");
+	}
+	if (Difficulty_level == 1) {
+		sprintf(m_str[c++], "Difficulty: Rookie");
+	}
+	if (Difficulty_level == 2) {
+		sprintf(m_str[c++], "Difficulty: Hotshot");
+	}
+	if (Difficulty_level == 3) {
+		sprintf(m_str[c++], "Difficulty: Ace");
+	}
+	if (Difficulty_level == 4) {
+		sprintf(m_str[c++], "Difficulty: Insane");
+	}
+	sprintf(m_str[c++], "Completion: %0.0f/%0.0f", Players[Player_num].rankScore, Players[Player_num].maxScore);
+	if (seconds < 10) {
+		sprintf(m_str[c++], "Time: %0.0i:0%0.0i", minutes, seconds);
+	}
+	else {
+		sprintf(m_str[c++], "Time: %0.0i:%0.0i", minutes, seconds);
+	}
+	sprintf(m_str[c++], "Deaths: %0.0f", Players[Player_num].deathCount);
+	{
+		if (Players[Player_num].quickload == 0)
+			if (cheats.enabled) {
+				sprintf(m_str[c++], "\nRank: %s (Cheated, not saved)", rank);
+			}
+			else {
+				sprintf(m_str[c++], "\nRank: %s", rank);
+			}
+		else
+			sprintf(m_str[c++], "\nRank: %s (Quickloaded, not saved, results wrong)", rank);
+		for (i = 0; i < c; i++) {
+			m[i].type = NM_TYPE_TEXT;
+			m[i].text = m_str[i];
+		}
+		// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
+
+		if (Current_level_num < 0)
+			sprintf(title, "%s%s %d %s\n %s %s", is_last_level ? "\n\n\n" : "\n", TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+		else
+			sprintf(title, "%s%s %d %s\n%s %s", is_last_level ? "\n\n\n" : "\n", TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+
+		Assert(c <= N_GLITZITEMS);
+
+#ifdef NETWORK
+		if (network && (Game_mode & GM_NETWORK))
+			newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
+		else
+#endif	// Note link!
+			newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
+	}
+}
+
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
@@ -851,10 +987,10 @@ void DoEndLevelScoreGlitz(int network)
 	int	endgame_points;
 	char	all_hostage_text[64];
 	char	endgame_text[64];
-	#define N_GLITZITEMS 11
+#define N_GLITZITEMS 11
 	char				m_str[N_GLITZITEMS][30];
-	newmenu_item	m[N_GLITZITEMS+1];
-	int				i,c;
+	newmenu_item	m[N_GLITZITEMS + 1];
+	int				i, c;
 	char				title[128];
 	int				is_last_level;
 	int				mine_level;
@@ -862,24 +998,26 @@ void DoEndLevelScoreGlitz(int network)
 	//	Compute level player is on, deal with secret levels (negative numbers)
 	mine_level = Players[Player_num].level;
 	if (mine_level < 0)
-		mine_level *= -(Last_level/N_secret_levels);
+		mine_level *= -(Last_level / N_secret_levels);
 
-	level_points = Players[Player_num].score-Players[Player_num].last_score;
+	level_points = Players[Player_num].score - Players[Player_num].last_score;
 
 	if (!cheats.enabled) {
 		if (Difficulty_level > 1) {
-			skill_points = level_points*(Difficulty_level)/4;
+			skill_points = level_points * (Difficulty_level) / 4;
 			skill_points -= skill_points % 100;
-		} else
+		}
+		else
 			skill_points = 0;
 
 		shield_points = f2i(Players[Player_num].shields) * 5 * mine_level;
 		energy_points = f2i(Players[Player_num].energy) * 2 * mine_level;
-		hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level+1);
+		hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level + 1);
 
 		shield_points -= shield_points % 50;
 		energy_points -= energy_points % 50;
-	} else {
+	}
+	else {
 		skill_points = 0;
 		shield_points = 0;
 		energy_points = 0;
@@ -890,16 +1028,18 @@ void DoEndLevelScoreGlitz(int network)
 	endgame_text[0] = 0;
 
 	if (!cheats.enabled && (Players[Player_num].hostages_on_board == Players[Player_num].hostages_level)) {
-		all_hostage_points = Players[Player_num].hostages_on_board * 1000 * (Difficulty_level+1);
+		all_hostage_points = Players[Player_num].hostages_on_board * 1000 * (Difficulty_level + 1);
 		sprintf(all_hostage_text, "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
-	} else
+	}
+	else
 		all_hostage_points = 0;
 
 	if (!cheats.enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level)) {		//player has finished the game!
 		endgame_points = Players[Player_num].lives * 10000;
 		sprintf(endgame_text, "%s%i\n", TXT_SHIP_BONUS, endgame_points);
-		is_last_level=1;
-	} else
+		is_last_level = 1;
+	}
+	else
 		endgame_points = is_last_level = 0;
 
 	add_bonus_points_to_score(skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points);
@@ -914,10 +1054,10 @@ void DoEndLevelScoreGlitz(int network)
 	if (!(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level))
 		sprintf(m_str[c++], "%s", endgame_text);
 
-	sprintf(m_str[c++], "%s%i\n", TXT_TOTAL_BONUS, shield_points+energy_points+hostage_points+skill_points+all_hostage_points+endgame_points);
+	sprintf(m_str[c++], "%s%i\n", TXT_TOTAL_BONUS, shield_points + energy_points + hostage_points + skill_points + all_hostage_points + endgame_points);
 	sprintf(m_str[c++], "%s%i", TXT_TOTAL_SCORE, Players[Player_num].score);
 
-	for (i=0; i<c; i++) {
+	for (i = 0; i < c; i++) {
 		m[i].type = NM_TYPE_TEXT;
 		m[i].text = m_str[i];
 	}
@@ -925,19 +1065,20 @@ void DoEndLevelScoreGlitz(int network)
 	// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
 
 	if (Current_level_num < 0)
-		sprintf(title,"%s%s %d %s\n %s %s",is_last_level?"\n\n\n":"\n",TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+		sprintf(title, "%s%s %d %s\n %s %s", is_last_level ? "\n\n\n" : "\n", TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
 	else
-		sprintf(title,"%s%s %d %s\n%s %s",is_last_level?"\n\n\n":"\n",TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+		sprintf(title, "%s%s %d %s\n%s %s", is_last_level ? "\n\n\n" : "\n", TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
 
 	Assert(c <= N_GLITZITEMS);
 
 #ifdef NETWORK
-	if ( network && (Game_mode & GM_NETWORK) )
+	if (network && (Game_mode & GM_NETWORK))
 		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, STARS_BACKGROUND);
 	else
 #endif
 		// NOTE LINK TO ABOVE!!!
 		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, STARS_BACKGROUND);
+		DoEndLevelRankGlitz(0);			//give rank
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -1777,6 +1918,14 @@ void StartNewLevel(int level_num)
 	GameTime64 = 0;
 	ThisLevelTime=0;
 
+	Players[Player_num].deathCount = 0;
+
+	Players[Player_num].rankScore = 0;
+
+	Players[Player_num].maxScore = -1;
+
+	Players[Player_num].quickload = 0;
+
 	if (level_num > 0) {
 		maybe_set_first_secret_visit(level_num);
 	}
@@ -1785,6 +1934,11 @@ void StartNewLevel(int level_num)
 
 	StartNewLevelSub(level_num, 1, 0 );
 
+	int i = 0;
+	for (i = 0; i <= Highest_object_index; i++) {
+		if (Objects[i].type == OBJ_ROBOT || Objects[i].type == OBJ_CNTRLCEN || Objects[i].type == OBJ_HOSTAGE || (Objects[i].type == OBJ_POWERUP && Objects[i].id == POW_EXTRA_LIFE))
+			Players[Player_num].maxScore++;
+	}
 }
 
 int previewed_spawn_point = 0; 
