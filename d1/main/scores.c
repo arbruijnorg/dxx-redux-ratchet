@@ -306,11 +306,6 @@ void scores_fill_struct(stats_info * stats)
 	stats->starting_level = Players[Player_num].starting_level;
 }
 
-void ranks_fill_struct(stats_info* stats)
-{
-	stats->rank = Players[Player_num].rank;
-}
-
 static inline const char *get_placement_slot_string(const unsigned position)
 {
 	switch(position)

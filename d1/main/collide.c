@@ -759,7 +759,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 		if (!(Game_mode & GM_MULTI))
 			add_points_to_score(CONTROL_CEN_SCORE);
-		Players[Player_num].rankScore++;
 
 		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_DESTROYED, controlcen->segnum, 0, &controlcen->pos, 0, F1_0 );
 
@@ -895,8 +894,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	if (robot->shields < 0) {
 		Players[Player_num].num_kills_level++;
 		Players[Player_num].num_kills_total++;
-		if (robot->matcen_creator == 0)
-		Players[Player_num].rankScore++;
 
 #ifndef SHAREWARE
 #ifdef NETWORK
@@ -1001,6 +998,8 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			if (! apply_damage_to_robot(robot, damage, weapon->ctype.laser_info.parent_num))
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
 			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature) {
+				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED)
+					Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
 				add_points_to_score(Robot_info[robot->id].score_value);
 			}
 		}
@@ -1036,7 +1035,6 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
 		add_points_to_score(HOSTAGE_SCORE);
-		Players[Player_num].rankScore++;
 
 			// Do effect
 		hostage_rescue(hostage->id);

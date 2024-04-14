@@ -288,7 +288,6 @@ void DropMarker (int player_marker_num)
 
 void DropBuddyMarker(object *objp)
 {
-	Players[Player_num].rankScore--;
 	int marker_num;
 
 	// Find spare marker slot.  "if" code below should be an assert, but what if someone changes NUM_MARKERS or MAX_CROP_SINGLE and it never gets hit?

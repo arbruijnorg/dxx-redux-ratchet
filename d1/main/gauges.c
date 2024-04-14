@@ -1375,7 +1375,7 @@ void add_points_to_score(int points)
 	int prev_score;
 
 	score_time += f1_0*2;
-	score_display += points;
+	score_display = 0;
 	if (score_time > f1_0*4) score_time = f1_0*4;
 
 	if (points == 0 || cheats.enabled)
@@ -1387,6 +1387,7 @@ void add_points_to_score(int points)
 	prev_score=Players[Player_num].score;
 
 	Players[Player_num].score += points;
+	Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 
 #ifndef SHAREWARE
 	if (Newdemo_state == ND_STATE_RECORDING)

@@ -710,7 +710,7 @@ void hud_show_score()
 	if ( (Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) ) {
 		sprintf(score_str, "%s: %5d", TXT_KILLS, Players[pnum].net_kills_total);
 	} else {
-		sprintf(score_str, "%s: %5d", TXT_SCORE, Players[pnum].score);
+		sprintf(score_str, "%s: %5.0f", TXT_SCORE, Players[Player_num].rankScore);
   	}
 
 	gr_get_string_size(score_str, &w, &h, &aw );
@@ -1556,7 +1556,7 @@ void add_points_to_score(int points)
 	int prev_score;
 
 	score_time += f1_0*2;
-	score_display += points;
+	score_display = 0;
 	if (score_time > f1_0*4) score_time = f1_0*4;
 
 	if (points == 0 || cheats.enabled)
@@ -1565,9 +1565,10 @@ void add_points_to_score(int points)
 	if ((Game_mode & GM_MULTI) && !( (Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS) ))
 		return;
 
-	prev_score=Players[Player_num].score;
+	prev_score = Players[Player_num].score;
 
 	Players[Player_num].score += points;
+	Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_score(points);
@@ -1592,9 +1593,6 @@ void add_points_to_score(int points)
 void add_bonus_points_to_score(int points)
 {
 	int prev_score;
-
-	if (points == 0 || cheats.enabled)
-		return;
 
 	prev_score=Players[Player_num].score;
 

@@ -68,9 +68,11 @@ void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
 	vms_vector *gun_point = &obj->ctype.reactor_info.gun_pos[gun_num];
 	vms_vector *gun_dir = &obj->ctype.reactor_info.gun_dir[gun_num];
 
+	// If this is a boss level the reactor might have been removed.
+    // Nothing to do in that case.
+	if (obj->type == OBJ_GHOST) return;
 	Assert(obj->type == OBJ_CNTRLCEN);
 	Assert(obj->render_type==RT_POLYOBJ);
-
 	Assert(gun_num < reactor->n_guns);
 
 	//instance gun position & orientation
@@ -227,6 +229,7 @@ void do_countdown_frame()
 			//controlcen->MaxCapacity = Fuelcen_max_amount;
 			//gauge_message( "Control Center Reset" );
 			Players[Player_num].deathCount++;
+			if (Player_is_dead = 0)
 			Players[Player_num].level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 			DoPlayerDead();		//kill_player();
 		}																				

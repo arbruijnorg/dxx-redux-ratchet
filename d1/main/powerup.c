@@ -247,7 +247,6 @@ int do_powerup(object *obj)
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
 			Players[Player_num].lives++;
-			Players[Player_num].rankScore++;
 			powerup_basic(15, 15, 15, 0, TXT_EXTRA_LIFE);
 			used=1;
 			break;

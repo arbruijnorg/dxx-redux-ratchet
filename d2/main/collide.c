@@ -979,7 +979,9 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 		if (Robot_info[robot->id].companion)	//	Player and companion don't collide.
 			return;
 		if (Robot_info[robot->id].kamikaze) {
-			apply_damage_to_robot(robot, robot->shields+1, playerobj-Objects);
+			apply_damage_to_robot(robot, robot->shields + 1, playerobj - Objects);
+			if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED || Current_level_num < 0)
+			Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
 			if (playerobj == ConsoleObject)
 				add_points_to_score(Robot_info[robot->id].score_value);
 		}
@@ -1093,9 +1095,9 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		#endif
 
 		if (!(Game_mode & GM_MULTI))
+			if (Current_level_num < 0)
+				Players[Player_num].excludePoints += CONTROL_CEN_SCORE;
 			add_points_to_score(CONTROL_CEN_SCORE);
-		if (Current_level_num > 0)
-		Players[Player_num].rankScore++;
 
 		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_DESTROYED, controlcen->segnum, 0, &controlcen->pos, 0, F1_0 );
 
@@ -1374,8 +1376,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	if (robot->shields < 0) {
 		Players[Player_num].num_kills_level++;
 		Players[Player_num].num_kills_total++;
-		if (robot->matcen_creator == 0 && Current_level_num > 0)
-		Players[Player_num].rankScore++;
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI) {
 		 if (Robot_info[robot->id].thief)
@@ -1687,7 +1687,9 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 
 			if (! apply_damage_to_robot(robot, damage, weapon->ctype.laser_info.parent_num))
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
-			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature) {
+			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature ) {
+				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED || Current_level_num < 0)
+					Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
 				add_points_to_score(Robot_info[robot->id].score_value);
 				detect_escort_goal_accomplished(robot-Objects);
 			}
@@ -1739,9 +1741,9 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
 		detect_escort_goal_accomplished(hostage-Objects);
+		if (Current_level_num < 0)
+			Players[Player_num].excludePoints += HOSTAGE_SCORE;
 		add_points_to_score(HOSTAGE_SCORE);
-		if (Current_level_num > 0)
-		Players[Player_num].rankScore++;
 
 		// Do effect
 		hostage_rescue(hostage->id);

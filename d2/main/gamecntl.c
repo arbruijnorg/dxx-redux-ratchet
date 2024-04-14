@@ -1788,7 +1788,7 @@ void do_cheat_menu()
 	newmenu_item mm[16];
 	char score_text[21];
 
-	sprintf( score_text, "%d", Players[Player_num].score );
+	sprintf( score_text, "%f", Players[Player_num].score );
 
 	mm[0].type=NM_TYPE_CHECK; mm[0].value=Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE; mm[0].text="Invulnerability";
 	mm[1].type=NM_TYPE_CHECK; mm[1].value=Players[Player_num].flags & PLAYER_FLAGS_CLOAKED; mm[1].text="Cloaked";

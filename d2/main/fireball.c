@@ -933,8 +933,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 	switch (type) {
 		case OBJ_POWERUP:
 			for (count=0; count<num; count++) {
-				if (id == POW_EXTRA_LIFE && Current_level_num > 0)
-					Players[Player_num].maxScore++;
 				int	rand_scale;
 				new_velocity = *init_vel;
 				old_mag = vm_vec_mag_quick(init_vel);
@@ -1022,8 +1020,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 
 		case OBJ_ROBOT:
 			for (count=0; count<num; count++) {
-				if (Current_level_num > 0)
-				Players[Player_num].maxScore++;
 				int	rand_scale;
 				new_velocity = *init_vel;
 				old_mag = vm_vec_mag_quick(init_vel);
@@ -1049,6 +1045,7 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 //				new_pos.z += (d_rand()-16384)*6;
 
 				objnum = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				Objects[objnum].flags |= OF_ROBOT_DROPPED;
 
 				if ( objnum < 0 ) {
 					Int3();

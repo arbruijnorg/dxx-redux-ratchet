@@ -1763,6 +1763,7 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	}
 
 	objnum = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+	Objects[objnum].flags |= OF_ROBOT_DROPPED;
 
 	if ( objnum < 0 ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;

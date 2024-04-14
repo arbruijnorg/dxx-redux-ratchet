@@ -102,15 +102,15 @@ typedef struct player {
 	int     score;                  // Current score.
 	fix     time_level;             // Level time played
 	fix     time_total;             // Game time played (high word = seconds)
-	                                // Below doubles are used for ranks mod.
+									// Below doubles are used for ranks mod.
 	double  deathCount;             // Number of times the player died during the level.
-	double  rankScore;              // Number of relevant entities destroyed/collected in a level.
-	double  maxScore;				// How many relevant entities there are to destroy/collect in a level.
-	double  level_time;             // Amount of time taken in a level, based on time_level. Stops when going in exit or running out of time, but also updates upon any death to prevent circumvention.
+	double  rankScore;              // The version of score used for this mod, as to not disturb the vanilla score system.
+	double  excludePoints;          // Number of points gotten from sources we want to not count toward rank calculation, but still contribute to vanilla score.
+	double  maxScore;				// Points possible in a level without time bonus, AKA its S-rank score.
+	double  level_time;             // Time variable used in rank calculation. Updates to match time_level at specific points to protect players from being penalized for not skipping things.
 	double  quickload;				// Whether the player has quickloaded into the current level.
 	double  missionRanks;           // Whether the mission select menu is being used to see best ranks.
 	double  levelCount;             // Tracks how many levels are in a mission to create best ranks list.
-	double  rank;                   // The letter rank awarded based on player performance, in numerical form.
 
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable
