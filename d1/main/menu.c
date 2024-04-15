@@ -539,7 +539,6 @@ int do_option ( int select)
 {
 	switch (select) {
 		case MENU_NEW_GAME:
-			Players[Player_num].missionRanks = 0;
 			select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
 			break;
 		case MENU_GAME:
@@ -566,8 +565,7 @@ int do_option ( int select)
 			scores_view(NULL, -1);
 			break;
 		case MENU_VIEW_RANKS:
-			Players[Player_num].missionRanks = 1;
-			select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
+			select_mission(0, "Select mission", do_best_ranks_menu);
 			break;
 #if 1 //def SHAREWARE
 		case MENU_ORDER_INFO:
@@ -828,6 +826,19 @@ int do_new_game_menu()
 	StartNewGame(new_level_num);
 
 	return 1;	// exit mission listbox
+}
+
+int do_best_ranks_menu()
+{
+	PHYSFS_file* fp;
+	PHYSFS_openRead("%d.hi", Current_mission);
+	int ch = 0;
+	int lines = 0;
+	if (fp == NULL);
+	return 0;
+	fclose(fp);
+	newmenu_listbox1("Best ranks for this mission", Current_mission->last_level, m, 1, citem, (int (*)(listbox*, d_event*, void*))player_menu_handler, list);
+	return 1;
 }
 
 void do_sound_menu();

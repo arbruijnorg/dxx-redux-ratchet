@@ -783,6 +783,8 @@ void init_player_object()
 	ConsoleObject->type = OBJ_PLAYER;
 	ConsoleObject->id = 0;					//no sub-types for player
 
+	ConsoleObject->signature = 0;			//player has zero, others start at 1
+
 	ConsoleObject->size = Polygon_models[Player_ship->model_num].rad;
 
 	ConsoleObject->control_type = CT_SLEW;			//default is player slewing

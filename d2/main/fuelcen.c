@@ -326,7 +326,6 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 	objnum = obj_create(OBJ_ROBOT, object_id, segp-Segments, object_pos,
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
-	Objects[objnum].flags |= OF_ROBOT_DROPPED;
 
 	if ( objnum < 0 ) {
 		Int3();

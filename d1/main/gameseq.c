@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <time.h>
@@ -706,6 +707,17 @@ void InitPlayerObject()
 //starts a new game on the given level
 void StartNewGame(int start_level)
 {
+	PHYSFS_file* fp;
+	PHYSFS_openRead("%d.hi", Current_mission);
+	if (fp == NULL) { // If this mission's best ranks file doesn't exist, create one now so it can be written to on the rank screen.
+		int i = 0;
+		PHYSFSX_openWriteBuffered("%d.hi", Current_mission);
+		while (i < Current_mission->last_level) {
+			PHYSFSX_printf(fp, "%d.hi", Current_mission, "Level %i - N/A\n", i);
+			i++;
+		}
+		PHYSFS_close(fp);
+
 	state_quick_item = -1;	// for first blind save, pick slot to save in
 
 	Game_mode = GM_NORMAL;
@@ -732,7 +744,7 @@ void DoEndLevelScoreGlitz(int network)
 	char	all_hostage_text[64];
 	char	endgame_text[64];
 #define N_GLITZITEMS 11
-	char				m_str[N_GLITZITEMS][30];
+	char				m_str[N_GLITZITEMS][31];
 	newmenu_item	m[N_GLITZITEMS + 1];
 	int				i, c;
 	char				title[128];
@@ -825,48 +837,101 @@ void DoEndLevelScoreGlitz(int network)
 		if (Players[Player_num].deathCount > 0)
 			rankPoints = 9;
 	}
-	char* rank = "E";
+	char* rank = "E ";
 	if (rankPoints >= 0)
 		rank = "D-";
 	if (rankPoints >= 1)
-		rank = "D";
+		rank = "D ";
 	if (rankPoints >= 2)
 		rank = "D+";
 	if (rankPoints >= 3)
 		rank = "C-";
 	if (rankPoints >= 4)
-		rank = "C";
+		rank = "C ";
 	if (rankPoints >= 5)
 		rank = "C+";
 	if (rankPoints >= 6)
 		rank = "B-";
 	if (rankPoints >= 7)
-		rank = "B";
+		rank = "B ";
 	if (rankPoints >= 8)
 		rank = "B+";
 	if (rankPoints >= 9)
 		rank = "A-";
 	if (rankPoints >= 10)
-		rank = "A";
+		rank = "A ";
 	if (rankPoints >= 11)
 		rank = "A+";
 	if (rankPoints >= 12)
-		rank = "S";
+		rank = "S ";
 
 	if (Players[Player_num].quickload == 0)
 		if (cheats.enabled) {
-			sprintf(m_str[c++], "Rank:\t %s (Cheated, not saved)", rank);
+			sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
 		}
 		else {
 			sprintf(m_str[c++], "Rank:\t %s", rank);
 		}
 	else
-		sprintf(m_str[c++], "Rank:\t %s (Quickloaded, not saved)", rank);
+		sprintf(m_str[c++], "Rank:\t %s (Quickloaded, no save)", rank);
 
 	int toRankS = Players[Player_num].maxScore - Players[Player_num].rankScore;
-	if (rankPoints < 12)
-		sprintf(m_str[c++], "\n%i points to S rank", toRankS);
-	// This text currently shows twice for some reason and I can't get it to act right.
+	if (rankPoints < 12) {
+		strcpy(m_str[c++], "");
+		sprintf(m_str[c++], "%i points to S rank", toRankS);
+	}
+	
+	int fp = PHYSFS_openAppend("%d.hi", Current_mission);
+	if (fp == NULL) {
+		nm_messagebox(TXT_WARNING, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, "%d.hi", Current_mission);
+		return;
+	}
+	else {
+		PHYSFS_openRead("%d.hi", Current_mission);
+
+#define FILENAME_SIZE 1024
+#define MAX_LINE 2048
+
+			FILE* file, * temp;
+			char filename[FILENAME_SIZE];
+			char temp_filename[FILENAME_SIZE];
+
+			char buffer[MAX_LINE];
+
+			char replace[MAX_LINE];
+			int replace_line = Current_level_num;
+			strcpy(temp_filename, "temp____");
+			strcat(temp_filename, filename);
+			scanf("%d", &replace_line);
+			fflush(stdin);
+			fgets("%i %s", Players[Player_num].rankScore, rank, MAX_LINE, stdin);
+			file = fopen(filename, "r");
+			temp = fopen(temp_filename, "w");
+			if (file == NULL || temp == NULL)
+			{
+				printf("Error opening files(s).\n");
+				return 1;
+			}
+			bool keep_reading = true;
+			int current_line = 1;
+			do
+			{
+				fgets(buffer, MAX_LINE, file);
+				if (feof(file)) keep_reading = false;
+				else if (current_line == replace_line)
+					fputs(replace, temp);
+				else fputs(buffer, temp);
+
+				current_line++;
+
+			} while (keep_reading);
+
+			fclose(file);
+			fclose(temp);
+
+			remove("%d.hi", Current_mission);
+			rename(temp_filename, filename);
+	}
 
 	for (i = 0; i < c; i++) {
 		m[i].type = NM_TYPE_TEXT;
@@ -888,7 +953,6 @@ void DoEndLevelScoreGlitz(int network)
 	else
 #endif	// Note link!
 		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
-	DoEndLevelRankGlitz(0);			//give rank
 }
 
 int draw_rock(newmenu *menu, d_event *event, grs_bitmap *background)
@@ -1363,18 +1427,15 @@ void StartNewLevel(int level_num)
 
 	Players[Player_num].quickload = 0;
 
-	if (level_num > 0) {
-		maybe_set_first_secret_visit(level_num);
-	}
-
-	ShowLevelIntro(level_num);
-
 	StartNewLevelSub(level_num, 1, 0);
 
 	int i = 0;
 	for (i = 0; i <= Highest_object_index; i++) {
-		if (Objects[i].type == OBJ_ROBOT)
-			Players[Player_num].maxScore += Robot_info[Objects[i].id].score_value;
+		if (Objects[i].type == OBJ_ROBOT) {
+		Players[Player_num].maxScore += Robot_info[Objects[i].id].score_value;
+		if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0)
+		Players[Player_num].maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
+		}
 		if (Objects[i].type == OBJ_CNTRLCEN)
 			Players[Player_num].maxScore += CONTROL_CEN_SCORE;
 		if (Objects[i].type == OBJ_HOSTAGE)

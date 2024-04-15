@@ -853,7 +853,7 @@ void DoEndLevelScoreGlitz(int network)
 	char	all_hostage_text[64];
 	char	endgame_text[64];
 #define N_GLITZITEMS 11
-	char				m_str[N_GLITZITEMS][30];
+	char				m_str[N_GLITZITEMS][31];
 	newmenu_item	m[N_GLITZITEMS + 1];
 	int				i, c;
 	char				title[128];
@@ -946,48 +946,49 @@ void DoEndLevelScoreGlitz(int network)
 		if (Players[Player_num].deathCount > 0)
 			rankPoints = 9;
 	}
-	char* rank = "E";
+	char* rank = "E ";
 	if (rankPoints >= 0)
 		rank = "D-";
 	if (rankPoints >= 1)
-		rank = "D";
+		rank = "D ";
 	if (rankPoints >= 2)
 		rank = "D+";
 	if (rankPoints >= 3)
 		rank = "C-";
 	if (rankPoints >= 4)
-		rank = "C";
+		rank = "C ";
 	if (rankPoints >= 5)
 		rank = "C+";
 	if (rankPoints >= 6)
 		rank = "B-";
 	if (rankPoints >= 7)
-		rank = "B";
+		rank = "B ";
 	if (rankPoints >= 8)
 		rank = "B+";
 	if (rankPoints >= 9)
 		rank = "A-";
 	if (rankPoints >= 10)
-		rank = "A";
+		rank = "A ";
 	if (rankPoints >= 11)
 		rank = "A+";
 	if (rankPoints >= 12)
-		rank = "S";
+		rank = "S ";
 
 	if (Players[Player_num].quickload == 0)
 		if (cheats.enabled) {
-			sprintf(m_str[c++], "Rank:\t %s (Cheated, not saved)", rank);
+			sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
 		}
 		else {
 			sprintf(m_str[c++], "Rank:\t %s", rank);
 		}
 	else
-		sprintf(m_str[c++], "Rank:\t %s (Quickloaded, not saved)", rank);
+		sprintf(m_str[c++], "Rank:\t %s (Quickloaded, no save)", rank);
 
 	int toRankS = Players[Player_num].maxScore - Players[Player_num].rankScore;
-	if (rankPoints < 12)
-		sprintf(m_str[c++], "\n%i points to S rank", toRankS);
-	// This text currently shows twice for some reason and I can't get it to act right.
+	if (rankPoints < 12) {
+		strcpy(m_str[c++], "");
+		sprintf(m_str[c++], "%i points to S rank", toRankS);
+	}
 
 	for (i = 0; i < c; i++) {
 		m[i].type = NM_TYPE_TEXT;
@@ -1869,8 +1870,11 @@ void StartNewLevel(int level_num, object * robot)
 
 	int i = 0;
 	for (i = 0; i <= Highest_object_index; i++) {
-		if (Objects[i].type == OBJ_ROBOT)
-			Players[Player_num].maxScore += Robot_info[Objects[i].id].score_value;
+		if (Objects[i].type == OBJ_ROBOT) {
+		Players[Player_num].maxScore += Robot_info[Objects[i].id].score_value;
+		if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0)
+		Players[Player_num].maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
+		}
 		if (Objects[i].type == OBJ_CNTRLCEN)
 			Players[Player_num].maxScore += CONTROL_CEN_SCORE;
 		if (Objects[i].type == OBJ_HOSTAGE)

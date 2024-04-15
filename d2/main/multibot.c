@@ -1115,7 +1115,6 @@ short respawn_robot(ubyte id, short segnum, vms_vector pos, vms_matrix orient, f
 	robot_info	*robodata = &Robot_info[id];
 
 	short objnum = obj_create(OBJ_ROBOT, id, segnum, &pos, &orient, size, CT_AI, MT_PHYSICS, RT_POLYOBJ);
-	Objects[objnum].flags |= OF_ROBOT_DROPPED;
 	if ( objnum < 0 ) {
 		return objnum;
 	}
