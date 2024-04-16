@@ -708,7 +708,7 @@ void InitPlayerObject()
 void StartNewGame(int start_level)
 {
 	PHYSFS_file* fp;
-	PHYSFS_openRead("%d.hi", Current_mission);
+	fp = PHYSFS_openRead("%d.hi", Current_mission);
 	if (fp == NULL) { // If this mission's best ranks file doesn't exist, create one now so it can be written to on the rank screen.
 		int i = 0;
 		PHYSFSX_openWriteBuffered("%d.hi", Current_mission);
@@ -717,7 +717,7 @@ void StartNewGame(int start_level)
 			i++;
 		}
 		PHYSFS_close(fp);
-
+	}
 	state_quick_item = -1;	// for first blind save, pick slot to save in
 
 	Game_mode = GM_NORMAL;

@@ -534,6 +534,20 @@ int DoMenu()
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
 
+int do_best_ranks_menu()
+{
+	PHYSFS_file* fp;
+	fp = PHYSFS_openRead("%d.hi", Current_mission);
+	char** list = PHYSFS_openRead("%d.hi", Current_mission);
+	int ch = 0;
+	int lines = 0;
+	if (fp == NULL);
+	return 0;
+	fclose(fp);
+	newmenu_listbox1("Best ranks for this mission", Current_mission->last_level, NULL, 1, 0, (int (*)(listbox*, d_event*, void*))player_menu_handler, list);
+	return 1;
+}
+
 //returns flag, true means quit menu
 int do_option ( int select)
 {
@@ -826,19 +840,6 @@ int do_new_game_menu()
 	StartNewGame(new_level_num);
 
 	return 1;	// exit mission listbox
-}
-
-int do_best_ranks_menu()
-{
-	PHYSFS_file* fp;
-	PHYSFS_openRead("%d.hi", Current_mission);
-	int ch = 0;
-	int lines = 0;
-	if (fp == NULL);
-	return 0;
-	fclose(fp);
-	newmenu_listbox1("Best ranks for this mission", Current_mission->last_level, m, 1, citem, (int (*)(listbox*, d_event*, void*))player_menu_handler, list);
-	return 1;
 }
 
 void do_sound_menu();
