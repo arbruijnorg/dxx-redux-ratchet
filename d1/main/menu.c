@@ -483,7 +483,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
-	ADD_ITEM("Best ranks", MENU_VIEW_RANKS);
+	ADD_ITEM("Best ranks", MENU_VIEW_RANKS,0);
 	if (!PHYSFSX_exists("warning.pcx",1)) /* SHAREWARE */
 		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
@@ -534,18 +534,66 @@ int DoMenu()
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
 
+int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
+{
+	char** list = listbox_get_items(lb);
+	int citem = listbox_get_citem(lb);
+
+	switch (event->type)
+	{
+	case EVENT_WINDOW_CLOSE:
+		break;
+
+	default:
+		break;
+	}
+
+	return 0;
+}
+
 int do_best_ranks_menu()
 {
-	PHYSFS_file* fp;
-	fp = PHYSFS_openRead("%d.hi", Current_mission);
-	char** list = PHYSFS_openRead("%d.hi", Current_mission);
-	int ch = 0;
-	int lines = 0;
-	if (fp == NULL);
-	return 0;
-	fclose(fp);
-	newmenu_listbox1("Best ranks for this mission", Current_mission->last_level, NULL, 1, 0, (int (*)(listbox*, d_event*, void*))player_menu_handler, list);
-	return 1;
+	int numlines = Current_mission->last_level + Current_mission->last_secret_level * -1;
+	char** list = (char**)malloc(sizeof(char*) * numlines);
+	char message[256];
+	sprintf(message, "Best ranks for %s", Current_mission->mission_name);
+	char filename[256];
+	char currentReadScore[256];
+	char currentReadRank[256];
+	sprintf(filename, "%s scores.hi", Current_mission->filename);
+	PHYSFS_file* scores = PHYSFS_openRead(filename);
+	sprintf(filename, "%s ranks.hi", Current_mission->filename);
+	PHYSFS_file* ranks = PHYSFS_openRead(filename);
+	char** items = (char**)malloc(sizeof(char*) * numlines);
+	int i;
+	for (i = 0; i < numlines; i++)
+	{
+		if (scores == NULL || ranks == NULL) {
+			numlines = 1;
+			list[i] = (char*)malloc(sizeof(char) * 64);
+			snprintf(list[i], 64, "No data for mission, start a level to create it.");
+		}
+		else {
+			PHYSFSX_getsTerminated(scores, currentReadScore);
+			PHYSFSX_getsTerminated(ranks, currentReadRank);
+			list[i] = (char*)malloc(sizeof(char) * 64);
+			if (i < Current_mission->last_level)
+				snprintf(list[i], 64, "Level %i: %s %s", i + 1, currentReadScore, currentReadRank);
+			else
+				snprintf(list[i], 64, "Level S%i: %s %s", i - Current_mission->last_level + 1, currentReadScore, currentReadRank);
+		}
+	}
+	PHYSFS_close(scores);
+	PHYSFS_close(ranks);
+	listbox* lb = newmenu_listbox1(message, numlines, list, 1, 0, (int (*)(listbox*, d_event*, void*))ranks_menu_handler, NULL);
+	window* wind = listbox_get_window(lb);
+	while (window_exists(wind))
+		event_process();
+	for (i = 0; i < numlines; i++)
+	{
+		free(list[i]);
+	}
+	free(list);
 }
 
 //returns flag, true means quit menu

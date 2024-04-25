@@ -1599,6 +1599,7 @@ int FinalCheats(int key)
 			cheats.enabled = 1;
 			digi_play_sample( SOUND_CHEATER, F1_0);
 			Players[Player_num].score = 0;
+			Players[Player_num].rankScore = 0;
 			gotcha = i;
 			break;
 		}

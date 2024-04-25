@@ -819,6 +819,31 @@ extern void init_seismic_disturbances(void);
 //starts a new game on the given level
 void StartNewGame(int start_level)
 {
+	PHYSFS_file* fp;
+	char filename[256];
+	sprintf(filename, "%s scores.hi", Current_mission->filename);
+	fp = PHYSFS_openRead(filename);
+	if (fp == NULL) { // If this mission's best score file doesn't exist, create them now so it can be written to on the rank screen.
+		fp = PHYSFS_openWrite(filename);
+		int i = 1;
+		while (i <= Current_mission->last_level + Current_mission->last_secret_level * -1) {
+			PHYSFSX_printf(fp, "N/A\n");
+			i++;
+		}
+	}
+	PHYSFS_close(fp);
+	sprintf(filename, "%s ranks.hi", Current_mission->filename);
+	fp = PHYSFS_openRead(filename); // Do the same with the ranks file.
+	if (fp == NULL) {
+		fp = PHYSFS_openWrite(filename);
+		int i = 1;
+		while (i <= Current_mission->last_level + Current_mission->last_secret_level * -1) {
+			PHYSFSX_printf(fp, " \n");
+			i++;
+		}
+	}
+	PHYSFS_close(fp);
+	
 	state_quick_item = -1;	// for first blind save, pick slot to save in
 
 	Game_mode = GM_NORMAL;
@@ -946,33 +971,33 @@ void DoEndLevelScoreGlitz(int network)
 		if (Players[Player_num].deathCount > 0)
 			rankPoints = 9;
 	}
-	char* rank = "E ";
+	char* rank = "E";
 	if (rankPoints >= 0)
 		rank = "D-";
 	if (rankPoints >= 1)
-		rank = "D ";
+		rank = "D";
 	if (rankPoints >= 2)
 		rank = "D+";
 	if (rankPoints >= 3)
 		rank = "C-";
 	if (rankPoints >= 4)
-		rank = "C ";
+		rank = "C";
 	if (rankPoints >= 5)
 		rank = "C+";
 	if (rankPoints >= 6)
 		rank = "B-";
 	if (rankPoints >= 7)
-		rank = "B ";
+		rank = "B";
 	if (rankPoints >= 8)
 		rank = "B+";
 	if (rankPoints >= 9)
 		rank = "A-";
 	if (rankPoints >= 10)
-		rank = "A ";
+		rank = "A";
 	if (rankPoints >= 11)
 		rank = "A+";
 	if (rankPoints >= 12)
-		rank = "S ";
+		rank = "S";
 
 	if (Players[Player_num].quickload == 0)
 		if (cheats.enabled) {
@@ -980,6 +1005,73 @@ void DoEndLevelScoreGlitz(int network)
 		}
 		else {
 			sprintf(m_str[c++], "Rank:\t %s", rank);
+			PHYSFS_File* temp;
+			PHYSFS_File* fp;
+			char filename[256];
+			char currentReadScore[256];
+			sprintf(filename, "%s scores.hi", Current_mission->filename);
+			fp = PHYSFS_openRead(filename);
+			int replace_line = Current_level_num;
+			if (Current_level_num < 0)
+				replace_line = Current_mission->last_level + Current_level_num * -1;
+			temp = PHYSFS_openWrite("temp____scores.hi");
+			int keep_reading = 1;
+			int current_line = 1;
+			int updateRank = 0;
+			do
+			{
+				PHYSFSX_getsTerminated(fp, currentReadScore);
+				if (current_line > Current_mission->last_level + Current_mission->last_secret_level * -1) {
+					keep_reading = 0;
+				}
+				else {
+					if (current_line == replace_line) {
+						int currentIntScore = atoi(currentReadScore);
+						if ((!strcmp(currentReadScore, "N/A")))
+							currentIntScore = Players[Player_num].maxScore * -1;
+						if (Players[Player_num].rankScore > currentIntScore) {
+							if (currentIntScore > Players[Player_num].maxScore * -1) // Don't say new record if there wasn't a record to beat yet.
+								sprintf(m_str[c++], "New record!");
+							PHYSFSX_printf(temp, "%i\n", (int)Players[Player_num].rankScore);
+							updateRank = 1;
+						}
+						else {
+							PHYSFSX_printf(temp, "%s\n", currentReadScore);
+						}
+					}
+					else {
+						PHYSFSX_printf(temp, "%s\n", currentReadScore);
+					}
+				}
+				current_line++;
+			} while (keep_reading == 1);
+			PHYSFS_close(fp);
+			PHYSFS_close(temp);
+			PHYSFS_delete(filename);
+			PHYSFSX_rename("temp____scores.hi", filename);
+			sprintf(filename, "%s ranks.hi", Current_mission->filename);
+			fp = PHYSFS_openRead(filename);
+			temp = PHYSFS_openWrite("temp____ranks.hi");
+			keep_reading = 1;
+			current_line = 1;
+			do
+			{
+				PHYSFSX_getsTerminated(fp, currentReadScore);
+				if (current_line > Current_mission->last_level + Current_mission->last_secret_level * -1) {
+					keep_reading = 0;
+				}
+				else {
+					if (current_line == replace_line && updateRank == 1)
+						PHYSFSX_printf(temp, "%s\n", rank);
+					else
+						PHYSFSX_printf(temp, "%s\n", currentReadScore);
+				}
+				current_line++;
+			} while (keep_reading == 1);
+			PHYSFS_close(fp);
+			PHYSFS_close(temp);
+			PHYSFS_delete(filename);
+			PHYSFSX_rename("temp____ranks.hi", filename);
 		}
 	else
 		sprintf(m_str[c++], "Rank:\t %s (Quickloaded, no save)", rank);

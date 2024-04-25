@@ -110,7 +110,7 @@ typedef struct player {
 	double  prevScore;              // Used to keep the number below score functional for rankScore.
 	double  level_time;             // Time variable used in rank calculation. Updates to match time_level at specific points to protect players from being penalized for not skipping things.
 	double  quickload;				// Whether the player has quickloaded into the current level.
-
+									// Above variables are used for ranks mod.
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable
 

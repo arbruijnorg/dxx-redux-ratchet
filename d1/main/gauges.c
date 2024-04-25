@@ -732,7 +732,12 @@ void hud_show_score()
 	if ( (Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) ) {
 		sprintf(score_str, "%s: %5d", TXT_KILLS, Players[pnum].net_kills_total);
 	} else {
-		sprintf(score_str, "%s: %5.0f", TXT_SCORE, Players[Player_num].rankScore);
+		if (Newdemo_state == ND_STATE_PLAYBACK) {
+			sprintf(score_str, "%s: %5d", TXT_SCORE, Players[Player_num].score);
+		}
+		else {
+			sprintf(score_str, "%s: %5.0f", TXT_SCORE, Players[Player_num].rankScore);
+		}
 	}
 
 	gr_get_string_size(score_str, &w, &h, &aw );
@@ -1349,8 +1354,6 @@ void sb_show_lives()
 	}
 }
 
-#ifndef RELEASE
-
 extern int Piggy_bitmap_cache_next;
 
 void show_time()
@@ -1366,16 +1369,12 @@ void show_time()
 
 	gr_printf(SWIDTH-FSPACX(30),GHEIGHT-(LINE_SPACING*11),"%d:%02d", mins, secs);
 }
-#endif
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
 
 void add_points_to_score(int points)
 {
 	int prev_score;
-
-	if (points == 0 || cheats.enabled)
-		return;
 
 	if ((Game_mode & GM_MULTI) && !( (Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS) ))
 		return;
@@ -1384,8 +1383,10 @@ void add_points_to_score(int points)
 
 	Players[Player_num].score += points;
 	Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
+	if (cheats.enabled)
+		Players[Player_num].rankScore = 0;
 	score_display += Players[Player_num].rankScore - Players[Player_num].prevScore;
-	if (Players[Player_num].rankScore - Players[Player_num].prevScore > 0)
+	if (Players[Player_num].rankScore - Players[Player_num].prevScore > 0 || cheats.enabled)
 	score_time += f1_0 * 2;
 	if (score_time > f1_0 * 4)
 	score_time = f1_0 * 4;
