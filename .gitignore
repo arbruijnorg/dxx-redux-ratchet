@@ -12,6 +12,7 @@
 *.recipe
 *.lib
 *.pdb
+*.hi
 build
 
 # Packages #

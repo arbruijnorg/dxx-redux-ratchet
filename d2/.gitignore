@@ -3,11 +3,16 @@
 *.com
 *.class
 *.dll
-*.exe
 *.app
 *.o
 *.so
 *.pyc
+*.obj
+*.tlog
+*.recipe
+*.lib
+*.pdb
+*.hi
 build
 
 # Packages #
@@ -29,6 +34,7 @@ build
 *.sql
 *.sqlite
 *.dblite
+*.bak
 
 # OS generated files #
 ######################
@@ -42,7 +48,27 @@ ehthumbs.db
 Thumbs.db
 
 # Xcode generated files #
-######################
+#########################
 # Note: committing these is optional
 *.mode1v3
 *.pbxuser
+*xcworkspace*
+*xcuserdata*
+
+# VS Code #
+###########
+.vscode/*
+/.vs
+*/.vs
+/.vcxproj
+/.vcxproj.filters
+/.cmake
+/.sln
+
+# Executables #
+###############
+*.app
+d*x-rebirth
+/*/out/install
+/d1/vcpkg.json
+/d1/vcpkg-manifest-install.log
