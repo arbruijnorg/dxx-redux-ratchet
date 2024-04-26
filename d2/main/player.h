@@ -117,7 +117,6 @@ typedef struct player {
 	double  rankScore;              // The version of score used for this mod, as to not disturb the vanilla score system.
 	double  excludePoints;          // Number of points gotten from sources we want to not count toward rank calculation, but still contribute to vanilla score.
 	double  maxScore;				// Points possible in a level without time bonus, AKA its S-rank score.
-	double  prevScore;              // Used to keep the number below score functional for rankScore.
 	double  level_time;             // Time variable used in rank calculation. Updates to match time_level at specific points to protect players from being penalized for not skipping things.
 	double  quickload;				// Whether the player has quickloaded into the current level.
 

@@ -760,7 +760,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		#endif
 
 		if (!(Game_mode & GM_MULTI))
-			Players[Player_num].prevScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 			add_points_to_score(CONTROL_CEN_SCORE);
 
 		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_DESTROYED, controlcen->segnum, 0, &controlcen->pos, 0, F1_0 );
@@ -1001,7 +1000,6 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			if (! apply_damage_to_robot(robot, damage, weapon->ctype.laser_info.parent_num))
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
 			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature) {
-				Players[Player_num].prevScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED)
 					Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
 				add_points_to_score(Robot_info[robot->id].score_value);
@@ -1038,7 +1036,6 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
-		Players[Player_num].prevScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 		add_points_to_score(HOSTAGE_SCORE);
 
 			// Do effect

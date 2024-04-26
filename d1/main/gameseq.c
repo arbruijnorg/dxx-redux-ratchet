@@ -847,8 +847,6 @@ void DoEndLevelScoreGlitz(int network)
 	double rankPoints = (Players[Player_num].rankScore / Players[Player_num].maxScore) * 12;
 	if (Players[Player_num].maxScore == 0) {
 		rankPoints = 12;
-		if (Players[Player_num].deathCount > 0)
-			rankPoints = 9;
 	}
 	char* rank = "E";
 	if (rankPoints >= 0)

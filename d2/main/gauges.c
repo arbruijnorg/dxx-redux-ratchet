@@ -1557,8 +1557,10 @@ void add_points_to_score(int points)
 {
 	int prev_score;
 
-	if ((Game_mode & GM_MULTI) && !( (Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS) ))
+	if ((Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)))
 		return;
+
+	int prev_rankscore = Players[Player_num].rankScore;
 
 	prev_score = Players[Player_num].score;
 
@@ -1566,8 +1568,8 @@ void add_points_to_score(int points)
 	Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 	if (cheats.enabled)
 		Players[Player_num].rankScore = 0;
-	score_display += Players[Player_num].rankScore - Players[Player_num].prevScore;
-	if (Players[Player_num].rankScore - Players[Player_num].prevScore > 0 || cheats.enabled)
+	score_display += Players[Player_num].rankScore - prev_rankscore;
+	if (Players[Player_num].rankScore - prev_rankscore > 0 || cheats.enabled)
 	score_time += f1_0 * 2;
 	if (score_time > f1_0 * 4)
 	score_time = f1_0 * 4;
