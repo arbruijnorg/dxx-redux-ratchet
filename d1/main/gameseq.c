@@ -876,9 +876,9 @@ void DoEndLevelScoreGlitz(int network)
 	if (rankPoints >= 12)
 		rank = "S";
 
-	if (!cheats.enabled) {
-		if (Players[Player_num].quickload == 1) {
-			sprintf(m_str[c++], "Rank:\t %s (Quickloaded, no save)", rank);
+	if (Players[Player_num].quickload == 0) {
+		if (cheats.enabled) {
+			sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
 		}
 		else {
 			sprintf(m_str[c++], "Rank:\t %s", rank);
@@ -917,7 +917,7 @@ void DoEndLevelScoreGlitz(int network)
 						}
 					}
 					else {
-							PHYSFSX_printf(temp, "%s\n", currentReadScore);
+						PHYSFSX_printf(temp, "%s\n", currentReadScore);
 					}
 				}
 				current_line++;
@@ -952,7 +952,7 @@ void DoEndLevelScoreGlitz(int network)
 		}
 	}
 	else {
-		sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
+		sprintf(m_str[c++], "Rank:\t %s (Quickloaded, no save)", rank);
 	}
 
 	int toRankS = Players[Player_num].maxScore - Players[Player_num].rankScore;

@@ -945,6 +945,7 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
+				Players[Player_num].quickload = 1;
 				state_restore_all(1, 0, NULL);
 			break;
 

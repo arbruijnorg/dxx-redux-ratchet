@@ -714,7 +714,10 @@ void hud_show_score()
 			sprintf(score_str, "%s: %5d", TXT_SCORE, Players[Player_num].score);
 		}
 		else {
-			sprintf(score_str, "%s: %5.0f", TXT_SCORE, Players[Player_num].rankScore);
+			if (Current_level_num > 0)
+				sprintf(score_str, "%s: %5.0f", TXT_SCORE, Players[Player_num].rankScore);
+			else
+				sprintf(score_str, "%s: %5.0f", TXT_SCORE, Players[Player_num].secretRankScore);
 		}
   	}
 
@@ -1541,6 +1544,10 @@ void show_time()
 {
 	int secs = f2i(Players[Player_num].time_level) % 60;
 	int mins = f2i(Players[Player_num].time_level) / 60;
+	if (Current_level_num < 0) {
+		secs = f2i(Players[Player_num].secretlevel_time) % 60;
+		mins = f2i(Players[Player_num].secretlevel_time) / 60;
+	}
 
 	gr_set_curfont(GAME_FONT);
 
@@ -1556,19 +1563,29 @@ void show_time()
 void add_points_to_score(int points)
 {
 	int prev_score;
+	int prev_rankscore;
 
 	if ((Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)))
 		return;
 
-	int prev_rankscore = Players[Player_num].rankScore;
-
 	prev_score = Players[Player_num].score;
-
 	Players[Player_num].score += points;
-	Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
-	if (cheats.enabled)
-		Players[Player_num].rankScore = 0;
-	score_display += Players[Player_num].rankScore - prev_rankscore;
+	if (Current_level_num > 0) {
+		Players[Player_num].secretExcludePoints += points;
+		prev_rankscore = Players[Player_num].rankScore;
+		Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
+		if (cheats.enabled)
+			Players[Player_num].rankScore = 0;
+		score_display += Players[Player_num].rankScore - prev_rankscore;
+	}
+	else {
+		Players[Player_num].excludePoints += points;
+		prev_rankscore = Players[Player_num].secretRankScore;
+		Players[Player_num].secretRankScore = Players[Player_num].score - Players[Player_num].secretlast_score - Players[Player_num].secretExcludePoints;
+		if (cheats.enabled)
+			Players[Player_num].secretRankScore = 0;
+		score_display += Players[Player_num].secretRankScore - prev_rankscore;
+	}
 	if (Players[Player_num].rankScore - prev_rankscore > 0 || cheats.enabled)
 	score_time += f1_0 * 2;
 	if (score_time > f1_0 * 4)

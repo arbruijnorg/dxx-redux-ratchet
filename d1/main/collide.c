@@ -161,6 +161,7 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 
 			if (result && (other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature)) {				
 				if (obj->matcen_creator != 0 || obj->flags & OF_ROBOT_DROPPED)
+					Players[Player_num].excludePoints += Robot_info[obj->id].score_value;
 				add_points_to_score(Robot_info[obj->id].score_value);
 			}
 			break;

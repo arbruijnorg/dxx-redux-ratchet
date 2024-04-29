@@ -183,8 +183,12 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 			}
 
 			if (result && (other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature)) {
-				if (obj->matcen_creator != 0 || obj->flags & OF_ROBOT_DROPPED || Current_level_num < 0)
-					Players[Player_num].excludePoints += Robot_info[obj->id].score_value;
+				if (obj->matcen_creator != 0 || obj->flags & OF_ROBOT_DROPPED) {
+					if (Current_level_num > 0)
+						Players[Player_num].excludePoints += Robot_info[obj->id].score_value;
+					else
+						Players[Player_num].secretExcludePoints += Robot_info[obj->id].score_value;
+				}
 				add_points_to_score(Robot_info[obj->id].score_value);
 			}
 			break;
@@ -984,8 +988,12 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 		if (Robot_info[robot->id].kamikaze) {
 			apply_damage_to_robot(robot, robot->shields + 1, playerobj - Objects);
 			if (playerobj == ConsoleObject)	{
-				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED || Current_level_num < 0)
-					Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
+				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED) {
+					if (Current_level_num > 0)
+						Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
+					else
+						Players[Player_num].secretExcludePoints += Robot_info[robot->id].score_value;
+				}
 				add_points_to_score(Robot_info[robot->id].score_value);
 			}
 		}
@@ -1099,8 +1107,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		#endif
 
 		if (!(Game_mode & GM_MULTI))
-			if (Current_level_num < 0)
-				Players[Player_num].excludePoints += CONTROL_CEN_SCORE;
 			add_points_to_score(CONTROL_CEN_SCORE);
 
 		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_DESTROYED, controlcen->segnum, 0, &controlcen->pos, 0, F1_0 );
@@ -1692,8 +1698,12 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			if (! apply_damage_to_robot(robot, damage, weapon->ctype.laser_info.parent_num))
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
 			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature ) {
-				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED || Current_level_num < 0)
-					Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
+				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED) {
+					if (Current_level_num > 0)
+						Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
+					else
+						Players[Player_num].secretExcludePoints += Robot_info[robot->id].score_value;
+				}
 				add_points_to_score(Robot_info[robot->id].score_value);
 				detect_escort_goal_accomplished(robot-Objects);
 			}
@@ -1745,8 +1755,6 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
 		detect_escort_goal_accomplished(hostage-Objects);
-		if (Current_level_num < 0)
-			Players[Player_num].excludePoints += HOSTAGE_SCORE;
 		add_points_to_score(HOSTAGE_SCORE);
 
 		// Do effect

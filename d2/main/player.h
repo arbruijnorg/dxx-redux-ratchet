@@ -119,6 +119,13 @@ typedef struct player {
 	double  maxScore;				// Points possible in a level without time bonus, AKA its S-rank score.
 	double  level_time;             // Time variable used in rank calculation. Updates to match time_level at specific points to protect players from being penalized for not skipping things.
 	double  quickload;				// Whether the player has quickloaded into the current level.
+	// These are the versions of the variables used for secret levels, since we can play them in the middle of a normal one.
+	double  secretDeathCount;
+	double	secretRankScore;
+	double  secretExcludePoints;
+	double	secretMaxScore;
+	fix		secretlevel_time;
+	double  secretlast_score;
 
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable

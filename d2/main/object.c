@@ -1732,7 +1732,10 @@ void dead_player_frame(void)
 //	------------------------------------------------------------------------------------------------------------------
 void start_player_death_sequence(object *player)
 {
-	Players[Player_num].deathCount++;
+	if (Current_level_num > 0)
+		Players[Player_num].deathCount++;
+	else
+		Players[Player_num].secretDeathCount++;
 	Players[Player_num].level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 	int	objnum;
 

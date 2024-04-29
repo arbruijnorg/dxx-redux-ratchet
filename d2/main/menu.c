@@ -632,6 +632,7 @@ int do_option ( int select)
 			select_demo();
 			break;
 		case MENU_LOAD_GAME:
+			Players[Player_num].quickload = 1;
 			state_restore_all(0, 0, NULL);
 			break;
 		#ifdef EDITOR
