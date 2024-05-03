@@ -1641,15 +1641,17 @@ void dead_player_frame(void)
 		}
 		// end addition by WX
 
-		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
+		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {	
 			if (!Player_exploded) {
-				if (Players[Player_num].hostages_on_board > 1)
-					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, Players[Player_num].hostages_on_board);
-				else if (Players[Player_num].hostages_on_board == 1)
+				int hostages = Players[Player_num].hostages_on_board + Players[Player_num].secret_hostages_on_board;
+				if (hostages > 1)
+					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, hostages);
+				else if (hostages == 1)
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
 				else
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
 				Players[Player_num].hostages_on_board = 0;
+				Players[Player_num].secret_hostages_on_board = 0;
 
 				Player_exploded = 1;
 #ifdef NETWORK
@@ -1732,9 +1734,7 @@ void dead_player_frame(void)
 //	------------------------------------------------------------------------------------------------------------------
 void start_player_death_sequence(object *player)
 {
-	if (Current_level_num > 0)
 		Players[Player_num].deathCount++;
-	else
 		Players[Player_num].secretDeathCount++;
 	Players[Player_num].level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 	int	objnum;

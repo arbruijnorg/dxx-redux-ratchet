@@ -66,7 +66,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 
 
-#define STATE_VERSION 7
+#define STATE_VERSION 8
 #define STATE_COMPATIBLE_VERSION 6
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -76,6 +76,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 5 - Mike changed ai and object structure.
 // 6 - Added buggin' cheat save
 // 7 - Added other cheat saves and game_id.
+// 8 - Ranking mod variables support.
 
 #define NUM_SAVES 10
 #define THUMBNAIL_W 100
@@ -922,11 +923,11 @@ int state_save_all_sub(char *filename, char *desc)
 //Save player info
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
 	{
-		player_rw *pl_rw;
-		MALLOC(pl_rw, player_rw, 1);
-		memset(pl_rw, 0, sizeof(player_rw));
+		player_rw2 *pl_rw;
+		MALLOC(pl_rw, player_rw2, 1);
+		memset(pl_rw, 0, sizeof(player_rw2));
 		state_player_to_player_rw(&Players[Player_num], pl_rw);
-		PHYSFS_write(fp, pl_rw, sizeof(player_rw), 1);
+		PHYSFS_write(fp, pl_rw, sizeof(player_rw2), 1);
 		d_free(pl_rw);
 	}
 

@@ -57,6 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define INVULNERABLE_TIME_MAX   (F1_0*30)
 
 #define PLAYER_STRUCT_VERSION 	18		//increment this every time player struct changes
+// Oh please, if I did that with this mod it's hard telling how high that number would be.
 
 // defines for teams
 #define TEAM_BLUE   0
@@ -180,6 +181,76 @@ typedef struct player_rw {
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 } __pack__ player_rw;
+
+typedef struct player_rw2 {
+	// Who am I data
+	char    callsign[CALLSIGN_LEN + 1];   // The callsign of this player, for net purposes.
+	ubyte   net_address[6];         // The network address of the player.
+	sbyte   connected;              // Is the player connected or not?
+	int     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
+	int     n_packets_got;          // How many packets we got from them
+	int     n_packets_sent;         // How many packets we sent to them
+
+	//  -- make sure you're 4 byte aligned now!
+
+	// Game data
+	uint    flags;                  // Powerup flags, see below...
+	fix     energy;                 // Amount of energy remaining.
+	fix     shields;                // shields remaining (protection)
+	ubyte   lives;                  // Lives remaining, 0 = game over.
+	sbyte   level;                  // Current level player is playing. (must be signed for secret levels)
+	ubyte   laser_level;            // Current level of the laser.
+	sbyte   starting_level;         // What level the player started on.
+	short   killer_objnum;          // Who killed me.... (-1 if no one)
+	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
+	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
+	ushort  primary_ammo[MAX_PRIMARY_WEAPONS]; // How much ammo of each type.
+	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
+
+	ushort  pad; // Pad because increased weapon_flags from byte to short -YW 3/22/95
+
+	//  -- make sure you're 4 byte aligned now
+
+	// Statistics...
+	int     last_score;             // Score at beginning of current level.
+	int     score;                  // Current score.
+	fix     time_level;             // Level time played
+	fix     time_total;             // Game time played (high word = seconds)
+	// Use the same variables from the Players struct for this mod so saving and loading is still compatible with or without it (and so secret levels behave).
+	double  deathCount;
+	double  rankScore;
+	double  excludePoints;
+	double  maxScore;
+	double  level_time;
+	double  quickload;
+
+	double	secretRankScore;
+	double  secretExcludePoints;
+	double	secretMaxScore;
+	fix		secretlevel_time;
+	double  secretlast_score;
+	double  secret_hostages_on_board;
+	double  secretDeathCount;
+	double  secretQuickload;
+
+	fix     cloak_time;             // Time cloaked
+	fix     invulnerable_time;      // Time invulnerable
+
+	short   KillGoalCount;          // Num of players killed this level
+	short   net_killed_total;       // Number of times killed total
+	short   net_kills_total;        // Number of net kills total
+	short   num_kills_level;        // Number of kills this level
+	short   num_kills_total;        // Number of kills total
+	short   num_robots_level;       // Number of initial robots this level
+	short   num_robots_total;       // Number of robots total
+	ushort  hostages_rescued_total; // Total number of hostages rescued.
+	ushort  hostages_total;         // Total number of hostages.
+	ubyte   hostages_on_board;      // Number of hostages on ship.
+	ubyte   hostages_level;         // Number of hostages on this level.
+	fix     homing_object_dist;     // Distance of nearest homing object.
+	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
+	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
+} __pack__ player_rw2;
 
 #define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32

@@ -541,6 +541,16 @@ int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
 
 	switch (event->type)
 	{
+	case EVENT_NEWMENU_SELECTED:
+		Players[Player_num].lives = 3;
+		Difficulty_level = PlayerCfg.DefaultDifficulty;
+		if (!do_difficulty_menu())
+			return 0;
+		if (citem < Current_mission->last_level)
+			StartNewGame(citem + 1);
+		else
+			StartNewGame(Current_mission->last_level - citem - 1);
+		break;
 	case EVENT_WINDOW_CLOSE:
 		break;
 

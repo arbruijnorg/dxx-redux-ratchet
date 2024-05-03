@@ -564,6 +564,15 @@ int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
 
 	switch (event->type)
 	{
+	case EVENT_NEWMENU_SELECTED:
+		if (citem < Current_mission->last_level) {
+			Players[Player_num].lives = 3;
+			Difficulty_level = PlayerCfg.DefaultDifficulty;
+			if (!do_difficulty_menu())
+				return 0;
+			StartNewGame(citem + 1);
+		}
+		break;
 	case EVENT_WINDOW_CLOSE:
 		break;
 
@@ -633,6 +642,7 @@ int do_option ( int select)
 			break;
 		case MENU_LOAD_GAME:
 			Players[Player_num].quickload = 1;
+			Players[Player_num].secretQuickload = 1;
 			state_restore_all(0, 0, NULL);
 			break;
 		#ifdef EDITOR

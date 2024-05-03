@@ -1128,7 +1128,7 @@ void DoEndSecretLevelScoreGlitz(int network)
 		mine_level *= -(Last_level / N_secret_levels);
 
 	level_points = Players[Player_num].score - Players[Player_num].secretlast_score;
-	Players[Player_num].rankScore = level_points - Players[Player_num].excludePoints;
+	Players[Player_num].secretRankScore = level_points - Players[Player_num].secretExcludePoints;
 
 	if (Difficulty_level > 1) {
 		skill_points = level_points * (Difficulty_level) / 4;
@@ -1141,7 +1141,7 @@ void DoEndSecretLevelScoreGlitz(int network)
 
 	time_points = (Players[Player_num].secretMaxScore / 2) * pow(0.25, (int)Players[Player_num].secretlevel_time / (0.005 * Players[Player_num].secretMaxScore));
 	time_points -= time_points % 1;
-	hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level + 1);
+	hostage_points = Players[Player_num].secret_hostages_on_board * 500 * (Difficulty_level + 1);
 
 	Players[Player_num].secretRankScore += skill_points2 + time_points + hostage_points;
 	death_points = 0;
@@ -1212,7 +1212,7 @@ void DoEndSecretLevelScoreGlitz(int network)
 	if (rankPoints >= 12)
 		rank = "S";
 
-	if (Players[Player_num].quickload == 0)
+	if (Players[Player_num].secretQuickload == 0)
 		if (cheats.enabled) {
 			sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
 		}
@@ -1414,7 +1414,7 @@ void do_screen_message(char *fmt, ...)
 //	robots, powerups, walls, doors, etc.
 void StartNewLevelSecret(int level_num, int page_in_textures)
 {
-        ThisLevelTime=0;
+	ThisLevelTime=0;
 
 	last_drawn_cockpit = -1;
 
@@ -1500,6 +1500,8 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 	if (First_secret_visit) {
 		Players[Player_num].secretDeathCount = 0;
 
+		Players[Player_num].secretlevel_time = 0;
+		
 		Players[Player_num].secretExcludePoints = 0;
 
 		Players[Player_num].secretRankScore = 0;
@@ -1507,8 +1509,13 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		Players[Player_num].secretMaxScore = 0;
 
 		Players[Player_num].secretlast_score = Players[Player_num].score;
+
+		Players[Player_num].secret_hostages_on_board = 0;
+
+		Players[Player_num].secretQuickload = 0;
 		
 		int i = 0;
+		int hostages_secret_level = 0;
 		for (i = 0; i <= Highest_object_index; i++) {
 			if (Objects[i].type == OBJ_ROBOT) {
 				Players[Player_num].secretMaxScore += Robot_info[Objects[i].id].score_value;
@@ -1517,11 +1524,13 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 			}
 			if (Objects[i].type == OBJ_CNTRLCEN)
 				Players[Player_num].secretMaxScore += CONTROL_CEN_SCORE;
-			if (Objects[i].type == OBJ_HOSTAGE)
+			if (Objects[i].type == OBJ_HOSTAGE) {
 				Players[Player_num].secretMaxScore += HOSTAGE_SCORE;
+				hostages_secret_level++;
+			}
 		}
 		double skill_points = (Players[Player_num].secretMaxScore * 1.5) - ((int)(Players[Player_num].secretMaxScore * 1.5)) % 100;
-		Players[Player_num].secretMaxScore += skill_points + Players[Player_num].hostages_level * 2500;
+		Players[Player_num].secretMaxScore += skill_points + hostages_secret_level * 2500;
 	}
 
 	First_secret_visit = 0;
@@ -1568,6 +1577,7 @@ void ExitSecretLevel(void)
 		window_set_visible(Game_wind, 1);
 	reset_time();
 	Players[Player_num].time_level = Players[Player_num].level_time;
+	Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1861,6 +1871,7 @@ void DoPlayerDead()
 
 		//clear out stuff so no bonus
 		Players[Player_num].hostages_on_board = 0;
+		Players[Player_num].secret_hostages_on_board = 0;
 		Players[Player_num].energy = 0;
 		Players[Player_num].shields = 0;
 		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
@@ -1868,10 +1879,13 @@ void DoPlayerDead()
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 
 		if (Current_level_num < 0) {
+			DoEndSecretLevelScoreGlitz(0);
 			if (PHYSFSX_exists(SECRETB_FILENAME,0))
 			{
 				do_screen_message(TXT_SECRET_RETURN);
 				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
+				Players[Player_num].time_level = Players[Player_num].level_time;
+				Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 			} else {
@@ -1898,6 +1912,8 @@ void DoPlayerDead()
 			if (!Control_center_destroyed)
 				state_save_all(2, SECRETC_FILENAME, 0);
 			state_restore_all(1, 2, SECRETB_FILENAME);
+			Players[Player_num].time_level = Players[Player_num].level_time;
+			Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
 			set_pos_from_return_segment();
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 		} else {
@@ -2196,8 +2212,6 @@ void StartNewLevel(int level_num, object * robot)
 	Players[Player_num].maxScore = 0;
 
 	Players[Player_num].quickload = 0;
-
-	Players[Player_num].secretlevel_time = 0;
 
 	if (level_num > 0) {
 		maybe_set_first_secret_visit(level_num);

@@ -697,7 +697,7 @@ int get_pnum_for_hud()
 
 void hud_show_score()
 {
-	char	score_str[20];
+	char	score_str[256];
 	int	w, h, aw;
 
 	int pnum = get_pnum_for_hud();
@@ -1574,20 +1574,18 @@ void add_points_to_score(int points)
 		Players[Player_num].secretExcludePoints += points;
 		prev_rankscore = Players[Player_num].rankScore;
 		Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
-		if (cheats.enabled)
-			Players[Player_num].rankScore = 0;
 		score_display += Players[Player_num].rankScore - prev_rankscore;
+		if (Players[Player_num].rankScore - prev_rankscore > 0 || cheats.enabled)
+			score_time += f1_0 * 2;
 	}
 	else {
 		Players[Player_num].excludePoints += points;
 		prev_rankscore = Players[Player_num].secretRankScore;
 		Players[Player_num].secretRankScore = Players[Player_num].score - Players[Player_num].secretlast_score - Players[Player_num].secretExcludePoints;
-		if (cheats.enabled)
-			Players[Player_num].secretRankScore = 0;
 		score_display += Players[Player_num].secretRankScore - prev_rankscore;
+		if (Players[Player_num].secretRankScore - prev_rankscore > 0 || cheats.enabled)
+			score_time += f1_0 * 2;
 	}
-	if (Players[Player_num].rankScore - prev_rankscore > 0 || cheats.enabled)
-	score_time += f1_0 * 2;
 	if (score_time > f1_0 * 4)
 	score_time = f1_0 * 4;
 

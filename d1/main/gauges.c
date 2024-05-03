@@ -1385,8 +1385,6 @@ void add_points_to_score(int points)
 
 	Players[Player_num].score += points;
 	Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
-	if (cheats.enabled)
-		Players[Player_num].rankScore = 0;
 	score_display += Players[Player_num].rankScore - prev_rankscore;
 	if (Players[Player_num].rankScore - prev_rankscore > 0 || cheats.enabled)
 	score_time += f1_0 * 2;

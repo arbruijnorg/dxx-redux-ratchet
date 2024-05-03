@@ -946,6 +946,7 @@ int HandleSystemKey(int key)
 		case KEY_ALTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
 				Players[Player_num].quickload = 1;
+				Players[Player_num].secretQuickload = 1;
 				state_restore_all(1, 0, NULL);
 			break;
 
@@ -1599,8 +1600,6 @@ int FinalCheats(int key)
 			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
 			cheats.enabled = 1;
 			digi_play_sample( SOUND_CHEATER, F1_0);
-			Players[Player_num].score = 0;
-			Players[Player_num].rankScore = 0;
 			gotcha = i;
 			break;
 		}
