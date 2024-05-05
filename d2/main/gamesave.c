@@ -539,7 +539,7 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 			Int3();
 
 	}
-
+	obj->matcen_creator = 0;
 }
 
 #ifdef EDITOR

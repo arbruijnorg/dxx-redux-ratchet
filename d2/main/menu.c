@@ -569,7 +569,7 @@ int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
 			Players[Player_num].lives = 3;
 			Difficulty_level = PlayerCfg.DefaultDifficulty;
 			if (!do_difficulty_menu())
-				return 0;
+				return 1;
 			StartNewGame(citem + 1);
 		}
 		break;

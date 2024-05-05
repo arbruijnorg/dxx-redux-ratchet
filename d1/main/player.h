@@ -224,15 +224,6 @@ typedef struct player_rw2 {
 	double  level_time;
 	double  quickload;
 
-	double	secretRankScore;
-	double  secretExcludePoints;
-	double	secretMaxScore;
-	fix		secretlevel_time;
-	double  secretlast_score;
-	double  secret_hostages_on_board;
-	double  secretDeathCount;
-	double  secretQuickload;
-
 	fix     cloak_time;             // Time cloaked
 	fix     invulnerable_time;      // Time invulnerable
 

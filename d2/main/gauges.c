@@ -710,7 +710,7 @@ void hud_show_score()
 	if ( (Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) ) {
 		sprintf(score_str, "%s: %5d", TXT_KILLS, Players[pnum].net_kills_total);
 	} else {
-		if (Newdemo_state == ND_STATE_PLAYBACK) {
+		if (Newdemo_state == ND_STATE_PLAYBACK || (Game_mode & GM_MULTI_COOP)) {
 			sprintf(score_str, "%s: %5d", TXT_SCORE, Players[Player_num].score);
 		}
 		else {
@@ -1562,32 +1562,36 @@ void show_time()
 
 void add_points_to_score(int points)
 {
-	int prev_score;
-	int prev_rankscore;
-
 	if ((Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)))
 		return;
-
-	prev_score = Players[Player_num].score;
+	int prev_score = Players[Player_num].score;
 	Players[Player_num].score += points;
-	if (Current_level_num > 0) {
-		Players[Player_num].secretExcludePoints += points;
-		prev_rankscore = Players[Player_num].rankScore;
-		Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
-		score_display += Players[Player_num].rankScore - prev_rankscore;
-		if (Players[Player_num].rankScore - prev_rankscore > 0 || cheats.enabled)
-			score_time += f1_0 * 2;
+	if (!(Game_mode & GM_MULTI_COOP)) {
+		int prev_rankscore;
+		if (Current_level_num > 0) {
+			Players[Player_num].secretExcludePoints += points;
+			prev_rankscore = Players[Player_num].rankScore;
+			Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
+			score_display += Players[Player_num].rankScore - prev_rankscore;
+			if (Players[Player_num].rankScore - prev_rankscore > 0 || cheats.enabled)
+				score_time += f1_0 * 2;
+		}
+		else {
+			Players[Player_num].excludePoints += points;
+			prev_rankscore = Players[Player_num].secretRankScore;
+			Players[Player_num].secretRankScore = Players[Player_num].score - Players[Player_num].secretlast_score - Players[Player_num].secretExcludePoints;
+			score_display += Players[Player_num].secretRankScore - prev_rankscore;
+			if (Players[Player_num].secretRankScore - prev_rankscore > 0 || cheats.enabled)
+				score_time += f1_0 * 2;
+		}
 	}
 	else {
-		Players[Player_num].excludePoints += points;
-		prev_rankscore = Players[Player_num].secretRankScore;
-		Players[Player_num].secretRankScore = Players[Player_num].score - Players[Player_num].secretlast_score - Players[Player_num].secretExcludePoints;
-		score_display += Players[Player_num].secretRankScore - prev_rankscore;
-		if (Players[Player_num].secretRankScore - prev_rankscore > 0 || cheats.enabled)
+		score_display += Players[Player_num].score - prev_score;
+		if (Players[Player_num].score - prev_score > 0 || cheats.enabled)
 			score_time += f1_0 * 2;
 	}
 	if (score_time > f1_0 * 4)
-	score_time = f1_0 * 4;
+		score_time = f1_0 * 4;
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_score(points);

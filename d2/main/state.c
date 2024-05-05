@@ -536,8 +536,79 @@ void state_player_rw_to_player(player_rw *pl_rw, player *pl)
 	pl->homing_object_dist        = pl_rw->homing_object_dist;
 	pl->hours_level               = pl_rw->hours_level;
 	pl->hours_total               = pl_rw->hours_total;
+	pl->deathCount				  = 0;
+	pl->rankScore				  = 0;
+	pl->excludePoints			  = 0;
+	pl->maxScore                  = 0;
+	pl->level_time                = 0;
+	pl->quickload                 = 1;
+	pl->secretRankScore           = 0;
+	pl->secretExcludePoints       = 0;
+	pl->secretMaxScore            = 0;
+	pl->secretlevel_time          = 0;
+	pl->secretlast_score          = 0;
+	pl->secret_hostages_on_board  = 0;
+	pl->secretDeathCount          = 0;
+	pl->secretQuickload           = 1;
 }
 
+void state_player_rw2_to_player(player_rw2* pl_rw2, player* pl)
+{
+	int i = 0;
+	memcpy(pl->callsign, pl_rw2->callsign, CALLSIGN_LEN + 1);
+	memcpy(pl->net_address, pl_rw2->net_address, 6);
+	pl->connected = pl_rw2->connected;
+	pl->objnum = pl_rw2->objnum;
+	pl->n_packets_got = pl_rw2->n_packets_got;
+	pl->n_packets_sent = pl_rw2->n_packets_sent;
+	pl->flags = pl_rw2->flags;
+	pl->energy = pl_rw2->energy;
+	pl->shields = pl_rw2->shields;
+	pl->lives = pl_rw2->lives;
+	pl->level = pl_rw2->level;
+	pl->laser_level = pl_rw2->laser_level;
+	pl->starting_level = pl_rw2->starting_level;
+	pl->killer_objnum = pl_rw2->killer_objnum;
+	pl->primary_weapon_flags = pl_rw2->primary_weapon_flags;
+	pl->secondary_weapon_flags = pl_rw2->secondary_weapon_flags;
+	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+		pl->primary_ammo[i] = pl_rw2->primary_ammo[i];
+	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+		pl->secondary_ammo[i] = pl_rw2->secondary_ammo[i];
+	pl->last_score = pl_rw2->last_score;
+	pl->score = pl_rw2->score;
+	pl->time_level = pl_rw2->time_level;
+	pl->time_total = pl_rw2->time_total;
+	pl->cloak_time = pl_rw2->cloak_time;
+	pl->invulnerable_time = pl_rw2->invulnerable_time;
+	pl->net_killed_total = pl_rw2->net_killed_total;
+	pl->net_kills_total = pl_rw2->net_kills_total;
+	pl->num_kills_level = pl_rw2->num_kills_level;
+	pl->num_kills_total = pl_rw2->num_kills_total;
+	pl->num_robots_level = pl_rw2->num_robots_level;
+	pl->num_robots_total = pl_rw2->num_robots_total;
+	pl->hostages_rescued_total = pl_rw2->hostages_rescued_total;
+	pl->hostages_total = pl_rw2->hostages_total;
+	pl->hostages_on_board = pl_rw2->hostages_on_board;
+	pl->hostages_level = pl_rw2->hostages_level;
+	pl->homing_object_dist = pl_rw2->homing_object_dist;
+	pl->hours_level = pl_rw2->hours_level;
+	pl->hours_total = pl_rw2->hours_total;
+	pl->deathCount = pl_rw2->deathCount;
+	pl->rankScore = pl_rw2->rankScore;
+	pl->excludePoints = pl_rw2->excludePoints;
+	pl->maxScore = pl_rw2->maxScore;
+	pl->level_time = pl_rw2->level_time;
+	pl->quickload = pl_rw2->quickload;
+	pl->secretRankScore = pl_rw2->secretRankScore;
+	pl->secretExcludePoints = pl_rw2->secretExcludePoints;
+	pl->secretMaxScore = pl_rw2->secretMaxScore;
+	pl->secretlevel_time = pl_rw2->secretlevel_time;
+	pl->secretlast_score = pl_rw2->secretlast_score;
+	pl->secret_hostages_on_board = pl_rw2->secret_hostages_on_board;
+	pl->secretDeathCount = pl_rw2->secretDeathCount;
+	pl->secretQuickload = pl_rw2->secretQuickload;
+}
 
 //-------------------------------------------------------------------
 int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
@@ -1128,7 +1199,7 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_close(fp);
 	
 	start_time();
-
+	
 	return 1;
 }
 
@@ -1352,15 +1423,23 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 	{
 		StartNewLevelSub(current_level, 1, secret_restore);
-
+		player	dummy_player;
 		if (secret_restore) {
-			player	dummy_player;
-			player_rw *pl_rw;
-			MALLOC(pl_rw, player_rw, 1);
-			PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
-			player_rw_swap(pl_rw, swap);
-			state_player_rw_to_player(pl_rw, &dummy_player);
-			d_free(pl_rw);
+			if (version < 23) {
+				player_rw* pl_rw;
+				MALLOC(pl_rw, player_rw, 1);
+				PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
+				player_rw_swap(pl_rw, swap);
+				state_player_rw_to_player(pl_rw, &dummy_player);
+				d_free(pl_rw);
+			}
+			else {
+				player_rw2* pl_rw2;
+				MALLOC(pl_rw2, player_rw2, 1);
+				PHYSFS_read(fp, pl_rw2, sizeof(player_rw2), 1);
+				state_player_rw2_to_player(pl_rw2, &dummy_player);
+				d_free(pl_rw2);
+			}
 			if (secret_restore == 1) {		//	This means he didn't die, so he keeps what he got in the secret level.
 				Players[Player_num].level = dummy_player.level;
 				Players[Player_num].last_score = dummy_player.last_score;
@@ -1375,17 +1454,54 @@ int state_restore_all_sub(char *filename, int secret_restore)
 				Players[Player_num].homing_object_dist = dummy_player.homing_object_dist;
 				Players[Player_num].hours_level = dummy_player.hours_level;
 				Players[Player_num].hours_total = dummy_player.hours_total;
+				Players[Player_num].deathCount = dummy_player.deathCount;
+				Players[Player_num].rankScore = dummy_player.rankScore;
+				Players[Player_num].excludePoints = dummy_player.excludePoints;
+				Players[Player_num].maxScore = dummy_player.maxScore;
+				Players[Player_num].level_time = dummy_player.level_time;
+				Players[Player_num].quickload = dummy_player.quickload;
+				Players[Player_num].secretRankScore = dummy_player.secretRankScore;
+				Players[Player_num].secretExcludePoints = dummy_player.secretExcludePoints;
+				Players[Player_num].secretMaxScore = dummy_player.secretMaxScore;
+				Players[Player_num].secretlevel_time = dummy_player.secretlevel_time;
+				Players[Player_num].secretlast_score = dummy_player.secretlast_score;
+				Players[Player_num].secret_hostages_on_board = dummy_player.secret_hostages_on_board;
+				Players[Player_num].secretDeathCount = dummy_player.secretDeathCount;
+				Players[Player_num].secretQuickload = dummy_player.secretQuickload;
 				do_cloak_invul_secret_stuff(old_gametime);
 			} else {
+				Players[Player_num].deathCount = dummy_player.deathCount;
+				Players[Player_num].rankScore = dummy_player.rankScore;
+				Players[Player_num].excludePoints = dummy_player.excludePoints;
+				Players[Player_num].maxScore = dummy_player.maxScore;
+				Players[Player_num].level_time = dummy_player.level_time;
+				Players[Player_num].quickload = dummy_player.quickload;
+				Players[Player_num].secretRankScore = dummy_player.secretRankScore;
+				Players[Player_num].secretExcludePoints = dummy_player.secretExcludePoints;
+				Players[Player_num].secretMaxScore = dummy_player.secretMaxScore;
+				Players[Player_num].secretlevel_time = dummy_player.secretlevel_time;
+				Players[Player_num].secretlast_score = dummy_player.secretlast_score;
+				Players[Player_num].secret_hostages_on_board = dummy_player.secret_hostages_on_board;
+				Players[Player_num].secretDeathCount = dummy_player.secretDeathCount;
+				Players[Player_num].secretQuickload = dummy_player.secretQuickload;
 				Players[Player_num] = dummy_player;
 			}
 		} else {
-			player_rw *pl_rw;
-			MALLOC(pl_rw, player_rw, 1);
-			PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
-			player_rw_swap(pl_rw, swap);
-			state_player_rw_to_player(pl_rw, &Players[Player_num]);
-			d_free(pl_rw);
+			if (version < 23) {
+				player_rw* pl_rw;
+				MALLOC(pl_rw, player_rw, 1);
+				PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
+				player_rw_swap(pl_rw, swap);
+				state_player_rw_to_player(pl_rw, &dummy_player);
+				d_free(pl_rw);
+			}
+			else {
+				player_rw2* pl_rw2;
+				MALLOC(pl_rw2, player_rw2, 1);
+				PHYSFS_read(fp, pl_rw2, sizeof(player_rw2), 1);
+				state_player_rw2_to_player(pl_rw2, &dummy_player);
+				d_free(pl_rw2);
+			}
 		}
 	}
 	strcpy( Players[Player_num].callsign, org_callsign );
