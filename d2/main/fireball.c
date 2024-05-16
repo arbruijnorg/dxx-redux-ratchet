@@ -180,9 +180,9 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 										if (objp != NULL) {
 											if (obj0p->matcen_creator != 0 || obj0p->flags & OF_ROBOT_DROPPED) {
 												if (Current_level_num > 0)
-													Players[Player_num].excludePoints += Robot_info[obj0p->id].score_value;
+													Ranking.excludePoints += Robot_info[obj0p->id].score_value;
 												else
-													Players[Player_num].secretExcludePoints += Robot_info[obj0p->id].score_value;
+													Ranking.secretExcludePoints += Robot_info[obj0p->id].score_value;
 											}
 											add_points_to_score(Robot_info[obj0p->id].score_value);
 										}

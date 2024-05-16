@@ -122,6 +122,7 @@ char	Current_level_name[LEVEL_NAME_LEN];
 int	N_players=1;	// Number of players ( >1 means a net game, eh?)
 int 	Player_num=0;	// The player number who is on the console.
 player			Players[MAX_PLAYERS];			// Misc player info
+ranking Ranking; // Ranking system mod variables.
 obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
@@ -770,23 +771,22 @@ void DoEndLevelScoreGlitz(int network)
 		mine_level *= -(Last_level / N_secret_levels);
 
 	level_points = Players[Player_num].score - Players[Player_num].last_score;
-	Players[Player_num].rankScore = level_points - Players[Player_num].excludePoints;
+	Ranking.rankScore = level_points - Ranking.excludePoints;
 
+	skill_points = 0, skill_points2 = 0;
+	if (Difficulty_level == 1)
+		skill_points2 = Ranking.rankScore / 4;
 	if (Difficulty_level > 1) {
 		skill_points = level_points * (Difficulty_level - 1) / 2;
-		skill_points2 = Players[Player_num].rankScore * (Difficulty_level - 1) / 2;
-		skill_points -= skill_points % 100;
-		skill_points2 -= skill_points2 % 100;
+		skill_points2 = Ranking.rankScore * (Difficulty_level - 1) / 2;
 	}
-	else
-		skill_points = 0, skill_points2 = 0;
+	skill_points -= skill_points % 100;
 
 	shield_points = f2i(Players[Player_num].shields) * 10 * (Difficulty_level + 1);
 	shield_points -= shield_points % 50;
 	energy_points = f2i(Players[Player_num].energy) * 5 * (Difficulty_level + 1);
 	energy_points -= energy_points % 50;
-	time_points = (Players[Player_num].maxScore / 2) * pow(0.25, (int)Players[Player_num].level_time / (0.005 * Players[Player_num].maxScore));
-	time_points -= time_points % 1;
+	time_points = (Ranking.maxScore / 2.5) * pow(0.25, Ranking.level_time / (0.005 * (Ranking.maxScore / Ranking.averagePoints)));
 	hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level + 1);
 
 	all_hostage_text[0] = 0;
@@ -806,79 +806,77 @@ void DoEndLevelScoreGlitz(int network)
 		endgame_points = is_last_level = 0;
 
 	if (!cheats.enabled)
-	add_bonus_points_to_score(shield_points + energy_points + skill_points + hostage_points + all_hostage_points + endgame_points);
-	Players[Player_num].rankScore += skill_points2 + time_points + hostage_points;
-	death_points = 0;
-	if (Players[Player_num].deathCount > 0) {
-		death_points = Players[Player_num].maxScore / 4;
-		if (Players[Player_num].rankScore - death_points >= Players[Player_num].maxScore)
-			death_points = (Players[Player_num].rankScore - Players[Player_num].maxScore) + 1;
-		death_points = death_points * -1;
-		Players[Player_num].rankScore += death_points;
-	}
+		add_bonus_points_to_score(shield_points + energy_points + skill_points + hostage_points + all_hostage_points + endgame_points);
+	else
+		shield_points = 0, energy_points = 0, hostage_points = 0, all_hostage_points = 0, skill_points = 0;
+	Ranking.rankScore += skill_points2 + time_points + hostage_points;
+	death_points = Ranking.maxScore * 0.4 - Ranking.maxScore * (0.4 / pow(2, Ranking.deathCount));
+	if (Ranking.deathCount > 0 && Ranking.rankScore - death_points >= Ranking.maxScore)
+		death_points = (Ranking.rankScore - Ranking.maxScore) + 1;
+	death_points = death_points * -1;
+	Ranking.rankScore += death_points;
 
-	int minutes = Players[Player_num].level_time / 60;
-	int seconds = Players[Player_num].level_time - (minutes * 60);
+	int minutes = Ranking.level_time / 60;
+	double seconds = Ranking.level_time - minutes * 60;
+	char* diffname = 0;
+	char time[256];
 	c = 0;
 	if (Difficulty_level == 0)
-		sprintf(m_str[c++], "Difficulty:\t Trainee");
+		diffname = "Trainee";
 	if (Difficulty_level == 1)
-		sprintf(m_str[c++], "Difficulty:\t Rookie");
+		diffname = "Rookie";
 	if (Difficulty_level == 2)
-		sprintf(m_str[c++], "Difficulty:\t Hotshot");
+		diffname = "Hotshot";
 	if (Difficulty_level == 3)
-		sprintf(m_str[c++], "Difficulty:\t Ace");
+		diffname = "Ace";
 	if (Difficulty_level == 4)
-		sprintf(m_str[c++], "Difficulty:\t Insane");
-	if (seconds < 10) {
-		sprintf(m_str[c++], "Time:\t %0.0i:0%0.0i", minutes, seconds);
-	}
-	else {
-		sprintf(m_str[c++], "Time:\t %0.0i:%0.0i", minutes, seconds);
-	}
-	sprintf(m_str[c++], "Level score:\t %0.0f", level_points - Players[Player_num].excludePoints);
-	sprintf(m_str[c++], "%s%i", "Time bonus:\t", time_points);
-	sprintf(m_str[c++], "%s%i", TXT_HOSTAGE_BONUS, hostage_points);
-	sprintf(m_str[c++], "%s%i", TXT_SKILL_BONUS, skill_points2);
-	sprintf(m_str[c++], "%s%i\n", "Death penalty:\t", death_points);
+		diffname = "Insane";
+	if (Ranking.quickload == 0) { // Only print the modded result screen if the player didn't quickload. Print the vanilla one otherwise, because quickloading into a level causes missing crucial mod info.
+		if (seconds < 10 || seconds == 60)
+			sprintf(time, "%i:0%.3f", minutes, seconds);
+		else
+			sprintf(time, "%i:%.3f", minutes, seconds);
+		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.excludePoints);
+		sprintf(m_str[c++], "Time: %s\t%i", time, time_points);
+		sprintf(m_str[c++], "Hostages: %i/%i\t%i", Players[Player_num].hostages_on_board, Players[Player_num].hostages_level, hostage_points);
+		sprintf(m_str[c++], "Skill: %s\t%i", diffname, skill_points2);
+		sprintf(m_str[c++], "Deaths: %.0f\t%i\n", Ranking.deathCount, death_points);
 
-	sprintf(m_str[c++], "%s%0.0f", TXT_TOTAL_SCORE, Players[Player_num].rankScore);
+		sprintf(m_str[c++], "%s%0.0f", TXT_TOTAL_SCORE, Ranking.rankScore);
 
-	double rankPoints = (Players[Player_num].rankScore / Players[Player_num].maxScore) * 12;
-	if (Players[Player_num].maxScore == 0) {
-		rankPoints = 12;
-	}
-	char* rank = "E";
-	if (rankPoints >= 0)
+		double rankPoints = (Ranking.rankScore / Ranking.maxScore) * 12;
+		if (Ranking.maxScore == 0)
+			rankPoints = 12;
+		char* rank = "E";
+		if (rankPoints >= 0)
 		rank = "D-";
-	if (rankPoints >= 1)
+		if (rankPoints >= 1)
 		rank = "D";
-	if (rankPoints >= 2)
+		if (rankPoints >= 2)
 		rank = "D+";
-	if (rankPoints >= 3)
+		if (rankPoints >= 3)
 		rank = "C-";
-	if (rankPoints >= 4)
+		if (rankPoints >= 4)
 		rank = "C";
-	if (rankPoints >= 5)
+		if (rankPoints >= 5)
 		rank = "C+";
-	if (rankPoints >= 6)
+		if (rankPoints >= 6)
 		rank = "B-";
-	if (rankPoints >= 7)
+		if (rankPoints >= 7)
 		rank = "B";
-	if (rankPoints >= 8)
+		if (rankPoints >= 8)
 		rank = "B+";
-	if (rankPoints >= 9)
+		if (rankPoints >= 9)
 		rank = "A-";
-	if (rankPoints >= 10)
+		if (rankPoints >= 10)
 		rank = "A";
-	if (rankPoints >= 11)
+		if (rankPoints >= 11)
 		rank = "A+";
-	if (rankPoints >= 12)
+		if (rankPoints >= 12)
 		rank = "S";
 
-	if (!cheats.enabled) {
-		if (Players[Player_num].quickload == 1) {
-			sprintf(m_str[c++], "Rank:\t %s (Quickloaded, no save)", rank);
+		if (cheats.enabled) {
+			sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
 		}
 		else {
 			sprintf(m_str[c++], "Rank:\t %s", rank);
@@ -886,101 +884,126 @@ void DoEndLevelScoreGlitz(int network)
 			PHYSFS_File* fp;
 			char filename[256];
 			char currentReadScore[256];
-			sprintf(filename, "%s scores.hi", Current_mission->filename);
-			fp = PHYSFS_openRead(filename);
-			int replace_line = Current_level_num;
-			if (Current_level_num < 0)
-				replace_line = Current_mission->last_level + Current_level_num * -1;
-			temp = PHYSFS_openWrite("temp____scores.hi");
 			int keep_reading = 1;
 			int current_line = 1;
 			int updateRank = 0;
-			do
-			{
-				PHYSFSX_getsTerminated(fp, currentReadScore);
-				if (current_line > Current_mission->last_level + Current_mission->last_secret_level * -1) {
-					keep_reading = 0;
-				}
-				else {
-					if (current_line == replace_line) {
-						int currentIntScore = atoi(currentReadScore);
-						if ((!strcmp(currentReadScore, "N/A")))
-							currentIntScore = Players[Player_num].maxScore * -1;
-						if (Players[Player_num].rankScore > currentIntScore) {
-							if (currentIntScore > Players[Player_num].maxScore * -1) // Don't say new record if there wasn't a record to beat yet.
-								sprintf(m_str[c++], "New record!");
-							PHYSFSX_printf(temp, "%i\n", (int)Players[Player_num].rankScore);
-							updateRank = 1;
+			int error = 0;
+			int replace_line = Current_level_num;
+			sprintf(filename, "%s scores.hi", Current_mission->filename);
+			fp = PHYSFS_openRead(filename);
+			if (!fp == NULL) {
+				if (Current_level_num < 0)
+					replace_line = Current_mission->last_level + Current_level_num * -1;
+				temp = PHYSFS_openWrite("temp____scores.hi");
+				do
+				{
+					PHYSFSX_getsTerminated(fp, currentReadScore);
+					if (current_line > Current_mission->last_level + Current_mission->last_secret_level * -1) {
+						keep_reading = 0;
+					}
+					else {
+						if (current_line == replace_line) {
+							int currentIntScore = atoi(currentReadScore);
+							if ((!strcmp(currentReadScore, "N/A")))
+								currentIntScore = Ranking.maxScore * -1;
+							if (Ranking.rankScore > currentIntScore) {
+								if (currentIntScore > Ranking.maxScore * -1) // Don't say new record if there wasn't a record to beat yet.
+									sprintf(m_str[c++], "New record!");
+								PHYSFSX_printf(temp, "%i\n", (int)Ranking.rankScore);
+								updateRank = 1;
+							}
+							else {
+								PHYSFSX_printf(temp, "%s\n", currentReadScore);
+							}
 						}
 						else {
 							PHYSFSX_printf(temp, "%s\n", currentReadScore);
 						}
 					}
-					else {
-						PHYSFSX_printf(temp, "%s\n", currentReadScore);
-					}
-				}
-				current_line++;
-			} while (keep_reading == 1);
-			PHYSFS_close(fp);
-			PHYSFS_close(temp);
-			PHYSFS_delete(filename);
-			PHYSFSX_rename("temp____scores.hi", filename);
-			sprintf(filename, "%s ranks.hi", Current_mission->filename);
-			fp = PHYSFS_openRead(filename);
-			temp = PHYSFS_openWrite("temp____ranks.hi");
-			keep_reading = 1;
-			current_line = 1;
-			do
-			{
-				PHYSFSX_getsTerminated(fp, currentReadScore);
-				if (current_line > Current_mission->last_level + Current_mission->last_secret_level * -1) {
-					keep_reading = 0;
+					current_line++;
+				} while (keep_reading == 1);
+				PHYSFS_close(fp);
+				PHYSFS_close(temp);
+				PHYSFS_delete(filename);
+				PHYSFSX_rename("temp____scores.hi", filename);
+				sprintf(filename, "%s ranks.hi", Current_mission->filename);
+				fp = PHYSFS_openRead(filename);
+				if (!fp == NULL) {
+					temp = PHYSFS_openWrite("temp____ranks.hi");
+					keep_reading = 1;
+					current_line = 1;
+					do
+					{
+						PHYSFSX_getsTerminated(fp, currentReadScore);
+						if (current_line > Current_mission->last_level + Current_mission->last_secret_level * -1) {
+							keep_reading = 0;
+						}
+						else {
+							if (current_line == replace_line && updateRank == 1)
+								PHYSFSX_printf(temp, "%s\n", rank);
+							else
+								PHYSFSX_printf(temp, "%s\n", currentReadScore);
+						}
+						current_line++;
+					} while (keep_reading == 1);
+					PHYSFS_close(fp);
+					PHYSFS_close(temp);
+					PHYSFS_delete(filename);
+					PHYSFSX_rename("temp____ranks.hi", filename);
 				}
 				else {
-					if (current_line == replace_line && updateRank == 1)
-						PHYSFSX_printf(temp, "%s\n", rank);
-					else
-						PHYSFSX_printf(temp, "%s\n", currentReadScore);
+					error = 1;
+					PHYSFS_close(fp);
 				}
-				current_line++;
-			} while (keep_reading == 1);
-			PHYSFS_close(fp);
-			PHYSFS_close(temp);
-			PHYSFS_delete(filename);
-			PHYSFSX_rename("temp____ranks.hi", filename);
+			}
+			else {
+				error = 1;
+				PHYSFS_close(fp);
+			}
+			if (error == 1)
+				sprintf(m_str[c++], "Saving error. Start new game.");
 		}
+		int toRankS = Ranking.maxScore - Ranking.rankScore;
+		if (rankPoints < 12) {
+			strcpy(m_str[c++], "");
+			sprintf(m_str[c++], "%i points to S rank", toRankS);
+		}
+		else if (!cheats.enabled)
+			sprintf(m_str[c++], ".                         ."); // This is to ensure that S-rank result screens are spaced out enough to keep stats from running into each other.
 	}
 	else {
-		sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
+		sprintf(m_str[c++], "%s%i", TXT_SHIELD_BONUS, shield_points);
+		sprintf(m_str[c++], "%s%i", TXT_ENERGY_BONUS, energy_points);
+		sprintf(m_str[c++], "%s%i", TXT_HOSTAGE_BONUS, hostage_points);
+		sprintf(m_str[c++], "%s%i\n", TXT_SKILL_BONUS, skill_points);
+		if (!cheats.enabled && (Players[Player_num].hostages_on_board == Players[Player_num].hostages_level))
+			sprintf(all_hostage_text, "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
+		if (!cheats.enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level))		//player has finished the game!
+			sprintf(endgame_text, "%s%i\n", TXT_SHIP_BONUS, endgame_points);
+		sprintf(m_str[c++], "%s%i\n", TXT_TOTAL_BONUS, shield_points + energy_points + hostage_points + skill_points + all_hostage_points + endgame_points);
+		sprintf(m_str[c++], "%s%i", TXT_TOTAL_SCORE, Players[Player_num].score);
 	}
 
-	int toRankS = Players[Player_num].maxScore - Players[Player_num].rankScore;
-	if (rankPoints < 12) {
-		strcpy(m_str[c++], "");
-		sprintf(m_str[c++], "%i points to S rank", toRankS);
-	}
+		for (i = 0; i < c; i++) {
+			m[i].type = NM_TYPE_TEXT;
+			m[i].text = m_str[i];
+		}
 
-	for (i = 0; i < c; i++) {
-		m[i].type = NM_TYPE_TEXT;
-		m[i].text = m_str[i];
-	}
+		// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
 
-	// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
+		if (Current_level_num < 0)
+			sprintf(title, "%s%s %d %s\n %s %s", is_last_level ? "\n\n\n" : "\n", TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+		else
+			sprintf(title, "%s%s %d %s\n%s %s", is_last_level ? "\n\n\n" : "\n", TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
 
-	if (Current_level_num < 0)
-		sprintf(title, "%s%s %d %s\n %s %s", is_last_level ? "\n\n\n" : "\n", TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
-	else
-		sprintf(title, "%s%s %d %s\n%s %s", is_last_level ? "\n\n\n" : "\n", TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
-
-	Assert(c <= N_GLITZITEMS);
+		Assert(c <= N_GLITZITEMS);
 
 #ifdef NETWORK
-	if (network && (Game_mode & GM_NETWORK))
-		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
-	else
+		if (network && (Game_mode & GM_NETWORK))
+			newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
+		else
 #endif	// Note link!
-		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
+			newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
 }
 
 int draw_rock(newmenu *menu, d_event *event, grs_bitmap *background)
@@ -1445,32 +1468,47 @@ void StartNewLevel(int level_num)
 	GameTime64 = 0;
 	ThisLevelTime=0;
 	
-	Players[Player_num].deathCount = 0;
+	Ranking.deathCount = 0;
 
-	Players[Player_num].excludePoints = 0;
+	Ranking.excludePoints = 0;
 
-	Players[Player_num].rankScore = 0;
+	Ranking.rankScore = 0;
 
-	Players[Player_num].maxScore = 0;
+	Ranking.maxScore = 0;
+	
+	Ranking.quickload = 0;
 
-	Players[Player_num].quickload = 0;
+	Ranking.level_time = 0; // Set this to 0 despite it going unused until set to time_level, so we can save a variable when telling the in-game timer which time variable to display.
 
 	StartNewLevelSub(level_num, 1, 0);
 
 	int i = 0;
+	int c = 0;
 	for (i = 0; i <= Highest_object_index; i++) {
 		if (Objects[i].type == OBJ_ROBOT) {
-		Players[Player_num].maxScore += Robot_info[Objects[i].id].score_value;
-		if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0)
-		Players[Player_num].maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
+			Ranking.maxScore += Robot_info[Objects[i].id].score_value;
+			c++;
+			if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0) {
+				Ranking.maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
+				c += Objects[i].contains_count;
+			}
 		}
-		if (Objects[i].type == OBJ_CNTRLCEN)
-			Players[Player_num].maxScore += CONTROL_CEN_SCORE;
-		if (Objects[i].type == OBJ_HOSTAGE)
-			Players[Player_num].maxScore += HOSTAGE_SCORE;
+		if (Objects[i].type == OBJ_CNTRLCEN) {
+			Ranking.maxScore += CONTROL_CEN_SCORE;
+			c++;
+		}
+		if (Objects[i].type == OBJ_HOSTAGE) {
+			Ranking.maxScore += HOSTAGE_SCORE;
+			c++;
+		}
 	}
-	double skill_points = (Players[Player_num].maxScore * 1.5) - ((int)(Players[Player_num].maxScore * 1.5)) % 100;
-	Players[Player_num].maxScore += skill_points + Players[Player_num].hostages_level * 2500;
+	double skill_points = (Ranking.maxScore * 1.5) - ((int)(Ranking.maxScore * 1.5)) % 1;
+	if (c == 0) // Don't let c be 0 since we're about to divide by it.
+		c++;
+	Ranking.averagePoints = (Ranking.maxScore / c) / 800; // 800 is used as the basis, since it's the average point value across every official mission, excluding D2 secret levels.
+	if (Ranking.averagePoints == 0) // Don't let averagePoints be 0 since the time bonus formula is gonna divide by it.
+		Ranking.averagePoints = 1;
+	Ranking.maxScore += skill_points + Players[Player_num].hostages_level * 2500;
 }
 
 int previewed_spawn_point = 0; 

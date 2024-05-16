@@ -572,6 +572,10 @@ int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
 				return 1;
 			StartNewGame(citem + 1);
 		}
+		else {
+			nm_messagebox(NULL, 1, TXT_OK, "Can't start on Descent 2 secret level!"); // We can't since there's no specified base level. Even if there was, it'd start a new level at the teleporter, which is unintended and could softlock players.
+			return 1;
+		}
 		break;
 	case EVENT_WINDOW_CLOSE:
 		break;
@@ -641,8 +645,8 @@ int do_option ( int select)
 			select_demo();
 			break;
 		case MENU_LOAD_GAME:
-			Players[Player_num].quickload = 1;
-			Players[Player_num].secretQuickload = 1;
+			Ranking.quickload = 1;
+			Ranking.secretQuickload = 1;
 			state_restore_all(0, 0, NULL);
 			break;
 		#ifdef EDITOR

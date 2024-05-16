@@ -945,8 +945,8 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				Players[Player_num].quickload = 1;
-				Players[Player_num].secretQuickload = 1;
+				Ranking.quickload = 1;
+				Ranking.secretQuickload = 1;
 				state_restore_all(1, 0, NULL);
 			break;
 
@@ -1599,6 +1599,8 @@ int FinalCheats(int key)
 		{
 			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
 			cheats.enabled = 1;
+			if (Newdemo_state == ND_STATE_PLAYBACK || (Game_mode & GM_MULTI_COOP) || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0))
+				Players[Player_num].score = 0;
 			digi_play_sample( SOUND_CHEATER, F1_0);
 			gotcha = i;
 			break;

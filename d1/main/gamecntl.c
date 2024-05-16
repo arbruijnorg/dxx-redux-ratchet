@@ -1085,6 +1085,8 @@ int FinalCheats(int key)
 				HUD_init_message(HM_DEFAULT, TXT_CHEATS_ENABLED);
 			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
 			cheats.enabled = 1;
+			if (Newdemo_state == ND_STATE_PLAYBACK || (Game_mode & GM_MULTI_COOP) || (Ranking.quickload == 1))
+			Players[Player_num].score = 0;
 			digi_play_sample( SOUND_CHEATER, F1_0);
 			gotcha = i;
 			break;

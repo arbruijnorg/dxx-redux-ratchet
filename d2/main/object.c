@@ -1643,7 +1643,7 @@ void dead_player_frame(void)
 
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {	
 			if (!Player_exploded) {
-				int hostages = Players[Player_num].hostages_on_board + Players[Player_num].secret_hostages_on_board;
+				int hostages = Players[Player_num].hostages_on_board + Ranking.secret_hostages_on_board;
 				if (hostages > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, hostages);
 				else if (hostages == 1)
@@ -1651,7 +1651,7 @@ void dead_player_frame(void)
 				else
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
 				Players[Player_num].hostages_on_board = 0;
-				Players[Player_num].secret_hostages_on_board = 0;
+				Ranking.secret_hostages_on_board = 0;
 
 				Player_exploded = 1;
 #ifdef NETWORK
@@ -1732,11 +1732,14 @@ void dead_player_frame(void)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-void start_player_death_sequence(object *player)
+void start_player_death_sequence(object* player)
 {
-		Players[Player_num].deathCount++;
-		Players[Player_num].secretDeathCount++;
-	Players[Player_num].level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
+	Ranking.deathCount++;
+	Ranking.secretDeathCount++;
+	if (Control_center_destroyed) {
+		Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
+		Ranking.freezeTimer = 1;
+	}
 	int	objnum;
 
 	Assert(player == ConsoleObject);

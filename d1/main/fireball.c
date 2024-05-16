@@ -134,7 +134,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 									if (apply_damage_to_robot(obj0p, damage, parent))
 										if (objp != NULL) {
 											if (obj0p->matcen_creator != 0 || obj0p->flags & OF_ROBOT_DROPPED)
-												Players[Player_num].excludePoints += Robot_info[obj0p->id].score_value;
+												Ranking.excludePoints += Robot_info[obj0p->id].score_value;
 											add_points_to_score(Robot_info[obj0p->id].score_value);
 										}
 								}

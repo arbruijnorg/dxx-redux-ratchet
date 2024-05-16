@@ -732,11 +732,11 @@ void hud_show_score()
 	if ( (Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) ) {
 		sprintf(score_str, "%s: %5d", TXT_KILLS, Players[pnum].net_kills_total);
 	} else {
-		if (Newdemo_state == ND_STATE_PLAYBACK || (Game_mode & GM_MULTI_COOP)) {
+		if (Newdemo_state == ND_STATE_PLAYBACK || (Game_mode & GM_MULTI_COOP) || Ranking.quickload == 1) {
 			sprintf(score_str, "%s: %5d", TXT_SCORE, Players[Player_num].score);
 		}
 		else {
-			sprintf(score_str, "%s: %5.0f", TXT_SCORE, Players[Player_num].rankScore);
+			sprintf(score_str, "%s: %5.0f", TXT_SCORE, Ranking.rankScore);
 		}
 	}
 
@@ -790,9 +790,6 @@ void hud_show_score_added()
 	if ( (Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) )
 		return;
 
-	if (score_display == 0)
-		return;
-
 	gr_set_curfont( GAME_FONT );
 
 	score_time -= FrameTime;
@@ -806,7 +803,7 @@ void hud_show_score_added()
 
 		if (cheats.enabled)
 			sprintf(score_str, "%s", TXT_CHEATER);
-		else
+		else if (score_display > 0)
 			sprintf(score_str, "%5d", score_display);
 
 		gr_get_string_size(score_str, &w, &h, &aw );
@@ -867,9 +864,6 @@ void sb_show_score_added()
 	if ( (Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) )
 		return;
 
-	if (score_display == 0)
-		return;
-
 	gr_set_curfont( GAME_FONT );
 
 	score_time -= FrameTime;
@@ -884,7 +878,7 @@ void sb_show_score_added()
 
 		if (cheats.enabled)
 			sprintf(score_str, "%s", TXT_CHEATER);
-		else
+		else if (score_display > 0)
 			sprintf(score_str, "%5d", score_display);
 
 		gr_get_string_size(score_str, &w, &h, &aw );
@@ -1358,8 +1352,12 @@ extern int Piggy_bitmap_cache_next;
 
 void show_time()
 {
-	int secs = f2i(Players[Player_num].time_level) % 60;
 	int mins = f2i(Players[Player_num].time_level) / 60;
+	double secs = (double)Players[Player_num].time_level / 65536 - mins * 60;
+	if (Ranking.level_time > 0) {
+		mins = Ranking.level_time / 60;
+		secs = Ranking.level_time - mins * 60;
+	}
 
 	gr_set_curfont( GAME_FONT );
 
@@ -1367,7 +1365,10 @@ void show_time()
 		Color_0_31_0 = BM_XRGB(0,31,0);
 	gr_set_fontcolor(Color_0_31_0, -1 );
 
-	gr_printf(SWIDTH-FSPACX(30),GHEIGHT-(LINE_SPACING*11),"%d:%02d", mins, secs);
+	if (secs < 10 || secs == 60)
+		gr_printf(SWIDTH-FSPACX(35),GHEIGHT-(LINE_SPACING*11),"%d:0%.03f", mins, secs);
+	else
+		gr_printf(SWIDTH - FSPACX(35), GHEIGHT - (LINE_SPACING * 11), "%d:%.03f", mins, secs);
 }
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
@@ -1376,13 +1377,19 @@ void add_points_to_score(int points)
 {
 	if ((Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)))
 		return;
+	if (cheats.enabled && Ranking.quickload == 1) {
+		score_time += f1_0 * 2;
+		if (score_time > f1_0 * 4)
+			score_time = f1_0 * 4;
+		return;
+	}
 	int prev_score = Players[Player_num].score;
 	Players[Player_num].score += points;
 	if (!(Game_mode & GM_MULTI_COOP)) {
-		int prev_rankscore = Players[Player_num].rankScore;
-		Players[Player_num].rankScore = Players[Player_num].score - Players[Player_num].last_score - Players[Player_num].excludePoints;
-		score_display += Players[Player_num].rankScore - prev_rankscore;
-		if (Players[Player_num].rankScore - prev_rankscore > 0 || cheats.enabled)
+		int prev_rankscore = Ranking.rankScore;
+		Ranking.rankScore = Players[Player_num].score - Players[Player_num].last_score - Ranking.excludePoints;
+		score_display += Ranking.rankScore - prev_rankscore;
+		if (Ranking.rankScore - prev_rankscore > 0 || cheats.enabled)
 			score_time += f1_0 * 2;
 	}
 	else {
@@ -4289,10 +4296,9 @@ void draw_hud()
 			}
 		}
 
-#ifndef RELEASE
-		if (!(Game_mode&GM_MULTI && Show_kill_list))
+		if (!((Game_mode&GM_MULTI && Show_kill_list) || Newdemo_state == ND_STATE_RECORDING || Ranking.quickload == 1))
 			show_time();
-#endif
+
 		HUD_render_message_frame();
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)

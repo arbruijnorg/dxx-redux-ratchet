@@ -1742,10 +1742,10 @@ void listbox_delete_item(listbox *lb, int item)
 void update_scroll_position(listbox *lb)
 {
 	if (lb->citem<0)
-		lb->citem = 0;
+		lb->citem = lb->nitems - 1;
 
 	if (lb->citem>=lb->nitems)
-		lb->citem = lb->nitems-1;
+		lb->citem = 0;
 
 	if (lb->citem< lb->first_item)
 		lb->first_item = lb->citem;

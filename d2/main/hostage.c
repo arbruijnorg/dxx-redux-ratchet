@@ -54,7 +54,7 @@ void hostage_rescue(int blah)
 	if (Current_level_num > 0)
 		Players[Player_num].hostages_on_board++;
 	else
-		Players[Player_num].secret_hostages_on_board++;
+		Ranking.secret_hostages_on_board++;
 	// Do an audio effect
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		digi_play_sample(SOUND_HOSTAGE_RESCUED, F1_0);

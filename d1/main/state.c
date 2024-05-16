@@ -66,7 +66,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 
 
-#define STATE_VERSION 8
+#define STATE_VERSION 7
 #define STATE_COMPATIBLE_VERSION 6
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -76,7 +76,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 5 - Mike changed ai and object structure.
 // 6 - Added buggin' cheat save
 // 7 - Added other cheat saves and game_id.
-// 8 - Ranking mod variables support.
 
 #define NUM_SAVES 10
 #define THUMBNAIL_W 100
@@ -504,62 +503,6 @@ void state_player_rw_to_player(player_rw *pl_rw, player *pl)
 	pl->homing_object_dist        = pl_rw->homing_object_dist;
 	pl->hours_level               = pl_rw->hours_level;
 	pl->hours_total               = pl_rw->hours_total;
-	pl->deathCount			      = 0;
-	pl->rankScore                 = 0;
-	pl->excludePoints             = 0;
-	pl->maxScore                  = 0;
-	pl->level_time                = 0;
-	pl->quickload                 = 1;
-}
-
-void state_player_rw2_to_player(player_rw2* pl_rw2, player* pl)
-{
-	int i = 0;
-	memcpy(pl->callsign, pl_rw2->callsign, CALLSIGN_LEN + 1);
-	memcpy(pl->net_address, pl_rw2->net_address, 6);
-	pl->connected = pl_rw2->connected;
-	pl->objnum = pl_rw2->objnum;
-	pl->n_packets_got = pl_rw2->n_packets_got;
-	pl->n_packets_sent = pl_rw2->n_packets_sent;
-	pl->flags = pl_rw2->flags;
-	pl->energy = pl_rw2->energy;
-	pl->shields = pl_rw2->shields;
-	pl->lives = pl_rw2->lives;
-	pl->level = pl_rw2->level;
-	pl->laser_level = pl_rw2->laser_level;
-	pl->starting_level = pl_rw2->starting_level;
-	pl->killer_objnum = pl_rw2->killer_objnum;
-	pl->primary_weapon_flags = pl_rw2->primary_weapon_flags;
-	pl->secondary_weapon_flags = pl_rw2->secondary_weapon_flags;
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		pl->primary_ammo[i] = pl_rw2->primary_ammo[i];
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		pl->secondary_ammo[i] = pl_rw2->secondary_ammo[i];
-	pl->last_score = pl_rw2->last_score;
-	pl->score = pl_rw2->score;
-	pl->time_level = pl_rw2->time_level;
-	pl->time_total = pl_rw2->time_total;
-	pl->cloak_time = pl_rw2->cloak_time;
-	pl->invulnerable_time = pl_rw2->invulnerable_time;
-	pl->net_killed_total = pl_rw2->net_killed_total;
-	pl->net_kills_total = pl_rw2->net_kills_total;
-	pl->num_kills_level = pl_rw2->num_kills_level;
-	pl->num_kills_total = pl_rw2->num_kills_total;
-	pl->num_robots_level = pl_rw2->num_robots_level;
-	pl->num_robots_total = pl_rw2->num_robots_total;
-	pl->hostages_rescued_total = pl_rw2->hostages_rescued_total;
-	pl->hostages_total = pl_rw2->hostages_total;
-	pl->hostages_on_board = pl_rw2->hostages_on_board;
-	pl->hostages_level = pl_rw2->hostages_level;
-	pl->homing_object_dist = pl_rw2->homing_object_dist;
-	pl->hours_level = pl_rw2->hours_level;
-	pl->hours_total = pl_rw2->hours_total;
-	pl->deathCount = pl_rw2->deathCount;
-	pl->rankScore = pl_rw2->rankScore;
-	pl->excludePoints = pl_rw2->excludePoints;
-	pl->maxScore = pl_rw2->maxScore;
-	pl->level_time = pl_rw2->level_time;
-	pl->quickload = pl_rw2->quickload;
 }
 
 //-------------------------------------------------------------------
@@ -715,7 +658,7 @@ int state_get_save_file(char * fname, char * dsc, int blind_save)
 
 int state_get_restore_file(char * fname)
 {
-	return state_get_savegame_filename(fname, NULL, "Select Game to Restore\nWill invalidate your rank on that level", 0);
+	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", 0);
 }
 
 int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player, 
@@ -979,11 +922,11 @@ int state_save_all_sub(char *filename, char *desc)
 //Save player info
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
 	{
-		player_rw2 *pl_rw;
-		MALLOC(pl_rw, player_rw2, 1);
-		memset(pl_rw, 0, sizeof(player_rw2));
+		player_rw *pl_rw;
+		MALLOC(pl_rw, player_rw, 1);
+		memset(pl_rw, 0, sizeof(player_rw));
 		state_player_to_player_rw(&Players[Player_num], pl_rw);
-		PHYSFS_write(fp, pl_rw, sizeof(player_rw2), 1);
+		PHYSFS_write(fp, pl_rw, sizeof(player_rw), 1);
 		d_free(pl_rw);
 	}
 
@@ -1182,9 +1125,8 @@ int state_restore_all_sub(char *filename)
 	char org_callsign[CALLSIGN_LEN+16];
 	fix tmptime32 = 0;
 	player_rw* pl_rw;
-	player_rw2* pl_rw2;
 	int rebirth = 0;
-	Players[Player_num].quickload = 1;
+	Ranking.quickload = 1;
 
 	#ifndef NDEBUG
 	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
@@ -1290,19 +1232,11 @@ int state_restore_all_sub(char *filename)
 //Read player info
 
 	StartNewLevelSub(current_level, 1, 0);//use page_in_textures here to fix OGL texture precashing crash -MPM
-	if (version < 8) {
 		MALLOC(pl_rw, player_rw, 1);
 		PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
 		player_rw_swap(pl_rw, swap);
 		state_player_rw_to_player(pl_rw, &Players[Player_num]);
 		d_free(pl_rw);
-	}
-	else {
-		MALLOC(pl_rw2, player_rw2, 1);
-		PHYSFS_read(fp, pl_rw2, sizeof(player_rw2), 1);
-		state_player_rw2_to_player(pl_rw2, &Players[Player_num]);
-		d_free(pl_rw2);
-	}
 	strcpy( Players[Player_num].callsign, org_callsign );
 	if (Game_mode & GM_MULTI_COOP)
 		Players[Player_num].objnum = coop_org_objnum;
@@ -1584,7 +1518,8 @@ RetryObjectLoading:
 		if (!window_is_visible(Game_wind))
 			window_set_visible(Game_wind, 1);
 	reset_time();
-
+	HUD_init_message_literal(HM_DEFAULT, "You quickloaded! Ranking system mod disabled for this level.");
+	digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 	return 1;
 }
 

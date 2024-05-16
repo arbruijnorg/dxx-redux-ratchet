@@ -161,7 +161,7 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 
 			if (result) {				
 				if (obj->matcen_creator != 0 || obj->flags & OF_ROBOT_DROPPED)
-					Players[Player_num].excludePoints += Robot_info[obj->id].score_value;
+					Ranking.excludePoints += Robot_info[obj->id].score_value;
 				add_points_to_score(Robot_info[obj->id].score_value);
 			}
 			break;
@@ -1002,7 +1002,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
 			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature || !(Game_mode & GM_MULTI_COOP)) {
 				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED)
-					Players[Player_num].excludePoints += Robot_info[robot->id].score_value;
+					Ranking.excludePoints += Robot_info[robot->id].score_value;
 				add_points_to_score(Robot_info[robot->id].score_value);
 			}
 		}

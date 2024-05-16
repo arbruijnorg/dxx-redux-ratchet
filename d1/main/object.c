@@ -1513,7 +1513,7 @@ void dead_player_frame(void)
 
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (!Player_exploded) {
-				Players[Player_num].rankScore -= Players[Player_num].hostages_on_board;
+				Ranking.rankScore -= Players[Player_num].hostages_on_board;
 				if (Players[Player_num].hostages_on_board > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, Players[Player_num].hostages_on_board);
 				else if (Players[Player_num].hostages_on_board == 1)
@@ -1600,8 +1600,9 @@ void dead_player_frame(void)
 //	------------------------------------------------------------------------------------------------------------------
 void start_player_death_sequence(object* player)
 {
-	Players[Player_num].deathCount++;
-	Players[Player_num].level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
+	Ranking.deathCount++;
+	if (Control_center_destroyed)
+	Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 	int	objnum;
 
 	Assert(player == ConsoleObject);
