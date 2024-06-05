@@ -213,56 +213,60 @@ static inline const char *get_placement_slot_string(const unsigned position)
 
 void scores_maybe_add_player(int abort_flag)
 {
-	char text1[COOL_MESSAGE_LEN+10];
-	newmenu_item m[10];
-	int i,position;
-	all_scores scores;
-	stats_info last_game;
+	if (!cheats.enabled) {
+		char text1[COOL_MESSAGE_LEN + 10];
+		newmenu_item m[10];
+		int i, position;
+		all_scores scores;
+		stats_info last_game;
 
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-		return;
-  
-	scores_read(&scores);
-	
-	position = MAX_HIGH_SCORES;
-	for (i=0; i<MAX_HIGH_SCORES; i++ )	{
-		if ( Players[Player_num].score > scores.stats[i].score )	{
-			position = i;
-			break;
-		}
-	}
-	
-	if ( position == MAX_HIGH_SCORES ) {
-		if (abort_flag)
+		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 			return;
-		scores_fill_struct( &last_game );
-	} else {
-		if ( position==0 )	{
-			strcpy( text1,  "" );
-			m[0].type = NM_TYPE_TEXT; m[0].text = TXT_COOL_SAYING;
-			m[1].type = NM_TYPE_INPUT; m[1].text = text1; m[1].text_len = COOL_MESSAGE_LEN-5;
-			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, 2, m, NULL, NULL );
-			strncpy( scores.cool_saying, text1, COOL_MESSAGE_LEN );
-			if (strlen(scores.cool_saying)<1)
-				sprintf( scores.cool_saying, "No Comment" );
-		} else {
-			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
-		}
-	
-		// move everyone down...
-		for ( i=MAX_HIGH_SCORES-1; i>position; i-- )	{
-			scores.stats[i] = scores.stats[i-1];
+
+		scores_read(&scores);
+
+		position = MAX_HIGH_SCORES;
+		for (i = 0; i < MAX_HIGH_SCORES; i++) {
+			if (Players[Player_num].score > scores.stats[i].score) {
+				position = i;
+				break;
+			}
 		}
 
-		scores_fill_struct( &scores.stats[position] );
-	
-		scores_write(&scores);
+		if (position == MAX_HIGH_SCORES) {
+			if (abort_flag)
+				return;
+			scores_fill_struct(&last_game);
+		}
+		else {
+			if (position == 0) {
+				strcpy(text1, "");
+				m[0].type = NM_TYPE_TEXT; m[0].text = TXT_COOL_SAYING;
+				m[1].type = NM_TYPE_INPUT; m[1].text = text1; m[1].text_len = COOL_MESSAGE_LEN - 5;
+				newmenu_do(TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, 2, m, NULL, NULL);
+				strncpy(scores.cool_saying, text1, COOL_MESSAGE_LEN);
+				if (strlen(scores.cool_saying) < 1)
+					sprintf(scores.cool_saying, "No Comment");
+			}
+			else {
+				nm_messagebox(TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
+			}
 
+			// move everyone down...
+			for (i = MAX_HIGH_SCORES - 1; i > position; i--) {
+				scores.stats[i] = scores.stats[i - 1];
+			}
+
+			scores_fill_struct(&scores.stats[position]);
+
+			scores_write(&scores);
+
+		}
+		scores_view(&last_game, position);
+
+		if (Game_wind)
+			window_close(Game_wind);	// prevent the next game from doing funny things
 	}
-	scores_view(&last_game, position);
-
-	if (Game_wind)
-		window_close(Game_wind);	// prevent the next game from doing funny things
 }
 
 void scores_rprintf(int x, int y, char * format, ... )

@@ -189,7 +189,15 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 					else
 						Ranking.secretExcludePoints += Robot_info[obj->id].score_value;
 				}
-				add_points_to_score(Robot_info[obj->id].score_value);
+				if (!(other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature)) {
+					if (Current_level_num > 0)
+						Ranking.excludePoints -= Robot_info[obj->id].score_value;
+					else
+						Ranking.secretExcludePoints -= Robot_info[obj->id].score_value;
+					add_points_to_score(0);
+				}
+				else
+					add_points_to_score(Robot_info[obj->id].score_value);
 			}
 			break;
 

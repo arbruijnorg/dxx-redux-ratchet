@@ -184,7 +184,15 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 												else
 													Ranking.secretExcludePoints += Robot_info[obj0p->id].score_value;
 											}
-											add_points_to_score(Robot_info[obj0p->id].score_value);
+											if (!(parent == Players[Player_num].objnum)) {
+												if (Current_level_num > 0)
+													Ranking.excludePoints -= Robot_info[obj0p->id].score_value;
+												else
+													Ranking.secretExcludePoints -= Robot_info[obj0p->id].score_value;
+												add_points_to_score(0);
+											}
+											else
+												add_points_to_score(Robot_info[obj0p->id].score_value);
 										}
 								}
 

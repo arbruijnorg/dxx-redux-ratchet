@@ -130,6 +130,9 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	double  level_time;              // Time variable used in rank calculation. Updates to match Players[Player_num].time_level at specific points to protect players from being penalized for not skipping things.
 	double  quickload;				 // Whether the player has quickloaded into the current level.
 	double  averagePoints;			 // Divisor based on the average point value of everything in a level. Used for time bonus drain rate in junction with maxScore to prevent inflated/deflated robot point values from manipulating time bonus.
+	double  calculatedScore;		 // Stores the score determined in CalculateRank.
+	int     rank;					 // Stores the rank determined in CalculateRank.
+	char*   mission_filename;        // A version of the current mission's filename that sets to "Descent: First Strike" in base64 when it detects the D1 built in mission, because "" isn't supported.
 } __pack__ ranking;
 
 // Same as above but structure how Savegames expect

@@ -535,6 +535,9 @@ int load_mission(mle* mission)
 	*(mle*)Current_mission = *mission;
 	Current_mission->path = d_strdup(mission->path);
 	Current_mission->filename = Current_mission->path + (mission->filename - mission->path);
+	Ranking.mission_filename = Current_mission->filename;
+	if (Current_mission->filename == NULL)
+		sprintf(Ranking.mission_filename, "RGVzY2VudDogRmlyc3QgU3RyaWtl");
 	Current_mission->n_secret_levels = 0;
 
 	//init vars

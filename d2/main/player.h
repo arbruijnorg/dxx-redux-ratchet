@@ -141,6 +141,8 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	double  quickload;				 // Whether the player has quickloaded into the current level.
 	double  averagePoints;			 // Divisor based on the average point value of everything in a level. Used for time bonus drain rate in junction with maxScore to prevent inflated/deflated robot point values from manipulating time bonus.
 	double  freezeTimer;             // Tells normal levels' in-game timer whether it should be frozen or not.
+	double  calculatedScore;		 // Stores the score determined in CalculateRank.
+	int     rank;				     // Stores the rank determined in CalculateRank.
 
 	// Below are the variables used for secret levels. Since we can play them in the middle of a normal one, we have to distinguish between them so results don't overlap.
 	double	secretRankScore;
@@ -148,7 +150,7 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	double	secretMaxScore;
 	double	secretlevel_time;
 	double  secretlast_score;		  // Secret equivalent of Players[Player_num].last_score.
-	double  secret_hostages_on_board; // Since Players[Player_num].hostages_on_board carries over, and we don't want base level hostages' points counting for secret levels and vice versa.
+	int		secret_hostages_on_board; // Since Players[Player_num].hostages_on_board carries over, and we don't want base level hostages' points counting for secret levels and vice versa.
 	double  secretDeathCount;         // We don't want starting a new base level to remove the secret level's death penalty, or vise versa, so increment this alongside deathCount, but only reset it upon starting a new secret level.
 	double  secretQuickload;		  // Same thing as secretDeathCount, but with quickloading.
 	double  secretAveragePoints;

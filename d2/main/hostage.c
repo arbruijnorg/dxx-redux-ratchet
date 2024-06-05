@@ -51,9 +51,8 @@ void hostage_rescue(int blah)
 {
 	PALETTE_FLASH_ADD(0, 0, 25);		//small blue flash
 
-	if (Current_level_num > 0)
-		Players[Player_num].hostages_on_board++;
-	else
+	Players[Player_num].hostages_on_board++;
+	if (Current_level_num < 0)
 		Ranking.secret_hostages_on_board++;
 	// Do an audio effect
 	if (Newdemo_state != ND_STATE_PLAYBACK)

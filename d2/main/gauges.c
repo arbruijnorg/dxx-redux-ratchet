@@ -710,7 +710,7 @@ void hud_show_score()
 	if ( (Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) ) {
 		sprintf(score_str, "%s: %5d", TXT_KILLS, Players[pnum].net_kills_total);
 	} else {
-		if (Newdemo_state == ND_STATE_PLAYBACK || (Game_mode & GM_MULTI_COOP) || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0)) {
+		if (!(Newdemo_state == ND_STATE_NORMAL || Newdemo_state == ND_STATE_RECORDING) || (Game_mode & GM_MULTI) || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0)) {
 			sprintf(score_str, "%s: %5d", TXT_SCORE, Players[Player_num].score);
 		}
 		else {
@@ -728,6 +728,19 @@ void hud_show_score()
 	gr_set_fontcolor(Color_0_31_0, -1);
 
 	gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), FSPACY(1), score_str);
+}
+
+void hud_show_pointstonextlife()
+{
+	int pointstonextlife = 50000 - Players[Player_num].score % 50000;
+
+	gr_set_curfont(GAME_FONT);
+
+	if (Color_0_31_0 == -1)
+		Color_0_31_0 = BM_XRGB(0, 31, 0);
+	gr_set_fontcolor(Color_0_31_0, -1);
+
+	gr_printf(SWIDTH - FSPACX(60), GHEIGHT - (LINE_SPACING * 37.5), "1-up in %5d", pointstonextlife);
 }
 
 void hud_show_timer_count()
@@ -1554,9 +1567,9 @@ void show_time()
 	gr_set_fontcolor(Color_0_31_0, -1);
 
 	if (secs < 10 || secs == 60)
-		gr_printf(SWIDTH - FSPACX(35), GHEIGHT - (LINE_SPACING * 11), "%d:0%.03f", mins, secs);
+		gr_printf(SWIDTH - FSPACX(40), GHEIGHT - (LINE_SPACING * 11), "%d:0%.03f", mins, secs);
 	else
-		gr_printf(SWIDTH - FSPACX(35), GHEIGHT - (LINE_SPACING * 11), "%d:%.03f", mins, secs);
+		gr_printf(SWIDTH - FSPACX(40), GHEIGHT - (LINE_SPACING * 11), "%d:%.03f", mins, secs);
 }
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
@@ -1573,7 +1586,7 @@ void add_points_to_score(int points)
 	}
 	int prev_score = Players[Player_num].score;
 	Players[Player_num].score += points;
-	if (!(Game_mode & GM_MULTI_COOP)) {
+	if (!(Game_mode & GM_MULTI || ((Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0)))) {
 		int prev_rankscore;
 		if (Current_level_num > 0) {
 			Ranking.secretExcludePoints += points;
@@ -4620,6 +4633,8 @@ void draw_hud()
 	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
 		hud_show_score();
+		if (!((Game_mode & GM_MULTI) || (!(Newdemo_state == ND_STATE_NORMAL || Newdemo_state == ND_STATE_RECORDING)) || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0)))
+			hud_show_pointstonextlife();
 		if (score_time)
 			hud_show_score_added();
 	}
@@ -4650,7 +4665,7 @@ void draw_hud()
 			}
 		}
 
-		if (!((Game_mode & GM_MULTI && Show_kill_list) || Newdemo_state == ND_STATE_RECORDING || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0)))
+		if (!((Game_mode & GM_MULTI) || !(Newdemo_state == ND_STATE_NORMAL || Newdemo_state == ND_STATE_RECORDING) || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0)))
 			show_time();
 
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)

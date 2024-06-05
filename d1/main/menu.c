@@ -563,38 +563,65 @@ int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
 
 int do_best_ranks_menu()
 {
-	int numlines = Current_mission->last_level + Current_mission->last_secret_level * -1;
+	int numlines = Current_mission->last_level - Current_mission->last_secret_level;
 	char** list = (char**)malloc(sizeof(char*) * numlines);
 	char message[256];
 	sprintf(message, "Best ranks for %s", Current_mission->mission_name);
 	char filename[256];
-	char currentReadScore[256];
-	char currentReadRank[256];
-	sprintf(filename, "%s scores.hi", Current_mission->filename);
-	PHYSFS_file* scores = PHYSFS_openRead(filename);
-	sprintf(filename, "%s ranks.hi", Current_mission->filename);
-	PHYSFS_file* ranks = PHYSFS_openRead(filename);
 	char** items = (char**)malloc(sizeof(char*) * numlines);
+	char** Rank = (char**)malloc(sizeof(char*) * 15);
+	Rank[0] = "N/A";
+	Rank[1] = "E";
+	Rank[2] = "D-";
+	Rank[3] = "D";
+	Rank[4] = "D+";
+	Rank[5] = "C-";
+	Rank[6] = "C";
+	Rank[7] = "C+";
+	Rank[8] = "B-";
+	Rank[9] = "B";
+	Rank[10] = "B+";
+	Rank[11] = "A-";
+	Rank[12] = "A";
+	Rank[13] = "A+";
+	Rank[14] = "S";
 	int i;
-	for (i = 0; i < numlines; i++)
-	{
-		if (scores == NULL || ranks == NULL) {
-			numlines = 1;
+	if (Current_mission->anarchy_only_flag == 1) {
+		list[i] = (char*)malloc(sizeof(char) * 64);
+		snprintf(list[i], 64, "Not a single player mission.");
+	}
+	else {
+		for (i = 0; i < numlines; i++)
+		{
+			sprintf(filename, "ranks/%s/level%i.hi", Ranking.mission_filename, i + 1);
+			if (i >= Current_mission->last_level)
+				sprintf(filename, "ranks/%s/levelS%i.hi", Ranking.mission_filename, i - Current_mission->last_level + 1);
+			PHYSFS_file* fp = PHYSFS_openRead(filename);
 			list[i] = (char*)malloc(sizeof(char) * 64);
-			snprintf(list[i], 64, "No data for mission, start a level to create it.");
-		}
-		else {
-			PHYSFSX_getsTerminated(scores, currentReadScore);
-			PHYSFSX_getsTerminated(ranks, currentReadRank);
-			list[i] = (char*)malloc(sizeof(char) * 64);
-			if (i < Current_mission->last_level)
-				snprintf(list[i], 64, "Level %i: %s %s", i + 1, currentReadScore, currentReadRank);
-			else
-				snprintf(list[i], 64, "Level S%i: %s %s", i - Current_mission->last_level + 1, currentReadScore, currentReadRank);
+			if (fp == NULL) {
+				if (i < Current_mission->last_level)
+					snprintf(list[i], 64, "Level %i: N/A", i + 1);
+				else
+					snprintf(list[i], 64, "Level S%i: N/A", i - Current_mission->last_level + 1);
+			}
+			else {
+				CalculateRank(i + 1);
+				if (Ranking.rank > 0) {
+					if (i < Current_mission->last_level)
+						snprintf(list[i], 64, "Level %i: %.0f %s", i + 1, Ranking.calculatedScore, Rank[Ranking.rank]);
+					else
+						snprintf(list[i], 64, "Level S%i: %.0f %s", i - Current_mission->last_level + 1, Ranking.calculatedScore, Rank[Ranking.rank]);
+				}
+				else {
+					if (i < Current_mission->last_level)
+						snprintf(list[i], 64, "Level %i: N/A", i + 1);
+					else
+						snprintf(list[i], 64, "Level S%i: N/A", i - Current_mission->last_level + 1);
+				}
+			}
+			PHYSFS_close(fp);
 		}
 	}
-	PHYSFS_close(scores);
-	PHYSFS_close(ranks);
 	listbox* lb = newmenu_listbox1(message, numlines, list, 1, 0, (int (*)(listbox*, d_event*, void*))ranks_menu_handler, NULL);
 	window* wind = listbox_get_window(lb);
 	while (window_exists(wind))

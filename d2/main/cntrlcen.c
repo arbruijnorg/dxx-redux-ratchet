@@ -228,10 +228,12 @@ void do_countdown_frame()
 			reset_palette_add();							//restore palette for death message
 			//controlcen->MaxCapacity = Fuelcen_max_amount;
 			//gauge_message( "Control Center Reset" );
-			Ranking.deathCount++;
-			Ranking.secretDeathCount++;
-			if (!Player_is_dead)
+			if (!Player_is_dead) {
+				Ranking.deathCount++;
+				if (Current_level_num < 0)
+					Ranking.secretDeathCount++;
 				Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
+			}
 			DoPlayerDead();		//kill_player();
 		}																				
 	}
@@ -258,6 +260,8 @@ void do_controlcen_destroyed_stuff(object *objp)
 	if (Player_is_dead) {
 		Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 		Ranking.freezeTimer = 1;
+		if (Current_level_num > 0)
+			Ranking.secretDeathCount--;
 	}
 
 	// If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
