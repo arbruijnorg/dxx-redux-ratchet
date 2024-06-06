@@ -1288,7 +1288,7 @@ void DoEndSecretLevelScoreGlitz(int network)
 		fp = PHYSFS_openRead(filename);
 		if (!fp == NULL) {
 				CalculateRank(Current_mission->last_level - Current_level_num);
-			if (Ranking.rankScore > Ranking.calculatedScore || Ranking.rank == 0) {
+			if (Ranking.secretRankScore > Ranking.calculatedScore || Ranking.rank == 0) {
 				temp = PHYSFS_openWrite(temp_filename);
 				PHYSFSX_printf(temp, "%.0f\n", Ranking.hostages_secret_level);
 				PHYSFSX_printf(temp, "%.0f\n", (Ranking.secretMaxScore - Ranking.hostages_secret_level * 7500) / 2.5);
