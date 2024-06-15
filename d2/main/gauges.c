@@ -734,13 +734,33 @@ void hud_show_pointstonextlife()
 {
 	int pointstonextlife = 50000 - Players[Player_num].score % 50000;
 
+	int x = FSPACX(2);
+
+	if (HUD_toolong)
+		return;
+
+	grs_bitmap* bm;
+	PIGGY_PAGE_IN(Gauges[GAUGE_LIVES]);
+	bm = &GameBitmaps[Gauges[GAUGE_LIVES].index];
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(BM_XRGB(0, 20, 0), -1);
+	gr_printf(HUD_SCALE_X_AR(bm->bm_w) + x, FSPACY(20), "1-up in %5d", pointstonextlife);
+}
+
+void hud_show_pointsleftinlevel()
+{
+	int pointsleftinlevel = (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 2.5 - Ranking.rankScore;
+	if (Current_level_num < 0)
+		pointsleftinlevel = (Ranking.secretMaxScore - Ranking.hostages_secret_level * 7500) / 2.5 - Ranking.secretRankScore;
+	if (HUD_toolong)
+		return;
+
 	gr_set_curfont(GAME_FONT);
 
 	if (Color_0_31_0 == -1)
 		Color_0_31_0 = BM_XRGB(0, 31, 0);
 	gr_set_fontcolor(Color_0_31_0, -1);
-
-	gr_printf(SWIDTH - FSPACX(60), GHEIGHT - (LINE_SPACING * 37.5), "1-up in %5d", pointstonextlife);
+	gr_printf(SWIDTH - FSPACX(65), FSPACY(20), "%5d remains", pointsleftinlevel);
 }
 
 void hud_show_timer_count()
@@ -4631,12 +4651,15 @@ void draw_hud()
 	}
 
 	//	Show score so long as not in rearview
-	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
+	if (!Rear_view && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW && PlayerCfg.CockpitMode[1] != CM_STATUS_BAR) {
 		hud_show_score();
-		if (!((Game_mode & GM_MULTI) || (!(Newdemo_state == ND_STATE_NORMAL || Newdemo_state == ND_STATE_RECORDING)) || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0)))
-			hud_show_pointstonextlife();
 		if (score_time)
 			hud_show_score_added();
+	}
+
+	if (!((Game_mode & GM_MULTI) || (!(Newdemo_state == ND_STATE_NORMAL || Newdemo_state == ND_STATE_RECORDING)) || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0))) {
+		hud_show_pointstonextlife();
+		hud_show_pointsleftinlevel();
 	}
 
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)

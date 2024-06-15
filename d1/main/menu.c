@@ -593,9 +593,9 @@ int do_best_ranks_menu()
 	else {
 		for (i = 0; i < numlines; i++)
 		{
-			sprintf(filename, "ranks/%s/level%i.hi", Ranking.mission_filename, i + 1);
+			sprintf(filename, "ranks/%s/level%i.hi", Current_mission->filename, i + 1);
 			if (i >= Current_mission->last_level)
-				sprintf(filename, "ranks/%s/levelS%i.hi", Ranking.mission_filename, i - Current_mission->last_level + 1);
+				sprintf(filename, "ranks/%s/levelS%i.hi", Current_mission->filename, i - Current_mission->last_level + 1);
 			PHYSFS_file* fp = PHYSFS_openRead(filename);
 			list[i] = (char*)malloc(sizeof(char) * 64);
 			if (fp == NULL) {

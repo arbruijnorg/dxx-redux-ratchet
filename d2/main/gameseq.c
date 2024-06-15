@@ -873,8 +873,11 @@ void CalculateRank(int level_num)
 	if (difficulty == 4)
 		skillPoints = playerPoints * 1.5;
 	double timePoints = (maxScore / 2.5) * pow(0.25, secondsTaken / (0.005 * (maxScore / averagePoints)));
+	double score = playerPoints + skillPoints + timePoints + playerHostages * (500 * (difficulty + 1));
 	double deathPoints = maxScore * 0.4 - maxScore * (0.4 / pow(2, deathCount));
-	double score = playerPoints + skillPoints + timePoints - deathPoints + playerHostages * (500 * (difficulty + 1));
+	if (deathCount > 0 && playerPoints - deathPoints >= maxScore)
+		deathPoints = (playerPoints - maxScore) + 1;
+	score -= deathPoints;
 	if (playerHostages == levelHostages)
 		score += levelHostages * (1000 * (difficulty + 1));
 	score = (int)score;
@@ -882,7 +885,7 @@ void CalculateRank(int level_num)
 		rankPoints2 = (score / maxScore) * 12;
 	}
 	if (rankPoints2 > -5 && maxScore == 0)
-			rankPoints2 = 12;
+		rankPoints2 = 12;
 	Ranking.calculatedScore = score;
 	if (rankPoints2 < -5)
 		Ranking.rank = 0;
@@ -967,6 +970,9 @@ void StartNewGame(int start_level)
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
 void DoEndLevelScoreGlitz(int network)
 {
+	if (Ranking.level_time == 0)
+		Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536); // Failsafe for if this isn't updated.
+	
 	int level_points, skill_points, skill_points2, death_points, shield_points, energy_points, time_points, hostage_points;
 	int	all_hostage_points, endgame_points;
 	char	all_hostage_text[64];
