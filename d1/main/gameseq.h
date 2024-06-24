@@ -91,7 +91,6 @@ extern int add_player_to_high_scores(player *pp);
 extern void input_name (int place);
 extern int reset_high_scores();
 extern void init_player_stats_level(int secret_flag);
-extern void CalculateRank(int level_num);
 
 void open_message_window(void);
 void close_message_window(void);
@@ -108,8 +107,11 @@ void editor_reset_stuff_on_level();
 // Show endlevel bonus scores
 extern void DoEndLevelScoreGlitz(int network);
 
-// Show endlevel rank
-extern void DoEndLevelScoreGlitz();
+// Calculate scores and ranks based on saved performance data
+extern void CalculateRank(int level_num);
+
+// For the par time pathfinder.
+extern int mark_player_path_to_segment_partime();
 
 // stuff for multiplayer
 extern int NumNetPlayerPositions;

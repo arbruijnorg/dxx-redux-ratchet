@@ -768,7 +768,7 @@ void hud_show_pointstonextlife()
 
 void hud_show_pointsleftinlevel()
 {
-	int pointsleftinlevel = (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 2.5 - Ranking.rankScore;
+	int pointsleftinlevel = Ranking.maxScore / 3 - Ranking.rankScore;
 
 	if (HUD_toolong)
 		return;

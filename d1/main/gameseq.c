@@ -708,7 +708,7 @@ void CalculateRank(int level_num)
 {
 	int levelHostages = 0;
 	int levelPoints = 0;
-	double averagePoints = 0;
+	double parTime = 0;
 	int playerPoints = 0;
 	double secondsTaken = 0;
 	int playerHostages = 0;
@@ -717,9 +717,9 @@ void CalculateRank(int level_num)
 	double rankPoints2 = 0;
 	char buffer[256];
 	char filename[256];
-	sprintf(filename, "ranks/%s/level%d.hi", Current_mission->filename, level_num); // Find file for the requested level.
+	sprintf(filename, "ranks/%s/%s/level%d.hi", Players[Player_num].callsign, Current_mission->filename, level_num); // Find file for the requested level.
 	if (level_num > Current_mission->last_level)
-		sprintf(filename, "ranks/%s/levelS%d.hi", Current_mission->filename, level_num - Current_mission->last_level);
+		sprintf(filename, "ranks/%s/%s/levelS%d.hi", Players[Player_num].callsign, Current_mission->filename, level_num - Current_mission->last_level);
 	PHYSFS_file* fp = PHYSFS_openRead(filename);
 	if (fp == NULL)
 		rankPoints2 = -10; // If no data exists, just assume level never played and set rankPoints in the range that returns N/A.
@@ -732,7 +732,7 @@ void CalculateRank(int level_num)
 			PHYSFSX_getsTerminated(fp, buffer);
 			levelPoints = atoi(buffer);
 			PHYSFSX_getsTerminated(fp, buffer);
-			averagePoints = atof(buffer);
+			parTime = atof(buffer);
 			PHYSFSX_getsTerminated(fp, buffer); // Fetch player data starting here.
 			playerPoints = atoi(buffer);
 			PHYSFSX_getsTerminated(fp, buffer);
@@ -746,7 +746,7 @@ void CalculateRank(int level_num)
 		}
 	}
 	PHYSFS_close(fp);
-	double maxScore = levelPoints * 2.5 + levelHostages * 7500;
+	double maxScore = levelPoints * 3;
 	maxScore = (int)maxScore;
 	double skillPoints = 0;
 	if (difficulty == 1)
@@ -754,14 +754,15 @@ void CalculateRank(int level_num)
 	if (difficulty == 2)
 		skillPoints = playerPoints * 0.5;
 	if (difficulty == 3)
-		skillPoints = playerPoints;
+		skillPoints = playerPoints * 0.75;
 	if (difficulty == 4)
-		skillPoints = playerPoints * 1.5;
-	double timePoints = (maxScore / 2.5) * pow(0.25, secondsTaken / (0.005 * (maxScore / averagePoints)));
+		skillPoints = playerPoints;
+	double timePoints = (maxScore / 1.5) / pow(2, secondsTaken / parTime);
+	if (secondsTaken < parTime)
+		timePoints = (maxScore / 2.4) * (1 - (secondsTaken / parTime) * 0.2);
 	double score = playerPoints + skillPoints + timePoints + playerHostages * (500 * (difficulty + 1));
+	maxScore += levelHostages * 7500;
 	double deathPoints = maxScore * 0.4 - maxScore * (0.4 / pow(2, deathCount));
-	if (deathCount > 0 && playerPoints - deathPoints >= maxScore)
-		deathPoints = (playerPoints - maxScore) + 1;
 	score -= deathPoints;
 	if (playerHostages == levelHostages)
 		score += levelHostages * (1000 * (difficulty + 1));
@@ -811,12 +812,12 @@ void StartNewGame(int start_level)
 	char filename[256];
 	int i = 1;
 	char buffer[256];
-	sprintf(buffer, "ranks/%s", Current_mission->filename);
+	sprintf(buffer, "ranks/%s/%s", Players[Player_num].callsign, Current_mission->filename);
 	PHYSFS_mkdir(buffer);
 	while (i <= Current_mission->last_level - Current_mission->last_secret_level) {
-		sprintf(filename, "ranks/%s/level%d.hi", Current_mission->filename, i);
+		sprintf(filename, "ranks/%s/%s/level%d.hi", Players[Player_num].callsign, Current_mission->filename, i);
 		if (i > Current_mission->last_level)
-			sprintf(filename, "ranks/%s/levelS%d.hi", Current_mission->filename, i - Current_mission->last_level);
+			sprintf(filename, "ranks/%s/%s/levelS%d.hi", Players[Player_num].callsign, Current_mission->filename, i - Current_mission->last_level);
 		fp = PHYSFS_openRead(filename);
 		if (fp == NULL) { // If this level's rank data file doesn't exist, create it now so it can be written to on the rank screen.
 			fp = PHYSFS_openWrite(filename);
@@ -875,7 +876,7 @@ void DoEndLevelScoreGlitz(int network)
 		skill_points2 = Ranking.rankScore / 4;
 	if (Difficulty_level > 1) {
 		skill_points = level_points * (Difficulty_level - 1) / 2;
-		skill_points2 = Ranking.rankScore * (Difficulty_level - 1) / 2;
+		skill_points2 = Ranking.rankScore * (Difficulty_level / 4);
 	}
 	skill_points -= skill_points % 100;
 
@@ -883,7 +884,10 @@ void DoEndLevelScoreGlitz(int network)
 	shield_points -= shield_points % 50;
 	energy_points = f2i(Players[Player_num].energy) * 5 * (Difficulty_level + 1);
 	energy_points -= energy_points % 50;
-	time_points = (Ranking.maxScore / 2.5) * pow(0.25, Ranking.level_time / (0.005 * (Ranking.maxScore / Ranking.averagePoints)));
+	time_points = (Ranking.maxScore / 1.5) / pow(2, Ranking.level_time / Ranking.parTime);
+	if (Ranking.level_time < Ranking.parTime)
+		time_points = (Ranking.maxScore / 2.4) * (1 - (Ranking.level_time / Ranking.parTime) * 0.2);
+	Ranking.maxScore += Players[Player_num].hostages_level * 7500;
 	hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level + 1);
 
 	all_hostage_text[0] = 0;
@@ -905,15 +909,16 @@ void DoEndLevelScoreGlitz(int network)
 		add_bonus_points_to_score(shield_points + energy_points + skill_points + hostage_points + all_hostage_points + endgame_points);
 	Ranking.rankScore += skill_points2 + time_points + hostage_points + all_hostage_points;
 	death_points = Ranking.maxScore * 0.4 - Ranking.maxScore * (0.4 / pow(2, Ranking.deathCount));
-	if (Ranking.deathCount > 0 && Ranking.rankScore - death_points >= Ranking.maxScore)
-		death_points = (Ranking.rankScore - Ranking.maxScore) + 1;
-	death_points = death_points * -1;
+	death_points *= -1;
 	Ranking.rankScore += death_points;
 
 	int minutes = Ranking.level_time / 60;
 	double seconds = Ranking.level_time - minutes * 60;
+	int parMinutes = Ranking.parTime / 60;
+	double parSeconds = Ranking.parTime - parMinutes * 60;
 	char* diffname = 0;
 	char time[256];
+	char parTime[256];
 	c = 0;
 	if (Difficulty_level == 0)
 		diffname = "Trainee";
@@ -930,8 +935,12 @@ void DoEndLevelScoreGlitz(int network)
 			sprintf(time, "%i:0%.3f", minutes, seconds);
 		else
 			sprintf(time, "%i:%.3f", minutes, seconds);
+		if (parSeconds < 10 || parSeconds == 60)
+			sprintf(parTime, "%i:0%.0f", parMinutes, parSeconds);
+		else
+			sprintf(parTime, "%i:%.0f", parMinutes, parSeconds);
 		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.excludePoints);
-		sprintf(m_str[c++], "Time: %s\t%i", time, time_points);
+		sprintf(m_str[c++], "Time: %s/%s\t%i", time, parTime, time_points);
 		sprintf(m_str[c++], "Hostages: %i/%i\t%i", Players[Player_num].hostages_on_board, Players[Player_num].hostages_level, hostage_points);
 		sprintf(m_str[c++], "Skill: %s\t%i", diffname, skill_points2);
 		if (all_hostage_points > 0) {
@@ -983,10 +992,10 @@ void DoEndLevelScoreGlitz(int network)
 			PHYSFS_File* temp;
 			char filename[256];
 			char temp_filename[256];
-			sprintf(filename, "ranks/%s/level%i.hi", Current_mission->filename, Current_level_num);
+			sprintf(filename, "ranks/%s/%s/level%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num);
 			if (Current_level_num < 0)
-			sprintf(filename, "ranks/%s/levelS%i.hi", Current_mission->filename, Current_level_num * -1);
-			sprintf(temp_filename, "ranks/%s/temp.hi", Current_mission->filename);
+			sprintf(filename, "ranks/%s/%s/levelS%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num * -1);
+			sprintf(temp_filename, "ranks/%s/%s/temp.hi", Players[Player_num].callsign, Current_mission->filename);
 			fp = PHYSFS_openRead(filename);
 			if (!fp == NULL) {
 				if (Current_level_num > 0) {
@@ -995,11 +1004,11 @@ void DoEndLevelScoreGlitz(int network)
 				else {
 					CalculateRank(Current_mission->last_level - Current_level_num);
 				}
-				if (Ranking.rankScore > Ranking.calculatedScore || Ranking.rank == 0) {
+				if (Ranking.rankScore > Ranking.calculatedScore && Ranking.rank > 14) { // Change to || Ranking.rank == 0 when done.
 					temp = PHYSFS_openWrite(temp_filename);
 					PHYSFSX_printf(temp, "%i\n", Players[Player_num].hostages_level);
-					PHYSFSX_printf(temp, "%.0f\n", (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 2.5);
-					PHYSFSX_printf(temp, "%f\n", Ranking.averagePoints);
+					PHYSFSX_printf(temp, "%.0f\n", (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 3);
+					PHYSFSX_printf(temp, "%f\n", Ranking.parTime);
 					PHYSFSX_printf(temp, "%.0f\n", level_points - Ranking.excludePoints);
 					PHYSFSX_printf(temp, "%f\n", Ranking.level_time);
 					PHYSFSX_printf(temp, "%i\n", Players[Player_num].hostages_on_board);
@@ -1514,6 +1523,191 @@ void bash_to_shield (int i,char *s)
 	Objects[i].size = Powerup_info[POW_SHIELD_BOOST].size;
 }
 
+double create_path_partime(int start_seg, int end_seg, int check_id, int target)
+{
+	Ranking.pathfinds++;
+	ConsoleObject->segnum = start_seg; // We're gonna teleport the player to every one of the starting segments, then put him back at spawn in time for the level to start.
+	double pathLength = -1; // How long the path is in units. Will be -1 if path can't be completed.
+	pathLength = mark_player_path_to_segment_partime(end_seg, 0);
+	if (pathLength > -1) {
+		if (check_id == 0)
+			return pathLength;
+		if (check_id == 1)
+			return mark_player_path_to_segment_partime(end_seg, 1); // Set to Highest_object_index + 1 if unlock requirement doesn't exist, so algo knows to ignore unaccessible areas instead of softlocking.
+		if (check_id == 2)
+			return mark_player_path_to_segment_partime(end_seg, 2);
+		if (check_id == 3)
+			return mark_player_path_to_segment_partime(end_seg, 3);
+	}
+	else {
+		pathLength = vm_vec_dist(&ConsoleObject->pos, &Objects[target].pos); // WIP: Still need to account for instances where the target isn't an object.
+		return pathLength;
+	}
+}
+
+int calculateParTime() // Here is where we have an algorithm run a simulated path through a level to determine how long the player should take. It always assumes slowest scenario to ensure the player can beat it.
+{ // Probably not the most efficient, but it works, and honestly we're so lucky this algorithm even works remotely well to begin with.
+	double levelDistance = 0; // Variable to track how much distance it's travelled.
+	double levelHealth = 0; // Variable to track how much damage it's had to do.
+	int simulatedEnergy = 262144000; // Variable to tell it when to refill its energy. It is always equipped with Laser 1 and never uses anything else.
+	int toDoList[MAX_OBJECTS] = {0}; // List of remaining objects the algorithm has to travel to.
+	int doneList[MAX_OBJECTS] = {0}; // List of objects the algorithm has already travelled to.
+	int blacklist[MAX_OBJECTS] = {0}; // List of objects the algorithm is currently not allowed to travel to.
+	int nearestID = 0; // ID of the nearest object, so we can get its position and health.
+	int segnum = ConsoleObject->segnum; // Start the algorithm off where the player spawns.
+	int initialSegnum = ConsoleObject->segnum; // Version of segnum that stays at its initial value, to ensure the player is put in the right spot.
+	int toDoListLength = 0; // Keeps track of how many items are in toDoList so the algorithm knows everything is done when = 0.
+	int doneListLength = 0; // Keeps track of how many items are in doneList so it knows what index to add newly done objects to.
+	int blacklistLength = 0; // Keeps track of how many items are in... okay I think you get the point.
+	int unlockID = -1; // ID of thing needed to unlock something. If negative, that means it's unlocked.
+	int i; //For all the for and while loops coming up.
+	int id; // ID we're currently pathing to.
+	int highestHP; // The shields of the strongest enemy in a relevant matcen.
+	Ranking.pathfinds = 0; // If par time still not calculated after a million pathfinding operations, assume softlock and give up, returning current values. 1000000 should be mathematically impossible, even with 1000 objects.
+	double pathLength; // Store create_path_partime's result in pathLength to compare to current shortest.
+	double shortestPathLength = -1; // For storing the shortest path found so far to determine which object to draw to first.
+	for (i = 0; i <= Highest_object_index; i++) { // Populate the to-do list with all robots and hostages, as well as the reactor.
+		if (Objects[i].type == OBJ_ROBOT || Objects[i].type == OBJ_HOSTAGE || Objects[i].type == OBJ_CNTRLCEN) {
+			toDoList[toDoListLength] = i;
+			toDoListLength++;
+		}
+	}
+	while (toDoListLength >= 0 && Ranking.pathfinds < 1000000) { // The exit pathing starts running when this reaches 0. By design, if that finishes without a hitch, the level will be over so this while loop can end.
+		if (toDoListLength > 0) { // On the other hand, if there's still unlock hunting to do, toDoListLength is set to 1 beforehand so the while is tricked into looping again.
+			for (i = 0; i < toDoListLength; i++) { // Find which object on the to-do list is the closest, ignoring the reactor/boss if it's not the only thing left.
+				id = toDoList[i];
+				if (!(toDoListLength > 1 && (Objects[id].type == OBJ_CNTRLCEN || (Objects[id].type == OBJ_ROBOT && Robot_info[id].boss_flag == 1)))) {
+					pathLength = create_path_partime(segnum, Objects[id].segnum, 0, id);
+					if (pathLength < shortestPathLength || shortestPathLength < 0) {
+						shortestPathLength = pathLength;
+						nearestID = id;
+					}
+				}
+			}
+			unlockID = create_path_partime(segnum, Objects[nearestID].segnum, 1, nearestID);
+			if (unlockID > -1) {
+				for (i = 0; i < doneListLength; i++) { // Check everything the algorithm has done to see if we have what unlocks the obstacle. If so, mark it as unlocked so it can pass through.
+					if (doneList[i] == unlockID) {
+						unlockID = -1;
+					}
+				}
+				if (unlockID < 0) { // Clear the blacklist now that we know there was a locked door, and that algo has what unlocks it.
+					for (i = 0; i < blacklistLength; i++) {
+						toDoList[toDoListLength + i] = blacklist[i];
+					}
+					toDoListLength += blacklistLength;
+					blacklistLength = 0;
+				}
+			}
+			if (unlockID > -1) { // For my own information: This is checking if unlockID is STILL < -1. It is not a duplicate if statement that can be merged with the one above.
+				if (unlockID <= Highest_object_index) {
+					toDoList[toDoListLength] = unlockID;
+					toDoListLength++;
+				}
+				blacklist[blacklistLength] = nearestID;
+				blacklistLength++;
+			}
+			else {
+				toDoListLength--;
+				int skip = 0; // Set this to 1 when skipping to offset which index of the list is being read.
+				for (i = 0; i < toDoListLength; i++) {
+					if (toDoList[i] == nearestID) {
+						skip = 1;
+					}
+					toDoList[i] = toDoList[i + skip];
+				}
+				doneList[doneListLength] = nearestID;
+				doneListLength++;
+				levelHealth += Objects[nearestID].shields;
+				simulatedEnergy -= Objects[nearestID].shields; // Subtract how much energy this much damage would cost with laser 1.
+				highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2, nearestID);
+				if (highestHP > -1) {
+					levelHealth += highestHP * 7;
+					simulatedEnergy -= highestHP * 7;
+				}
+				if (create_path_partime(segnum, Objects[nearestID].segnum, 3, nearestID) == 1)
+					simulatedEnergy = 262144000; // Algo passed through a fuelcen on its path, so its energy is recharged.
+				segnum = Objects[nearestID].segnum;
+				levelDistance += shortestPathLength;
+				shortestPathLength = -1;
+				if (simulatedEnergy < 0) { // Algo's energy ran out. Search for the nearest fuelcen, go to it and recharge.
+					for (i = 0; i <= Highest_segment_index; i++) {
+						if (Segments[i].special == SEGMENT_IS_FUELCEN) {
+							pathLength = create_path_partime(segnum, i, 0, i);
+							if (pathLength < shortestPathLength || shortestPathLength < 0) {
+								shortestPathLength = pathLength;
+								nearestID = i;
+								highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2, nearestID);
+								if (highestHP > -1) {
+									levelHealth += highestHP * 7;
+									simulatedEnergy -= highestHP * 7;
+								} // I know we're out of energy here but it'd be unfair not to account for matcens in the way of the fuelcen. In practice, players will come to these at low energy, not zero.
+							} // We will still ignore unlock checks though, since that could lead algo down a long negative energy rabbit hole. This should rarely mess anything up.
+						}
+					}
+					simulatedEnergy = 262144000;
+					segnum = nearestID;
+					levelDistance += shortestPathLength;
+				}
+			}
+		}
+		else {
+			shortestPathLength = -1;
+			for (i = 0; i <= Num_walls; i++) { // Repeat relevant steps for the exit.
+				if (Walls[i].flags == TRIGGER_EXIT || Walls[i].flags == TRIGGER_SECRET_EXIT) {
+					pathLength = create_path_partime(segnum, Walls[i].segnum, 0, nearestID);
+					if (pathLength < shortestPathLength || shortestPathLength < 0) {
+						shortestPathLength = pathLength;
+						nearestID = i;
+					}
+				}
+			}
+			unlockID = create_path_partime(segnum, Walls[nearestID].segnum, 1, nearestID);
+			if (unlockID > -1) {
+				for (i = 0; i < doneListLength; i++) {
+					if (doneList[i] == unlockID) {
+						unlockID = -1;
+					}
+				}
+			}
+			if (unlockID > -1) {
+				toDoListLength++;
+				toDoList[toDoListLength] = unlockID;
+				blacklist[blacklistLength] = nearestID;
+				blacklistLength++;
+			}
+			else {
+				if (unlockID < 0) {
+					for (i = 0; i < blacklistLength; i++) {
+						toDoList[toDoListLength + i] = blacklist[i];
+					}
+					toDoListLength += blacklistLength;
+					blacklistLength = 0;
+				}
+				toDoListLength--;
+				int skip = 0;
+				for (i = 0; i < toDoListLength; i++) {
+					if (toDoList[i] == nearestID) {
+						skip = 1;
+					}
+					toDoList[i] = toDoList[i + skip];
+				}
+				doneListLength++;
+				doneList[doneListLength] = nearestID;
+				highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2, nearestID);
+				if (highestHP > -1) {
+					levelHealth += highestHP * 7;
+				} // Once again ignoring energy, because trying to path potentially halfway across the level to a fuelcen on a 30-second time limit would be stupid to try.
+				levelDistance += shortestPathLength;
+			}
+			if (Ranking.pathfinds >= 1000000)
+				toDoListLength = 0;
+		}
+	}
+	ConsoleObject->segnum = initialSegnum;
+	return (levelDistance / 3709337.6) + (levelHealth / 5242880); // levelDistance divisor is ship's movement speed and levelHealth divisor is laser 1's DPS.
+}
+
 //called when the player is starting a new level for normal game model
 void StartNewLevel(int level_num)
 {
@@ -1536,33 +1730,25 @@ void StartNewLevel(int level_num)
 
 	StartNewLevelSub(level_num, 1, 0);
 
-	int i = 0;
-	int c = 0;
+	int i;
 	for (i = 0; i <= Highest_object_index; i++) {
 		if (Objects[i].type == OBJ_ROBOT) {
 			Ranking.maxScore += Robot_info[Objects[i].id].score_value;
-			c++;
 			if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0) {
 				Ranking.maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
-				c += Objects[i].contains_count;
 			}
 		}
 		if (Objects[i].type == OBJ_CNTRLCEN) {
 			Ranking.maxScore += CONTROL_CEN_SCORE;
-			c++;
 		}
 		if (Objects[i].type == OBJ_HOSTAGE) {
 			Ranking.maxScore += HOSTAGE_SCORE;
-			c++;
 		}
 	}
-	double skill_points = (Ranking.maxScore * 1.5) - ((int)(Ranking.maxScore * 1.5)) % 1;
-	if (c == 0) // Don't let c be 0 since we're about to divide by it.
-		c++;
-	Ranking.averagePoints = (Ranking.maxScore / c) / 800; // 800 is used as the basis, since it's the average point value across every official mission, excluding D2 secret levels.
-	if (Ranking.averagePoints == 0) // Don't let averagePoints be 0 since the time bonus formula is gonna divide by it.
-		Ranking.averagePoints = 1;
-	Ranking.maxScore += skill_points + Players[Player_num].hostages_level * 7500;
+	Ranking.maxScore *= 3; // This is not the final max score. Max score is still 7500 higher per hostage, but that's added last second so the time bonus can be weighted properly.
+	Ranking.maxScore = (int)Ranking.maxScore;
+	Ranking.parTime = calculateParTime();
+	Ranking.parTime = (int)Ranking.parTime; // Truncate the par time so it looks better/legible on the result screen, and leaves room for the time bonus.
 }
 
 int previewed_spawn_point = 0; 

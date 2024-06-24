@@ -823,7 +823,7 @@ void CalculateRank(int level_num)
 {
 	int levelHostages = 0;
 	int levelPoints = 0;
-	double averagePoints = 0;
+	double parTime = 0;
 	int playerPoints = 0;
 	double secondsTaken = 0;
 	int playerHostages = 0;
@@ -832,9 +832,9 @@ void CalculateRank(int level_num)
 	double rankPoints2 = 0;
 	char buffer[256];
 	char filename[256];
-	sprintf(filename, "ranks/%s/level%d.hi", Current_mission->filename, level_num); // Find file for the requested level.
+	sprintf(filename, "ranks/%s/%s/level%d.hi", Players[Player_num].callsign, Current_mission->filename, level_num); // Find file for the requested level.
 	if (level_num > Current_mission->last_level)
-		sprintf(filename, "ranks/%s/levelS%d.hi", Current_mission->filename, level_num - Current_mission->last_level);
+		sprintf(filename, "ranks/%s/%s/levelS%d.hi", Players[Player_num].callsign, Current_mission->filename, level_num - Current_mission->last_level);
 	PHYSFS_file* fp = PHYSFS_openRead(filename);
 	if (fp == NULL)
 		rankPoints2 = -10; // If no data exists, just assume level never played and set rankPoints in the range that returns N/A.
@@ -847,7 +847,7 @@ void CalculateRank(int level_num)
 			PHYSFSX_getsTerminated(fp, buffer);
 			levelPoints = atoi(buffer);
 			PHYSFSX_getsTerminated(fp, buffer);
-			averagePoints = atof(buffer);
+			parTime = atof(buffer);
 			PHYSFSX_getsTerminated(fp, buffer); // Fetch player data starting here.
 			playerPoints = atoi(buffer);
 			PHYSFSX_getsTerminated(fp, buffer);
@@ -861,7 +861,7 @@ void CalculateRank(int level_num)
 		}
 	}
 	PHYSFS_close(fp);
-	double maxScore = levelPoints * 2.5 + levelHostages * 7500;
+	double maxScore = levelPoints * 3;
 	maxScore = (int)maxScore;
 	double skillPoints = 0;
 	if (difficulty == 1)
@@ -869,14 +869,15 @@ void CalculateRank(int level_num)
 	if (difficulty == 2)
 		skillPoints = playerPoints * 0.5;
 	if (difficulty == 3)
-		skillPoints = playerPoints;
+		skillPoints = playerPoints * 0.75;
 	if (difficulty == 4)
-		skillPoints = playerPoints * 1.5;
-	double timePoints = (maxScore / 2.5) * pow(0.25, secondsTaken / (0.005 * (maxScore / averagePoints)));
+		skillPoints = playerPoints;
+	double timePoints = (maxScore / 1.5) / pow(2, secondsTaken / parTime);
+	if (secondsTaken < parTime)
+		timePoints = (maxScore / 2.4) * (1 - (secondsTaken / parTime) * 0.2);
 	double score = playerPoints + skillPoints + timePoints + playerHostages * (500 * (difficulty + 1));
+	maxScore += levelHostages * 7500;
 	double deathPoints = maxScore * 0.4 - maxScore * (0.4 / pow(2, deathCount));
-	if (deathCount > 0 && playerPoints - deathPoints >= maxScore)
-		deathPoints = (playerPoints - maxScore) + 1;
 	score -= deathPoints;
 	if (playerHostages == levelHostages)
 		score += levelHostages * (1000 * (difficulty + 1));
@@ -926,12 +927,12 @@ void StartNewGame(int start_level)
 	char filename[256];
 	int i = 1;
 	char buffer[256];
-	sprintf(buffer, "ranks/%s", Current_mission->filename);
+	sprintf(buffer, "ranks/%s/%s", Players[Player_num].callsign, Current_mission->filename);
 	PHYSFS_mkdir(buffer);
 	while (i <= Current_mission->last_level - Current_mission->last_secret_level) {
-		sprintf(filename, "ranks/%s/level%d.hi", Current_mission->filename, i);
+		sprintf(filename, "ranks/%s/%s/level%d.hi", Players[Player_num].callsign, Current_mission->filename, i);
 		if (i > Current_mission->last_level)
-			sprintf(filename, "ranks/%s/levelS%d.hi", Current_mission->filename, i - Current_mission->last_level);
+			sprintf(filename, "ranks/%s/%s/levelS%d.hi", Players[Player_num].callsign, Current_mission->filename, i - Current_mission->last_level);
 		fp = PHYSFS_openRead(filename);
 		if (fp == NULL) { // If this level's rank data file doesn't exist, create it now so it can be written to on the rank screen.
 			fp = PHYSFS_openWrite(filename);
@@ -997,8 +998,8 @@ void DoEndLevelScoreGlitz(int network)
 	if (Difficulty_level == 1)
 		skill_points2 = Ranking.rankScore / 4;
 	if (Difficulty_level > 1) {
-		skill_points = level_points * (Difficulty_level) / 4;
-		skill_points2 = Ranking.rankScore * (Difficulty_level - 1) / 2;
+		skill_points = level_points * (Difficulty_level / 4);
+		skill_points2 = Ranking.rankScore * (Difficulty_level / 4);
 	}
 	skill_points -= skill_points % 100;
 
@@ -1006,7 +1007,10 @@ void DoEndLevelScoreGlitz(int network)
 	shield_points -= shield_points % 50;
 	energy_points = f2i(Players[Player_num].energy) * 2 * mine_level;
 	energy_points -= energy_points % 50;
-	time_points = (Ranking.maxScore / 2.5) * pow(0.25, Ranking.level_time / (0.005 * (Ranking.maxScore / Ranking.averagePoints)));
+	time_points = (Ranking.maxScore / 1.5) / pow(2, Ranking.level_time / Ranking.parTime);
+	if (Ranking.level_time < Ranking.parTime)
+		time_points = (Ranking.maxScore / 2.4) * (1 - (Ranking.level_time / Ranking.parTime) * 0.2);
+	Ranking.maxScore += Players[Player_num].hostages_level * 7500;
 	hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level + 1);
 
 	all_hostage_text[0] = 0;
@@ -1033,15 +1037,16 @@ void DoEndLevelScoreGlitz(int network)
 		all_hostage_points = 0;
 	Ranking.rankScore += skill_points2 + time_points + hostage_points + all_hostage_points;
 	death_points = Ranking.maxScore * 0.4 - Ranking.maxScore * (0.4 / pow(2, Ranking.deathCount));
-	if (Ranking.deathCount > 0 && Ranking.rankScore - death_points >= Ranking.maxScore)
-		death_points = (Ranking.rankScore - Ranking.maxScore) + 1;
-	death_points = death_points * -1;
+	death_points *= -1;
 	Ranking.rankScore += death_points;
 
 	int minutes = Ranking.level_time / 60;
 	double seconds = Ranking.level_time - minutes * 60;
+	int parMinutes = Ranking.parTime / 60;
+	double parSeconds = Ranking.parTime - parMinutes * 60;
 	char* diffname = 0;
 	char time[256];
+	char parTime[256];
 	c = 0;
 	if (Difficulty_level == 0)
 		diffname = "Trainee";
@@ -1058,8 +1063,12 @@ void DoEndLevelScoreGlitz(int network)
 			sprintf(time, "%i:0%.3f", minutes, seconds);
 		else
 			sprintf(time, "%i:%.3f", minutes, seconds);
+		if (parSeconds < 10 || parSeconds == 60)
+			sprintf(parTime, "%i:0%.0f", parMinutes, parSeconds);
+		else
+			sprintf(parTime, "%i:%.0f", parMinutes, parSeconds);
 		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.excludePoints);
-		sprintf(m_str[c++], "Time: %s\t%i", time, time_points);
+		sprintf(m_str[c++], "Time: %s/%s\t%i", time, parTime, time_points);
 		sprintf(m_str[c++], "Hostages: %i/%i\t%i", Players[Player_num].hostages_on_board - Ranking.secret_hostages_on_board, Players[Player_num].hostages_level, hostage_points);
 		sprintf(m_str[c++], "Skill: %s\t%i", diffname, skill_points2);
 		if (all_hostage_points > 0) {
@@ -1111,16 +1120,16 @@ void DoEndLevelScoreGlitz(int network)
 			PHYSFS_File* temp;
 			char filename[256];
 			char temp_filename[256];
-			sprintf(filename, "ranks/%s/level%i.hi", Current_mission->filename, Current_level_num);
-			sprintf(temp_filename, "ranks/%s/temp.hi", Current_mission->filename);
+			sprintf(filename, "ranks/%s/%s/level%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num);
+			sprintf(temp_filename, "ranks/%s/%s/temp.hi", Players[Player_num].callsign, Current_mission->filename);
 			fp = PHYSFS_openRead(filename);
 			if (!fp == NULL) {
-					CalculateRank(Current_level_num);
-				if (Ranking.rankScore > Ranking.calculatedScore || Ranking.rank == 0) {
+				CalculateRank(Current_level_num);
+				if (Ranking.rankScore > Ranking.calculatedScore && Ranking.rank > 14) { // Change to || Ranking.rank == 0 when done.
 					temp = PHYSFS_openWrite(temp_filename);
 					PHYSFSX_printf(temp, "%i\n", Players[Player_num].hostages_level);
-					PHYSFSX_printf(temp, "%.0f\n", (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 2.5);
-					PHYSFSX_printf(temp, "%f\n", Ranking.averagePoints);
+					PHYSFSX_printf(temp, "%.0f\n", (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 3);
+					PHYSFSX_printf(temp, "%f\n", Ranking.parTime);
 					PHYSFSX_printf(temp, "%.0f\n", level_points - Ranking.excludePoints);
 					PHYSFSX_printf(temp, "%f\n", Ranking.level_time);
 					PHYSFSX_printf(temp, "%i\n", Players[Player_num].hostages_on_board);
@@ -1204,7 +1213,10 @@ void DoEndSecretLevelScoreGlitz(int network)
 	if (Difficulty_level > 1)
 		skill_points = Ranking.secretRankScore * (Difficulty_level - 1) / 2;
 
-	time_points = (Ranking.secretMaxScore / 2.5) * pow(0.25, Ranking.secretlevel_time / (0.005 * (Ranking.secretMaxScore / Ranking.secretAveragePoints)));
+	time_points = (Ranking.secretMaxScore / 1.5) / pow(2, Ranking.secretlevel_time / Ranking.secretParTime);
+	if (Ranking.secretlevel_time < Ranking.secretParTime)
+		time_points = (Ranking.secretMaxScore / 2.4) * (1 - (Ranking.secretlevel_time / Ranking.secretParTime) * 0.2);
+	Ranking.secretMaxScore += Ranking.hostages_secret_level * 7500;
 	hostage_points = Ranking.secret_hostages_on_board * 500 * (Difficulty_level + 1);
 	if (Ranking.secret_hostages_on_board == Ranking.hostages_secret_level)
 		all_hostage_points = Ranking.secret_hostages_on_board * 1000 * (Difficulty_level + 1);
@@ -1212,15 +1224,16 @@ void DoEndSecretLevelScoreGlitz(int network)
 		all_hostage_points = 0;
 	Ranking.secretRankScore += skill_points + time_points + hostage_points + all_hostage_points;
 	death_points = Ranking.secretMaxScore * 0.4 - Ranking.secretMaxScore * (0.4 / pow(2, Ranking.secretDeathCount));
-	if (Ranking.secretDeathCount > 0 && Ranking.secretRankScore - death_points >= Ranking.secretMaxScore)
-		death_points = (Ranking.secretRankScore - Ranking.secretMaxScore) + 1;
 	death_points = death_points * -1;
 	Ranking.secretRankScore += death_points;
 
 	int minutes = Ranking.secretlevel_time / 60;
 	double seconds = Ranking.secretlevel_time - minutes * 60;
+	int parMinutes = Ranking.secretParTime / 60;
+	double parSeconds = Ranking.secretParTime - parMinutes * 60;
 	char* diffname = 0;
 	char time[256];
+	char parTime[256];
 	c = 0;
 	if (Difficulty_level == 0)
 		diffname = "Trainee";
@@ -1232,119 +1245,125 @@ void DoEndSecretLevelScoreGlitz(int network)
 		diffname = "Ace";
 	if (Difficulty_level == 4)
 		diffname = "Insane";
-	if (seconds < 10 || seconds == 60)
-		sprintf(time, "%i:0%.3f", minutes, seconds);
-	else
-		sprintf(time, "%i:%.3f", minutes, seconds);
-	sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.secretExcludePoints);
-	sprintf(m_str[c++], "Time: %s\t%i", time, time_points);
-	sprintf(m_str[c++], "Hostages: %i/%.0f\t%i", Ranking.secret_hostages_on_board, Ranking.hostages_secret_level, hostage_points);
-   	sprintf(m_str[c++], "Skill: %s\t%i", diffname, skill_points);
-	if (all_hostage_points > 0) {
-		sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.secretDeathCount, death_points);
-		sprintf(m_str[c++], "Full rescue bonus:\t%i\n", all_hostage_points);
-	}
-	else
-		sprintf(m_str[c++], "Deaths: %.0f\t%i\n", Ranking.secretDeathCount, death_points);
+	if (Ranking.secretQuickload == 0) { // Only print the modded result screen if the player didn't quickload. Print the vanilla one otherwise, because quickloading into a level causes missing crucial mod info.
+		if (seconds < 10 || seconds == 60)
+			sprintf(time, "%i:0%.3f", minutes, seconds);
+		else
+			sprintf(time, "%i:%.3f", minutes, seconds);
+		if (parSeconds < 10 || parSeconds == 60)
+			sprintf(parTime, "%i:0%.0f", parMinutes, parSeconds);
+		else
+			sprintf(parTime, "%i:%.0f", parMinutes, parSeconds);
+		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.secretExcludePoints);
+		sprintf(m_str[c++], "Time: %s/%s\t%i", time, parTime, time_points);
+		sprintf(m_str[c++], "Hostages: %i/%.0f\t%i", Ranking.secret_hostages_on_board, Ranking.hostages_secret_level, hostage_points);
+		sprintf(m_str[c++], "Skill: %s\t%i", diffname, skill_points);
+		if (all_hostage_points > 0) {
+			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.secretDeathCount, death_points);
+			sprintf(m_str[c++], "Full rescue bonus:\t%i\n", all_hostage_points);
+		}
+		else
+			sprintf(m_str[c++], "Deaths: %.0f\t%i\n", Ranking.secretDeathCount, death_points);
 
-	sprintf(m_str[c++], "%s%0.0f", TXT_TOTAL_SCORE, Ranking.secretRankScore);
+		sprintf(m_str[c++], "%s%0.0f", TXT_TOTAL_SCORE, Ranking.secretRankScore);
 
-	double rankPoints = (Ranking.secretRankScore / Ranking.secretMaxScore) * 12;
-	if (Ranking.secretMaxScore == 0)
-		rankPoints = 12;
-	char* rank = "E";
-	if (rankPoints >= 0)
-		rank = "D-";
-	if (rankPoints >= 1)
-		rank = "D";
-	if (rankPoints >= 2)
-		rank = "D+";
-	if (rankPoints >= 3)
-		rank = "C-";
-	if (rankPoints >= 4)
-		rank = "C";
-	if (rankPoints >= 5)
-		rank = "C+";
-	if (rankPoints >= 6)
-		rank = "B-";
-	if (rankPoints >= 7)
-		rank = "B";
-	if (rankPoints >= 8)
-		rank = "B+";
-	if (rankPoints >= 9)
-		rank = "A-";
-	if (rankPoints >= 10)
-		rank = "A";
-	if (rankPoints >= 11)
-		rank = "A+";
-	if (rankPoints >= 12)
-		rank = "S";
+		double rankPoints = (Ranking.secretRankScore / Ranking.secretMaxScore) * 12;
+		if (Ranking.secretMaxScore == 0)
+			rankPoints = 12;
+		char* rank = "E";
+		if (rankPoints >= 0)
+			rank = "D-";
+		if (rankPoints >= 1)
+			rank = "D";
+		if (rankPoints >= 2)
+			rank = "D+";
+		if (rankPoints >= 3)
+			rank = "C-";
+		if (rankPoints >= 4)
+			rank = "C";
+		if (rankPoints >= 5)
+			rank = "C+";
+		if (rankPoints >= 6)
+			rank = "B-";
+		if (rankPoints >= 7)
+			rank = "B";
+		if (rankPoints >= 8)
+			rank = "B+";
+		if (rankPoints >= 9)
+			rank = "A-";
+		if (rankPoints >= 10)
+			rank = "A";
+		if (rankPoints >= 11)
+			rank = "A+";
+		if (rankPoints >= 12)
+			rank = "S";
 
-	if (cheats.enabled) {
-		sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
-	}
-	else {
-		sprintf(m_str[c++], "Rank:\t %s", rank);
-		PHYSFS_File* fp;
-		PHYSFS_File* temp;
-		char filename[256];
-		char temp_filename[256];
-		sprintf(filename, "ranks/%s/levelS%i.hi", Current_mission->filename, Current_level_num * -1);
-		sprintf(temp_filename, "ranks/%s/temp.hi", Current_mission->filename);
-		fp = PHYSFS_openRead(filename);
-		if (!fp == NULL) {
-				CalculateRank(Current_mission->last_level - Current_level_num);
-			if (Ranking.secretRankScore > Ranking.calculatedScore || Ranking.rank == 0) {
-				temp = PHYSFS_openWrite(temp_filename);
-				PHYSFSX_printf(temp, "%.0f\n", Ranking.hostages_secret_level);
-				PHYSFSX_printf(temp, "%.0f\n", (Ranking.secretMaxScore - Ranking.hostages_secret_level * 7500) / 2.5);
-				PHYSFSX_printf(temp, "%f\n", Ranking.secretAveragePoints);
-				PHYSFSX_printf(temp, "%.0f\n", level_points - Ranking.secretExcludePoints);
-				PHYSFSX_printf(temp, "%f\n", Ranking.secretlevel_time);
-				PHYSFSX_printf(temp, "%.0f\n", Ranking.secret_hostages_on_board);
-				PHYSFSX_printf(temp, "%i\n", Difficulty_level);
-				PHYSFSX_printf(temp, "%.0f\n", Ranking.secretDeathCount);
-				if (Ranking.rank > 0)
-					sprintf(m_str[c++], "New record!");
-				PHYSFS_close(temp);
-				PHYSFS_close(fp);
-				PHYSFS_delete(filename);
-				PHYSFSX_rename(temp_filename, filename);
-			}
-			PHYSFS_close(fp);
+		if (cheats.enabled) {
+			sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
 		}
 		else {
-			sprintf(m_str[c++], "Saving error. Start new game.");
-			PHYSFS_close(fp);
+			sprintf(m_str[c++], "Rank:\t %s", rank);
+			PHYSFS_File* fp;
+			PHYSFS_File* temp;
+			char filename[256];
+			char temp_filename[256];
+			sprintf(filename, "ranks/%s/%s/levelS%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num * -1);
+			sprintf(temp_filename, "ranks/%s/%s/temp.hi", Players[Player_num].callsign, Current_mission->filename);
+			fp = PHYSFS_openRead(filename);
+			if (!fp == NULL) {
+				CalculateRank(Current_mission->last_level - Current_level_num);
+				if (Ranking.secretRankScore > Ranking.calculatedScore && Ranking.rank > 14) { // Change to || Ranking.rank == 0 when done.
+					temp = PHYSFS_openWrite(temp_filename);
+					PHYSFSX_printf(temp, "%.0f\n", Ranking.hostages_secret_level);
+					PHYSFSX_printf(temp, "%.0f\n", (Ranking.secretMaxScore - Ranking.hostages_secret_level * 7500) / 3);
+					PHYSFSX_printf(temp, "%f\n", Ranking.secretParTime);
+					PHYSFSX_printf(temp, "%.0f\n", level_points - Ranking.secretExcludePoints);
+					PHYSFSX_printf(temp, "%f\n", Ranking.secretlevel_time);
+					PHYSFSX_printf(temp, "%.0f\n", Ranking.secret_hostages_on_board);
+					PHYSFSX_printf(temp, "%i\n", Difficulty_level);
+					PHYSFSX_printf(temp, "%.0f\n", Ranking.secretDeathCount);
+					if (Ranking.rank > 0)
+						sprintf(m_str[c++], "New record!");
+					PHYSFS_close(temp);
+					PHYSFS_close(fp);
+					PHYSFS_delete(filename);
+					PHYSFSX_rename(temp_filename, filename);
+				}
+				PHYSFS_close(fp);
+			}
+			else {
+				sprintf(m_str[c++], "Saving error. Start new game.");
+				PHYSFS_close(fp);
+			}
 		}
-	}
-	int toRankS = Ranking.maxScore - Ranking.rankScore;
-	if (rankPoints < 12) {
-		strcpy(m_str[c++], "");
-		sprintf(m_str[c++], "%i points to S rank", toRankS);
-	}
+		int toRankS = Ranking.maxScore - Ranking.rankScore;
+		if (rankPoints < 12) {
+			strcpy(m_str[c++], "");
+			sprintf(m_str[c++], "%i points to S rank", toRankS);
+		}
 
-	for (i = 0; i < c; i++) {
-		m[i].type = NM_TYPE_TEXT;
-		m[i].text = m_str[i];
-	}
+		for (i = 0; i < c; i++) {
+			m[i].type = NM_TYPE_TEXT;
+			m[i].text = m_str[i];
+		}
 
-	// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
+		// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
 
-	if (Current_level_num < 0)
-		sprintf(title, "%s%s %d %s\n %s %s", is_last_level ? "\n\n\n" : "\n", TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
-	else
-		sprintf(title, "%s%s %d %s\n%s %s", is_last_level ? "\n\n\n" : "\n", TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+		if (Current_level_num < 0)
+			sprintf(title, "%s%s %d %s\n %s %s", is_last_level ? "\n\n\n" : "\n", TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+		else
+			sprintf(title, "%s%s %d %s\n%s %s", is_last_level ? "\n\n\n" : "\n", TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
 
-	Assert(c <= N_GLITZITEMS);
+		Assert(c <= N_GLITZITEMS);
 
 #ifdef NETWORK
-	if (network && (Game_mode & GM_NETWORK))
-		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, STARS_BACKGROUND);
-	else
+		if (network && (Game_mode & GM_NETWORK))
+			newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, STARS_BACKGROUND);
+		else
 #endif
-		// NOTE LINK TO ABOVE!!!
-		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, STARS_BACKGROUND);
+			// NOTE LINK TO ABOVE!!!
+			newmenu_do2(NULL, title, c, m, NULL, NULL, 0, STARS_BACKGROUND);
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -1546,34 +1565,26 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 
 		Ranking.hostages_secret_level = 0;
 		
-		int i = 0;
-		int c = 0;
+		int i;
 		for (i = 0; i <= Highest_object_index; i++) {
 			if (Objects[i].type == OBJ_ROBOT) {
 				Ranking.secretMaxScore += Robot_info[Objects[i].id].score_value;
-				c++;
 				if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0) {
 					Ranking.secretMaxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
-					c += Objects[i].contains_count;
 				}
 			}
 			if (Objects[i].type == OBJ_CNTRLCEN) {
 				Ranking.secretMaxScore += CONTROL_CEN_SCORE;
-				c++;
 			}
 			if (Objects[i].type == OBJ_HOSTAGE) {
 				Ranking.secretMaxScore += HOSTAGE_SCORE;
 				Ranking.hostages_secret_level++;
-				c++;
 			}
 		}
-		double skill_points = (Ranking.secretMaxScore * 1.5) - ((int)(Ranking.secretMaxScore * 1.5)) % 1;
-		if (c == 0) // Don't let c be 0 since we're about to divide by it.
-			c++;
-		Ranking.secretAveragePoints = (Ranking.secretMaxScore / c) / 800; // 800 is used as the basis, since it's the average point value across every official mission, excluding D2 secret levels.
-		if (Ranking.secretAveragePoints == 0) // Don't let secretAveragePoints be 0 since the time bonus formula is gonna divide by it.
-			Ranking.secretAveragePoints = 1;
-		Ranking.secretMaxScore += skill_points + Ranking.hostages_secret_level * 7500;
+		Ranking.secretMaxScore *= 3;
+		Ranking.secretMaxScore = (int)Ranking.secretMaxScore;
+		//Ranking.secretParTime = calculatesecretParTime();
+		Ranking.secretParTime = (int)Ranking.secretParTime; // Truncate the par time so it looks better/legible on the result screen, and leaves room for the time bonus.
 	}
 
 	First_secret_visit = 0;
@@ -2270,33 +2281,25 @@ void StartNewLevel(int level_num)
 
 	StartNewLevelSub(level_num, 1, 0 );
 
-	int i = 0;
-	int c = 0;
+	int i;
 	for (i = 0; i <= Highest_object_index; i++) {
 		if (Objects[i].type == OBJ_ROBOT) {
 			Ranking.maxScore += Robot_info[Objects[i].id].score_value;
-			c++;
 			if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0) {
 				Ranking.maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
-				c += Objects[i].contains_count;
 			}
 		}
 		if (Objects[i].type == OBJ_CNTRLCEN) {
 			Ranking.maxScore += CONTROL_CEN_SCORE;
-			c++;
 		}
 		if (Objects[i].type == OBJ_HOSTAGE) {
 			Ranking.maxScore += HOSTAGE_SCORE;
-			c++;
 		}
 	}
-	double skill_points = (Ranking.maxScore * 1.5) - ((int)(Ranking.maxScore * 1.5)) % 1;
-	if (c == 0) // Don't let c be 0 since we're about to divide by it.
-		c++;
-	Ranking.averagePoints = (Ranking.maxScore / c) / 800; // 800 is used as the basis, since it's the average point value across every official mission, excluding D2 secret levels.
-	if (Ranking.averagePoints == 0) // Don't let averagePoints be 0 since the time bonus formula is gonna divide by it.
-		Ranking.averagePoints = 1;
-	Ranking.maxScore += skill_points + Players[Player_num].hostages_level * 7500;
+	Ranking.maxScore *= 3;
+	Ranking.maxScore = (int)Ranking.maxScore;
+	//Ranking.parTime = calculateParTime();
+	Ranking.parTime = (int)Ranking.parTime; // Truncate the par time so it looks better/legible on the result screen, and leaves room for the time bonus.
 }
 
 int previewed_spawn_point = 0; 

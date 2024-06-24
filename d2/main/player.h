@@ -136,10 +136,10 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	double  deathCount;              // Number of times the player died during the level.
 	double  rankScore;               // The version of score used for this mod, as to not disturb the vanilla score system.
 	double  excludePoints;           // Number of points gotten from sources we want to not count toward rank calculation, but still contribute to vanilla score.
-	double  maxScore;				 // Points possible in a level without time bonus, AKA its S-rank score.
+	double  maxScore;				 // The current level's S-rank score.
 	double  level_time;              // Time variable used in rank calculation. Updates to match Players[Player_num].time_level at specific points to protect players from being penalized for not skipping things.
 	double  quickload;				 // Whether the player has quickloaded into the current level.
-	double  averagePoints;			 // Divisor based on the average point value of everything in a level. Used for time bonus drain rate in junction with maxScore to prevent inflated/deflated robot point values from manipulating time bonus.
+	double  parTime;                 // The algorithmically-generated required time for the current level.
 	double  freezeTimer;             // Tells normal levels' in-game timer whether it should be frozen or not.
 	double  calculatedScore;		 // Stores the score determined in CalculateRank.
 	int     rank;				     // Stores the rank determined in CalculateRank.
@@ -153,7 +153,7 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	int		secret_hostages_on_board; // Since Players[Player_num].hostages_on_board carries over, and we don't want base level hostages' points counting for secret levels and vice versa.
 	double  secretDeathCount;         // We don't want starting a new base level to remove the secret level's death penalty, or vise versa, so increment this alongside deathCount, but only reset it upon starting a new secret level.
 	double  secretQuickload;		  // Same thing as secretDeathCount, but with quickloading.
-	double  secretAveragePoints;
+	double  secretParTime;
 	double  hostages_secret_level;    // Secret equivalent of Players[Player_num].hostages_level.
 } __pack__ ranking;
 

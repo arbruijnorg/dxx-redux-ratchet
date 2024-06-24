@@ -126,12 +126,13 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	double  deathCount;              // Number of times the player died during the level.
 	double  rankScore;               // The version of score used for this mod, as to not disturb the vanilla score system.
 	double  excludePoints;           // Number of points gotten from sources we want to not count toward rank calculation, but still contribute to vanilla score.
-	double  maxScore;				 // Points possible in a level without time bonus, AKA its S-rank score.
+	double  maxScore;				 // The current level's S-rank score.
 	double  level_time;              // Time variable used in rank calculation. Updates to match Players[Player_num].time_level at specific points to protect players from being penalized for not skipping things.
+	double  parTime;                 // The algorithmically-generated required time for the current level.
 	double  quickload;				 // Whether the player has quickloaded into the current level.
-	double  averagePoints;			 // Divisor based on the average point value of everything in a level. Used for time bonus drain rate in junction with maxScore to prevent inflated/deflated robot point values from manipulating time bonus.
 	double  calculatedScore;		 // Stores the score determined in CalculateRank.
 	int     rank;					 // Stores the rank determined in CalculateRank.
+	int     pathfinds;               // Keeps track of pathfinding attempts in parTime calculator, so it can automatically stop after an unnecessary amount to avoid softlocks.
 } __pack__ ranking;
 
 // Same as above but structure how Savegames expect

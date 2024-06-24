@@ -566,7 +566,7 @@ int do_best_ranks_menu()
 	int numlines = Current_mission->last_level - Current_mission->last_secret_level;
 	char** list = (char**)malloc(sizeof(char*) * numlines);
 	char message[256];
-	sprintf(message, "Best ranks for %s", Current_mission->mission_name);
+	sprintf(message, "%s's %s records", Players[Player_num].callsign, Current_mission->mission_name);
 	char filename[256];
 	char** items = (char**)malloc(sizeof(char*) * numlines);
 	char** Rank = (char**)malloc(sizeof(char*) * 15);
@@ -593,9 +593,9 @@ int do_best_ranks_menu()
 	else {
 		for (i = 0; i < numlines; i++)
 		{
-			sprintf(filename, "ranks/%s/level%i.hi", Current_mission->filename, i + 1);
+			sprintf(filename, "ranks/%s/%s/level%i.hi", Players[Player_num].callsign, Current_mission->filename, i + 1);
 			if (i >= Current_mission->last_level)
-				sprintf(filename, "ranks/%s/levelS%i.hi", Current_mission->filename, i - Current_mission->last_level + 1);
+				sprintf(filename, "ranks/%s/%s/levelS%i.hi", Players[Player_num].callsign, Current_mission->filename, i - Current_mission->last_level + 1);
 			PHYSFS_file* fp = PHYSFS_openRead(filename);
 			list[i] = (char*)malloc(sizeof(char) * 64);
 			if (fp == NULL) {

@@ -763,7 +763,6 @@ int mission_menu_handler(listbox* lb, d_event* event, mission_menu* mm)
 		{
 			// Chose a mission
 			strcpy(GameCfg.LastMission, list[citem]);
-
 			if (!load_mission(mm->mission_list + citem))
 			{
 				nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_ERROR);
