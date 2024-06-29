@@ -881,9 +881,7 @@ void DoEndLevelScoreGlitz(int network)
 	skill_points -= skill_points % 100;
 
 	shield_points = f2i(Players[Player_num].shields) * 10 * (Difficulty_level + 1);
-	shield_points -= shield_points % 50;
 	energy_points = f2i(Players[Player_num].energy) * 5 * (Difficulty_level + 1);
-	energy_points -= energy_points % 50;
 	time_points = (Ranking.maxScore / 1.5) / pow(2, Ranking.level_time / Ranking.parTime);
 	if (Ranking.level_time < Ranking.parTime)
 		time_points = (Ranking.maxScore / 2.4) * (1 - (Ranking.level_time / Ranking.parTime) * 0.2);
@@ -1004,7 +1002,7 @@ void DoEndLevelScoreGlitz(int network)
 				else {
 					CalculateRank(Current_mission->last_level - Current_level_num);
 				}
-				if (Ranking.rankScore > Ranking.calculatedScore && Ranking.rank > 14) { // Change to || Ranking.rank == 0 when done.
+				if (Ranking.rankScore > Ranking.calculatedScore || Ranking.rank == 0) {
 					temp = PHYSFS_openWrite(temp_filename);
 					PHYSFSX_printf(temp, "%i\n", Players[Player_num].hostages_level);
 					PHYSFSX_printf(temp, "%.0f\n", (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 3);
@@ -1523,25 +1521,134 @@ void bash_to_shield (int i,char *s)
 	Objects[i].size = Powerup_info[POW_SHIELD_BOOST].size;
 }
 
-double create_path_partime(int start_seg, int end_seg, int check_id, int target)
+int create_path_partime(int start_seg, int segnum, int check_id) // A lot of this is copied from the mark_player_path_to_segment function in game.c.
 {
+	int i;
+	int j;
+	int n;
+	object* objp = ConsoleObject;
+	short		player_path_length = 0;
+	int		player_hide_index = -1;
+	double pathLength = 0; // player_path_length is just the number of segments it goes through. This is the units, which is what's important for par time, as segments can be all sorts of sizes.
+	int unlockID = -1;
+	int lockSegs = 0; // How many times the same locked wall appears in the same path. If twice, that means we've passed through it, so return the unlock ID. I sure hope no levels abuse this logic's hole...
+	int matcenHealth = 0; // How beefy are the all the matcens we're passing through combined?
+	int lockedWallIDs[MAX_WALLS] = {0}; // Remember the IDs of all walls in the level that are locked in some way, so we can see if any of our paths encounter them.
+	int lockedWallsLength = 0; // How many locked walls there are so far, for incrementing the list.
+	int highestHP = -1;
 	Ranking.pathfinds++;
 	ConsoleObject->segnum = start_seg; // We're gonna teleport the player to every one of the starting segments, then put him back at spawn in time for the level to start.
-	double pathLength = -1; // How long the path is in units. Will be -1 if path can't be completed.
-	pathLength = mark_player_path_to_segment_partime(end_seg, 0);
-	if (pathLength > -1) {
-		if (check_id == 0)
-			return pathLength;
-		if (check_id == 1)
-			return mark_player_path_to_segment_partime(end_seg, 1); // Set to Highest_object_index + 1 if unlock requirement doesn't exist, so algo knows to ignore unaccessible areas instead of softlocking.
-		if (check_id == 2)
-			return mark_player_path_to_segment_partime(end_seg, 2);
-		if (check_id == 3)
-			return mark_player_path_to_segment_partime(end_seg, 3);
+	for (i = 0; i < MAX_WALLS; i++) {
+		if ((Walls[i].type == WALL_DOOR && (Walls[i].keys == KEY_BLUE || Walls[i].keys == KEY_GOLD || Walls[i].keys == KEY_RED)) || Walls[i].flags == WALL_DOOR_LOCKED) {
+			lockedWallIDs[lockedWallsLength] = i;
+			lockedWallsLength++;
+		}
 	}
-	else {
-		pathLength = vm_vec_dist(&ConsoleObject->pos, &Objects[target].pos); // WIP: Still need to account for instances where the target isn't an object.
+	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, -1) == -1) {
+		if (check_id == 0)
+			return vm_vec_dist(&Point_segs[0].point, &Point_segs[player_path_length].point); // If we can't find a valid path to the target, just draw a straight line to it and measure that to avoid softlocking.
+		if (check_id == 1)
+			return -1;
+		if (check_id == 2)
+			return 0;
+		if (check_id == 3)
+			return 0;
+	}
+	player_hide_index = Point_segs_free_ptr - Point_segs;
+	if (check_id == 0) {
+		for (i = 0; i < player_path_length; i++) {
+			pathLength += vm_vec_dist(&Point_segs[i].point, &Point_segs[i + 1].point);
+		}
 		return pathLength;
+	}
+	if (check_id == 1) {
+		for (i = 0; i < player_path_length; i++) {
+			for (j = 0; j < lockedWallsLength; j++) {
+				if (Point_segs[i].segnum == Walls[lockedWallIDs[j]].segnum) {
+					for (n = 0; n < MAX_SIDES_PER_SEGMENT; n++) {
+						if (n == Walls[lockedWallIDs[j]].sidenum) {
+							lockSegs++;
+							if (Walls[lockedWallIDs[j]].type == WALL_DOOR) {
+								if (Walls[lockedWallIDs[j]].keys == KEY_BLUE) {
+									for (i = 0; i <= Highest_object_index; i++) {
+										if (Objects[i].id == POW_KEY_BLUE)
+											unlockID = i;
+									}
+								}
+								if (Walls[lockedWallIDs[j]].keys == KEY_GOLD) {
+									for (i = 0; i <= Highest_object_index; i++) {
+										if (Objects[i].id == POW_KEY_GOLD)
+											unlockID = i;
+									}
+								}
+								if (Walls[lockedWallIDs[j]].keys == KEY_RED) {
+									for (i = 0; i <= Highest_object_index; i++) {
+										if (Objects[i].id == POW_KEY_RED)
+											unlockID = i;
+									}
+								}
+							}
+							if (Walls[lockedWallIDs[j]].flags == WALL_DOOR_LOCKED && !(Walls[lockedWallIDs[j]].flags == TRIGGER_EXIT || Walls[lockedWallIDs[j]].flags == TRIGGER_SECRET_EXIT)) {
+								for (i = 0; i <= Num_triggers; i++) {
+									for (j = 0; j <= Triggers[i].num_links; j++) {
+										if (Triggers[i].link_num[&j] == Walls[lockedWallIDs[j]].linked_wall)
+											return Triggers[i].seg + MAX_OBJECTS + 1; // Return a value out of bounds for objects as a way to have the to-do list differentiate between them and triggers.
+									} // Keep in mind this doesn't guarantee the NEAREST trigger for the locked wall, but that'll prooooobably be fine.
+								}
+							}
+							if (lockSegs > 1)
+								return unlockID; // The above code is designed to where this will still be -1 if the unlock ID doesn't exist, so algo ignores the locked status and prevents a softlock.
+						}
+						else
+							lockSegs = 0; // Only consider the path locked if two CONSECUTIVE segments have a locked wall. This will help prevent potential softlocks.
+					}
+				}
+			}
+		}
+		return unlockID;
+	}
+	if (check_id == 2) {
+		for (i = 0; i <= Highest_segment_index; i++) {
+			if (Segments[i].special == SEGMENT_IS_ROBOTMAKER) {
+				for (j = 0; j < player_path_length; j++) {
+					if (i == Point_segs[j].segnum) {
+						if (RobotCenters[Segments[i].matcen_num].robot_flags[0] != 0) {
+							int	type;
+							uint	flags;
+							sbyte	legal_types[32];		//	32 bits in a word, the width of robot_flags.
+							int	num_types, robot_index;
+							robot_index = 0;
+							num_types = 0;
+							flags = RobotCenters[Segments[i].matcen_num].robot_flags[0];
+							while (flags) {
+								if (flags & 1)
+									legal_types[num_types++] = robot_index;
+								flags >>= 1;
+								robot_index++;
+							}
+							for (n = 0; n < num_types; n++) {
+								if (Robot_info[legal_types[n]].strength > highestHP || highestHP < 0)
+									highestHP = Robot_info[legal_types[n]].strength;
+							}
+							matcenHealth += highestHP; // Find the highest robot HP in this matcen and increment by that. 0 is a placeholder.
+						}
+					}
+				}
+			}
+		}
+		return matcenHealth;
+	}
+	if (check_id == 3) {
+		for (i = 0; i <= Highest_segment_index; i++) {
+			if (Segments[i].special == SEGMENT_IS_FUELCEN) {
+				for (j = 0; j < player_path_length; j++) {
+					if (i == Point_segs[j].segnum) {
+						return 1;
+					}
+				}
+			}
+		}
+		return 0;
 	}
 }
 
@@ -1553,7 +1660,7 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 	int toDoList[MAX_OBJECTS] = {0}; // List of remaining objects the algorithm has to travel to.
 	int doneList[MAX_OBJECTS] = {0}; // List of objects the algorithm has already travelled to.
 	int blacklist[MAX_OBJECTS] = {0}; // List of objects the algorithm is currently not allowed to travel to.
-	int nearestID = 0; // ID of the nearest object, so we can get its position and health.
+	int nearestID = 0; // ID of the nearest relevant thing, so we can get its position and health.
 	int segnum = ConsoleObject->segnum; // Start the algorithm off where the player spawns.
 	int initialSegnum = ConsoleObject->segnum; // Version of segnum that stays at its initial value, to ensure the player is put in the right spot.
 	int toDoListLength = 0; // Keeps track of how many items are in toDoList so the algorithm knows everything is done when = 0.
@@ -1570,21 +1677,39 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 		if (Objects[i].type == OBJ_ROBOT || Objects[i].type == OBJ_HOSTAGE || Objects[i].type == OBJ_CNTRLCEN) {
 			toDoList[toDoListLength] = i;
 			toDoListLength++;
+			unlockID = create_path_partime(segnum, Objects[i].segnum, 1);
+			if (unlockID > -1 && (unlockID <= Highest_object_index)) {
+				toDoList[toDoListLength] = unlockID;
+				toDoListLength++;
+			}
 		}
 	}
 	while (toDoListLength >= 0 && Ranking.pathfinds < 1000000) { // The exit pathing starts running when this reaches 0. By design, if that finishes without a hitch, the level will be over so this while loop can end.
+		shortestPathLength = -1;
 		if (toDoListLength > 0) { // On the other hand, if there's still unlock hunting to do, toDoListLength is set to 1 beforehand so the while is tricked into looping again.
 			for (i = 0; i < toDoListLength; i++) { // Find which object on the to-do list is the closest, ignoring the reactor/boss if it's not the only thing left.
 				id = toDoList[i];
 				if (!(toDoListLength > 1 && (Objects[id].type == OBJ_CNTRLCEN || (Objects[id].type == OBJ_ROBOT && Robot_info[id].boss_flag == 1)))) {
-					pathLength = create_path_partime(segnum, Objects[id].segnum, 0, id);
+					if (id > MAX_OBJECTS) {
+						pathLength = create_path_partime(segnum, Triggers[id - 1001].seg, 0);
+						unlockID = create_path_partime(segnum, Triggers[id - 1001].seg, 1);
+						if (unlockID > -1) {
+							toDoList[toDoListLength] = unlockID;
+							toDoListLength++;
+						}
+					}
+					else
+						pathLength = create_path_partime(segnum, Objects[id].segnum, 0);
 					if (pathLength < shortestPathLength || shortestPathLength < 0) {
 						shortestPathLength = pathLength;
 						nearestID = id;
 					}
 				}
 			}
-			unlockID = create_path_partime(segnum, Objects[nearestID].segnum, 1, nearestID);
+			if (nearestID > MAX_OBJECTS)
+				unlockID = create_path_partime(segnum, Triggers[id - 1001].seg, 1);
+			else
+				unlockID = create_path_partime(segnum, Objects[i].segnum, 1);
 			if (unlockID > -1) {
 				for (i = 0; i < doneListLength; i++) { // Check everything the algorithm has done to see if we have what unlocks the obstacle. If so, mark it as unlocked so it can pass through.
 					if (doneList[i] == unlockID) {
@@ -1599,11 +1724,7 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 					blacklistLength = 0;
 				}
 			}
-			if (unlockID > -1) { // For my own information: This is checking if unlockID is STILL < -1. It is not a duplicate if statement that can be merged with the one above.
-				if (unlockID <= Highest_object_index) {
-					toDoList[toDoListLength] = unlockID;
-					toDoListLength++;
-				}
+			if (unlockID > -1) {
 				blacklist[blacklistLength] = nearestID;
 				blacklistLength++;
 			}
@@ -1618,51 +1739,70 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 				}
 				doneList[doneListLength] = nearestID;
 				doneListLength++;
-				levelHealth += Objects[nearestID].shields;
+				if (nearestID == unlockID || (toDoListLength == 0 && blacklistLength > 0)) { // It would be a good idea to clear the blacklist under these circumstances to speed algo up or avoid softlocks.
+					for (i = 0; i < blacklistLength; i++) {
+						toDoList[toDoListLength + i] = blacklist[i];
+					}
+					toDoListLength += blacklistLength;
+					blacklistLength = 0;
+				}
+				levelHealth += Objects[nearestID].shields + Robot_info[Objects[nearestID].contains_id].strength * Objects[nearestID].contains_count;
 				simulatedEnergy -= Objects[nearestID].shields; // Subtract how much energy this much damage would cost with laser 1.
-				highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2, nearestID);
-				if (highestHP > -1) {
+				if (nearestID > MAX_OBJECTS)
+					highestHP = create_path_partime(segnum, Triggers[nearestID - 1001].seg, 2);
+				else
+					highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2);
+				if (highestHP > 0) {
 					levelHealth += highestHP * 7;
 					simulatedEnergy -= highestHP * 7;
 				}
-				if (create_path_partime(segnum, Objects[nearestID].segnum, 3, nearestID) == 1)
+				if (create_path_partime(segnum, Objects[nearestID].segnum, 3) == 1 || (nearestID > MAX_OBJECTS && create_path_partime(segnum, Triggers[nearestID - 1000].seg, 3) == 1))
 					simulatedEnergy = 262144000; // Algo passed through a fuelcen on its path, so its energy is recharged.
+				printf("Path from segment %i to %i: %f seconds.\n", segnum, Objects[nearestID].segnum, shortestPathLength / 3709337.6);
 				segnum = Objects[nearestID].segnum;
 				levelDistance += shortestPathLength;
 				shortestPathLength = -1;
 				if (simulatedEnergy < 0) { // Algo's energy ran out. Search for the nearest fuelcen, go to it and recharge.
 					for (i = 0; i <= Highest_segment_index; i++) {
 						if (Segments[i].special == SEGMENT_IS_FUELCEN) {
-							pathLength = create_path_partime(segnum, i, 0, i);
-							if (pathLength < shortestPathLength || shortestPathLength < 0) {
+							pathLength = create_path_partime(segnum, i, 0);
+							unlockID = create_path_partime(segnum, i, 1);
+							if (unlockID > -1) {
+								for (i = 0; i < doneListLength; i++) {
+									if (doneList[i] == unlockID) {
+										unlockID = -1;
+									}
+								}
+							}
+							if (unlockID == -1 && (pathLength < shortestPathLength || shortestPathLength < 0)) {
 								shortestPathLength = pathLength;
 								nearestID = i;
-								highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2, nearestID);
+								highestHP = create_path_partime(segnum, nearestID, 2);
 								if (highestHP > -1) {
 									levelHealth += highestHP * 7;
 									simulatedEnergy -= highestHP * 7;
 								} // I know we're out of energy here but it'd be unfair not to account for matcens in the way of the fuelcen. In practice, players will come to these at low energy, not zero.
-							} // We will still ignore unlock checks though, since that could lead algo down a long negative energy rabbit hole. This should rarely mess anything up.
+							}
 						}
 					}
 					simulatedEnergy = 262144000;
+					printf("Path from segment %i to %i: %f seconds. (FUELCEN)\n", segnum, nearestID, shortestPathLength / 3709337.6);
 					segnum = nearestID;
 					levelDistance += shortestPathLength;
 				}
 			}
 		}
 		else {
-			shortestPathLength = -1;
 			for (i = 0; i <= Num_walls; i++) { // Repeat relevant steps for the exit.
 				if (Walls[i].flags == TRIGGER_EXIT || Walls[i].flags == TRIGGER_SECRET_EXIT) {
-					pathLength = create_path_partime(segnum, Walls[i].segnum, 0, nearestID);
+					pathLength = create_path_partime(segnum, Walls[i].segnum, 0);
 					if (pathLength < shortestPathLength || shortestPathLength < 0) {
 						shortestPathLength = pathLength;
 						nearestID = i;
 					}
 				}
 			}
-			unlockID = create_path_partime(segnum, Walls[nearestID].segnum, 1, nearestID);
+			unlockID = create_path_partime(segnum, Walls[nearestID].segnum, 1);
 			if (unlockID > -1) {
 				for (i = 0; i < doneListLength; i++) {
 					if (doneList[i] == unlockID) {
@@ -1694,7 +1834,7 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 				}
 				doneListLength++;
 				doneList[doneListLength] = nearestID;
-				highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2, nearestID);
+				highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2);
 				if (highestHP > -1) {
 					levelHealth += highestHP * 7;
 				} // Once again ignoring energy, because trying to path potentially halfway across the level to a fuelcen on a 30-second time limit would be stupid to try.
@@ -1705,6 +1845,7 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 		}
 	}
 	ConsoleObject->segnum = initialSegnum;
+	printf("Par time: %.3fs (%.3f movement, %.3f combat)\n", levelDistance / 3709337.6 + levelHealth / 5242880, levelDistance / 3709337.6, levelHealth / 5242880);
 	return (levelDistance / 3709337.6) + (levelHealth / 5242880); // levelDistance divisor is ship's movement speed and levelHealth divisor is laser 1's DPS.
 }
 

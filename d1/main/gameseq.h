@@ -110,9 +110,6 @@ extern void DoEndLevelScoreGlitz(int network);
 // Calculate scores and ranks based on saved performance data
 extern void CalculateRank(int level_num);
 
-// For the par time pathfinder.
-extern int mark_player_path_to_segment_partime();
-
 // stuff for multiplayer
 extern int NumNetPlayerPositions;
 
