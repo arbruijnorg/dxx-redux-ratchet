@@ -851,7 +851,8 @@ void DoEndLevelScoreGlitz(int network)
 	if (Ranking.level_time == 0)
 	Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536); // Failsafe for if this isn't updated.
 
-	int level_points, skill_points, skill_points2, death_points, shield_points, energy_points, time_points, hostage_points;
+	int level_points, skill_points, death_points, shield_points, energy_points, time_points, hostage_points;
+	double skill_points2;
 	int	all_hostage_points, endgame_points;
 	char	all_hostage_text[64];
 	char	endgame_text[64];
@@ -876,9 +877,10 @@ void DoEndLevelScoreGlitz(int network)
 		skill_points2 = Ranking.rankScore / 4;
 	if (Difficulty_level > 1) {
 		skill_points = level_points * (Difficulty_level - 1) / 2;
-		skill_points2 = Ranking.rankScore * (Difficulty_level / 4);
+		skill_points2 = Ranking.rankScore * ((double)Difficulty_level / 4);
 	}
 	skill_points -= skill_points % 100;
+	skill_points2 = (int)skill_points2;
 
 	shield_points = f2i(Players[Player_num].shields) * 10 * (Difficulty_level + 1);
 	energy_points = f2i(Players[Player_num].energy) * 5 * (Difficulty_level + 1);
@@ -940,7 +942,7 @@ void DoEndLevelScoreGlitz(int network)
 		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.excludePoints);
 		sprintf(m_str[c++], "Time: %s/%s\t%i", time, parTime, time_points);
 		sprintf(m_str[c++], "Hostages: %i/%i\t%i", Players[Player_num].hostages_on_board, Players[Player_num].hostages_level, hostage_points);
-		sprintf(m_str[c++], "Skill: %s\t%i", diffname, skill_points2);
+		sprintf(m_str[c++], "Skill: %s\t%.0f", diffname, skill_points2);
 		if (all_hostage_points > 0) {
 			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
 			sprintf(m_str[c++], "Full rescue bonus:\t%i\n", all_hostage_points);
@@ -1521,6 +1523,16 @@ void bash_to_shield (int i,char *s)
 	Objects[i].size = Powerup_info[POW_SHIELD_BOOST].size;
 }
 
+int find_connecting_side(point_seg* from, point_seg* to) // Sirius' function.
+{
+	for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
+		if (Segments[from->segnum].children[side] == to->segnum)
+			return side;
+	// This shouldn't happen if consecutive nodes from a valid path were passed in
+	Int3();
+	return -1;
+}
+
 int create_path_partime(int start_seg, int segnum, int check_id) // A lot of this is copied from the mark_player_path_to_segment function in game.c.
 {
 	int i;
@@ -1549,58 +1561,58 @@ int create_path_partime(int start_seg, int segnum, int check_id) // A lot of thi
 			return vm_vec_dist(&Point_segs[0].point, &Point_segs[player_path_length].point); // If we can't find a valid path to the target, just draw a straight line to it and measure that to avoid softlocking.
 		if (check_id == 1)
 			return -1;
-		if (check_id == 2)
-			return 0;
-		if (check_id == 3)
+		if (check_id > 1)
 			return 0;
 	}
 	player_hide_index = Point_segs_free_ptr - Point_segs;
-	if (check_id == 0) {
-		for (i = 0; i < player_path_length; i++) {
+	if (check_id == 0) { // Find length of path in units and return it.
+		for (i = 0; i < player_path_length - 1; i++) {
 			pathLength += vm_vec_dist(&Point_segs[i].point, &Point_segs[i + 1].point);
 		}
 		return pathLength;
 	}
-	if (check_id == 1) {
-		for (i = 0; i < player_path_length; i++) {
+	if (check_id == 1) { // Check for locked doors blocking the path, then return either -1, or the ID of what unlocks it. Thanks to Sirius for help with this part.
+		for (i = 0; i < player_path_length - 1; i++) {
 			for (j = 0; j < lockedWallsLength; j++) {
-				if (Point_segs[i].segnum == Walls[lockedWallIDs[j]].segnum) {
-					for (n = 0; n < MAX_SIDES_PER_SEGMENT; n++) {
-						if (Segments[Point_segs[i+2].segnum].children[n] == Walls[lockedWallIDs[j]].segnum) { // Only consider the path locked if two segments after a locked one has an adjacent locked one.
-							if (Walls[lockedWallIDs[j]].type == WALL_DOOR) { // Thanks to D1 level 9's top red door for having only one locked side so I knew to implement it that way. ^
-								if (Walls[lockedWallIDs[j]].keys == KEY_BLUE) {
-									for (c = 0; c <= Highest_object_index; c++) {
-										if (Objects[c].id == POW_KEY_BLUE)
-											return c;
-									}
-								}
-								if (Walls[lockedWallIDs[j]].keys == KEY_GOLD) {
-									for (c = 0; c <= Highest_object_index; c++) {
-										if (Objects[c].id == POW_KEY_GOLD)
-											return c;
-									}
-								}
-								if (Walls[lockedWallIDs[j]].keys == KEY_RED) {
-									for (c = 0; c <= Highest_object_index; c++) {
-										if (Objects[c].id == POW_KEY_RED)
-											return c;
-									}
-								}
-							}
-							if (Walls[lockedWallIDs[j]].flags == WALL_DOOR_LOCKED) {
-								for (c = 0; c <= Num_walls; c++) {
-									if (!(c == lockedWallIDs[j]) && Walls[c].trigger == Walls[lockedWallIDs[j]].trigger)
-										return Walls[c].segnum + MAX_OBJECTS + 1; // Return a value out of bounds for objects as a way to have the to-do list differentiate between them and triggers.
-								} // Keep in mind: This doesn't guarantee the NEAREST trigger for the locked wall, but that'll prooooobably be fine.
+				int side = find_connecting_side(&Point_segs[i], &Point_segs[i + 1]);
+				if (Segments[Point_segs[i].segnum].sides[side].wall_num == lockedWallIDs[j]) { // Only consider the path locked if two segments after a locked one has an adjacent locked one.
+					if (Walls[lockedWallIDs[j]].type == WALL_DOOR) { // Thanks to D1 level 9's top red door for having only one locked side so I knew to implement it that way. ^
+						if (Walls[lockedWallIDs[j]].keys == KEY_BLUE) {
+							for (c = 0; c <= Highest_object_index; c++) {
+								if (Objects[c].type == OBJ_POWERUP && Objects[c].id == POW_KEY_BLUE)
+									return c;
 							}
 						}
+						if (Walls[lockedWallIDs[j]].keys == KEY_GOLD) {
+							for (c = 0; c <= Highest_object_index; c++) {
+								if (Objects[c].type == OBJ_POWERUP && Objects[c].id == POW_KEY_GOLD)
+									return c;
+							}
+						}
+						if (Walls[lockedWallIDs[j]].keys == KEY_RED) {
+							for (c = 0; c <= Highest_object_index; c++) {
+								if (Objects[c].type == OBJ_POWERUP && Objects[c].id == POW_KEY_RED)
+									return c;
+							}
+						}
+					}
+					if (Walls[lockedWallIDs[j]].flags == WALL_DOOR_LOCKED) {
+						for (c = 0; c < Num_walls; c++) {
+							if (c == lockedWallIDs[j] || Walls[c].trigger == -1)
+								continue;
+							trigger* t = &Triggers[Walls[c].trigger];
+							for (short link_num = 0; link_num < t->num_links; link_num++) {
+								if (t->seg[link_num] == Walls[lockedWallIDs[j]].segnum && t->side[link_num] == Walls[lockedWallIDs[j]].sidenum)
+									return Walls[c].segnum + MAX_OBJECTS + 1; // Return a value out of bounds for objects as a way to have the to-do list differentiate between them and triggers.
+							}
+						} // Keep in mind: This doesn't guarantee the NEAREST trigger for the locked wall, but that'll prooooobably be fine.
 					}
 				}
 			}
 		}
 		return -1;
 	}
-	if (check_id == 2) {
+	if (check_id == 2) { // Check for matcens blocking the path, return the total HP of all the robots that could possibly come out in one round.
 		for (i = 0; i <= Highest_segment_index; i++) {
 			if (Segments[i].special == SEGMENT_IS_ROBOTMAKER) {
 				for (j = 0; j < player_path_length; j++) {
@@ -1630,7 +1642,7 @@ int create_path_partime(int start_seg, int segnum, int check_id) // A lot of thi
 		}
 		return matcenHealth;
 	}
-	if (check_id == 3) {
+	if (check_id == 3) { // Check if the algorithm goes through a fuelcen and regen its energy if 1.
 		for (i = 0; i <= Highest_segment_index; i++) {
 			if (Segments[i].special == SEGMENT_IS_FUELCEN) {
 				for (j = 0; j < player_path_length; j++) {
@@ -1649,9 +1661,9 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 	double levelDistance = 0; // Variable to track how much distance it's travelled.
 	double levelHealth = 0; // Variable to track how much damage it's had to do.
 	int simulatedEnergy = 262144000; // Variable to tell it when to refill its energy. It is always equipped with Laser 1 and never uses anything else.
-	int toDoList[MAX_OBJECTS] = {0}; // List of remaining objects the algorithm has to travel to.
-	int doneList[MAX_OBJECTS] = {0}; // List of objects the algorithm has already travelled to.
-	int blacklist[MAX_OBJECTS] = {0}; // List of objects the algorithm is currently not allowed to travel to.
+	int toDoList[MAX_OBJECTS + MAX_TRIGGERS] = {0}; // List of remaining objects the algorithm has to travel to.
+	int doneList[MAX_OBJECTS + MAX_TRIGGERS] = {0}; // List of objects the algorithm has already travelled to.
+	int blacklist[MAX_OBJECTS + MAX_TRIGGERS] = {0}; // List of objects the algorithm is currently not allowed to travel to.
 	int nearestID = 0; // ID of the nearest relevant thing, so we can get its position and health.
 	int segnum = ConsoleObject->segnum; // Start the algorithm off where the player spawns.
 	int initialSegnum = ConsoleObject->segnum; // Version of segnum that stays at its initial value, to ensure the player is put in the right spot.
@@ -1661,6 +1673,7 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 	int unlockID = -1; // ID of thing needed to unlock something. If negative, that means it's unlocked.
 	int i;
 	int j;
+	int c;
 	int id; // ID we're currently pathing to.
 	int highestHP; // The shields of the strongest enemy in a relevant matcen.
 	int skip;
@@ -1677,9 +1690,9 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 					triggerSelfDestructAt++;
 					unlockID = create_path_partime(segnum, Walls[j].segnum, 1);
 					if (unlockID > -1) {
-						skip = 0; // The skip variable is to ensure keys are only added once.
-						for (j = 0; j < toDoListLength || skip == 0; j++) {
-							if (toDoList[j] == unlockID) {
+						skip = 0; // The skip variable is to ensure keys and triggers are only added once.
+						for (c = 0; c < toDoListLength && skip == 0; c++) {
+							if (toDoList[c] == unlockID) {
 								skip = 1;
 							}
 						}
@@ -1700,9 +1713,9 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 				triggerSelfDestructAt++;
 			unlockID = create_path_partime(segnum, Objects[i].segnum, 1);
 			if (unlockID > -1) {
-				skip = 0; // The skip variable is to ensure keys are only added once.
-				for (j = 0; j < toDoListLength || skip == 0; j++) {
-					if (toDoList[j] == unlockID) {
+				skip = 0; // The skip variable is to ensure keys and triggers are only added once.
+				for (c = 0; c < toDoListLength && skip == 0; c++) {
+					if (toDoList[c] == unlockID) {
 						skip = 1;
 					}
 				}
@@ -1720,7 +1733,7 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 			if (!(toDoListLength > triggerSelfDestructAt && (Objects[id].type == OBJ_CNTRLCEN || (Objects[id].type == OBJ_ROBOT && Robot_info[id].boss_flag == 1)) || ((id > MAX_OBJECTS && toDoListLength > 1) && (Triggers[id].flags == TRIGGER_EXIT || Triggers[id].flags == TRIGGER_SECRET_EXIT)))) { // @.@
 				if (id > MAX_OBJECTS) {
 					pathLength = create_path_partime(segnum, toDoList[i] - 1001, 0);
-					unlockID = create_path_partime(segnum, toDoList[i] - 1001, 1);
+					unlockID = create_path_partime(segnum, toDoList[i] - 1001, 1); // Just in case there are multiple layers of triggers unlocking doors (D1 level 21 red room).
 					if (unlockID > -1) {
 						toDoList[toDoListLength] = unlockID;
 						toDoListLength++;
@@ -1865,7 +1878,7 @@ void StartNewLevel(int level_num)
 	}
 	Ranking.maxScore *= 3; // This is not the final max score. Max score is still 7500 higher per hostage, but that's added last second so the time bonus can be weighted properly.
 	Ranking.maxScore = (int)Ranking.maxScore;
-	//Ranking.parTime = calculateParTime();
+	Ranking.parTime = calculateParTime();
 	Ranking.parTime = (int)Ranking.parTime; // Truncate the par time so it looks better/legible on the result screen, and leaves room for the time bonus.
 }
 

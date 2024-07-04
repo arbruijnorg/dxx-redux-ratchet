@@ -974,7 +974,8 @@ void DoEndLevelScoreGlitz(int network)
 	if (Ranking.level_time == 0)
 		Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536); // Failsafe for if this isn't updated.
 	
-	int level_points, skill_points, skill_points2, death_points, shield_points, energy_points, time_points, hostage_points;
+	int level_points, skill_points, death_points, shield_points, energy_points, time_points, hostage_points;
+	double skill_points2;
 	int	all_hostage_points, endgame_points;
 	char	all_hostage_text[64];
 	char	endgame_text[64];
@@ -999,9 +1000,10 @@ void DoEndLevelScoreGlitz(int network)
 		skill_points2 = Ranking.rankScore / 4;
 	if (Difficulty_level > 1) {
 		skill_points = level_points * (Difficulty_level / 4);
-		skill_points2 = Ranking.rankScore * (Difficulty_level / 4);
+		skill_points2 = Ranking.rankScore * ((double)Difficulty_level / 4);
 	}
 	skill_points -= skill_points % 100;
+	skill_points2 = (int)skill_points2;
 
 	shield_points = f2i(Players[Player_num].shields) * 5 * mine_level;
 	shield_points -= shield_points % 50;
@@ -1070,7 +1072,7 @@ void DoEndLevelScoreGlitz(int network)
 		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.excludePoints);
 		sprintf(m_str[c++], "Time: %s/%s\t%i", time, parTime, time_points);
 		sprintf(m_str[c++], "Hostages: %i/%i\t%i", Players[Player_num].hostages_on_board - Ranking.secret_hostages_on_board, Players[Player_num].hostages_level, hostage_points);
-		sprintf(m_str[c++], "Skill: %s\t%i", diffname, skill_points2);
+		sprintf(m_str[c++], "Skill: %s\t%.0f", diffname, skill_points2);
 		if (all_hostage_points > 0) {
 			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
 			sprintf(m_str[c++], "Full rescue bonus:\t%i\n", all_hostage_points);
