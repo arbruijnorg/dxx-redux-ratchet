@@ -1533,7 +1533,7 @@ int find_connecting_side(point_seg* from, point_seg* to) // Sirius' function.
 	return -1;
 }
 
-int create_path_partime(int start_seg, int segnum, int check_id) // A lot of this is copied from the mark_player_path_to_segment function in game.c.
+int create_path_partime(int start_seg, int segnum, int check_id, int simulatedEnergy, int* doneList, int* doneListLength) // A lot of this is copied from the mark_player_path_to_segment function in game.c.
 {
 	int i;
 	int j;
@@ -1561,8 +1561,10 @@ int create_path_partime(int start_seg, int segnum, int check_id) // A lot of thi
 			return vm_vec_dist(&Point_segs[0].point, &Point_segs[player_path_length].point); // If we can't find a valid path to the target, just draw a straight line to it and measure that to avoid softlocking.
 		if (check_id == 1)
 			return -1;
-		if (check_id > 1)
+		if (check_id == 2)
 			return 0;
+		if (check_id == 3)
+			return simulatedEnergy;
 	}
 	player_hide_index = Point_segs_free_ptr - Point_segs;
 	if (check_id == 0) { // Find length of path in units and return it.
@@ -1575,37 +1577,45 @@ int create_path_partime(int start_seg, int segnum, int check_id) // A lot of thi
 		for (i = 0; i < player_path_length - 1; i++) {
 			for (j = 0; j < lockedWallsLength; j++) {
 				int side = find_connecting_side(&Point_segs[i], &Point_segs[i + 1]);
-				if (Segments[Point_segs[i].segnum].sides[side].wall_num == lockedWallIDs[j]) { // Only consider the path locked if two segments after a locked one has an adjacent locked one.
-					if (Walls[lockedWallIDs[j]].type == WALL_DOOR) { // Thanks to D1 level 9's top red door for having only one locked side so I knew to implement it that way. ^
+				if (Segments[Point_segs[i].segnum].sides[side].wall_num == lockedWallIDs[j]) {
+					if (Walls[lockedWallIDs[j]].type == WALL_DOOR) {
 						if (Walls[lockedWallIDs[j]].keys == KEY_BLUE) {
-							for (c = 0; c <= Highest_object_index; c++) {
-								if (Objects[c].type == OBJ_POWERUP && Objects[c].id == POW_KEY_BLUE)
-									return c;
+							for (n = 0; n <= Highest_object_index; n++) {
+								if ((Objects[n].type == OBJ_POWERUP && Objects[n].id == POW_KEY_BLUE) || (Objects[n].type == OBJ_ROBOT && Objects[n].contains_type == OBJ_POWERUP && Objects[n].contains_id == POW_KEY_BLUE))
+									return n;
 							}
 						}
 						if (Walls[lockedWallIDs[j]].keys == KEY_GOLD) {
-							for (c = 0; c <= Highest_object_index; c++) {
-								if (Objects[c].type == OBJ_POWERUP && Objects[c].id == POW_KEY_GOLD)
-									return c;
+							for (n = 0; n <= Highest_object_index; n++) {
+								if ((Objects[n].type == OBJ_POWERUP && Objects[n].id == POW_KEY_GOLD) || (Objects[n].type == OBJ_ROBOT && Objects[n].contains_type == OBJ_POWERUP && Objects[n].contains_id == POW_KEY_GOLD))
+									return n;
 							}
 						}
 						if (Walls[lockedWallIDs[j]].keys == KEY_RED) {
-							for (c = 0; c <= Highest_object_index; c++) {
-								if (Objects[c].type == OBJ_POWERUP && Objects[c].id == POW_KEY_RED)
-									return c;
+							for (n = 0; n <= Highest_object_index; n++) {
+								if ((Objects[n].type == OBJ_POWERUP && Objects[n].id == POW_KEY_RED) || (Objects[n].type == OBJ_ROBOT && Objects[n].contains_type == OBJ_POWERUP && Objects[n].contains_id == POW_KEY_RED))
+									return n;
 							}
 						}
 					}
 					if (Walls[lockedWallIDs[j]].flags == WALL_DOOR_LOCKED) {
-						for (c = 0; c < Num_walls; c++) {
-							if (c == lockedWallIDs[j] || Walls[c].trigger == -1)
+						for (n = 0; n < Num_walls; n++) {
+							if (n == lockedWallIDs[j] || Walls[n].trigger == -1)
 								continue;
-							trigger* t = &Triggers[Walls[c].trigger];
+							trigger* t = &Triggers[Walls[n].trigger];
 							for (short link_num = 0; link_num < t->num_links; link_num++) {
 								if (t->seg[link_num] == Walls[lockedWallIDs[j]].segnum && t->side[link_num] == Walls[lockedWallIDs[j]].sidenum)
-									return Walls[c].segnum + MAX_OBJECTS + 1; // Return a value out of bounds for objects as a way to have the to-do list differentiate between them and triggers.
+									return Walls[n].segnum + MAX_OBJECTS + 1; // Return a value out of bounds for objects as a way to have the to-do list differentiate between them and triggers.
 							}
 						} // Keep in mind: This doesn't guarantee the NEAREST trigger for the locked wall, but that'll prooooobably be fine.
+						for (short n = 0; n < ControlCenterTriggers.num_links; n++) { // So doors opened by the reactor exploding are handled correctly.
+							if (ControlCenterTriggers.seg[n] == Walls[lockedWallIDs[j]].segnum && ControlCenterTriggers.side[n] == Walls[lockedWallIDs[j]].sidenum) {
+								for (c = 0; c <= Highest_object_index; c++) {
+									if (Objects[c].type == OBJ_CNTRLCEN)
+										return c;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1642,18 +1652,73 @@ int create_path_partime(int start_seg, int segnum, int check_id) // A lot of thi
 		}
 		return matcenHealth;
 	}
-	if (check_id == 3) { // Check if the algorithm goes through a fuelcen and regen its energy if 1.
+	if (check_id == 3) { // Check if algo goes through fuelcen and regen its energy if so. Also check for energy pickups along the path. We need to do it in path order so simulatedEnergy stays accurate.
+		int energySources[MAX_OBJECTS + MAX_SEGMENTS] = { 0 }; // We should never need anywhere near this many slots, but just to be safe.
+		int numSources = 0;
+		for (i = 0; i <= Highest_object_index; i++) {
+			if (Objects[i].type == OBJ_POWERUP && Objects[i].id == POW_ENERGY) {
+				energySources[numSources] = i;
+				numSources++;
+			}
+		}
 		for (i = 0; i <= Highest_segment_index; i++) {
 			if (Segments[i].special == SEGMENT_IS_FUELCEN) {
-				for (j = 0; j < player_path_length; j++) {
-					if (i == Point_segs[j].segnum) {
-						return 1;
+				energySources[numSources] = i + MAX_OBJECTS;
+				numSources++;
+			}
+		}
+		for (i = 0; i < player_path_length; i++) {
+			for (j = 0; j < numSources; j++) {
+				if (Point_segs[i].segnum == energySources[j]) {
+					if (energySources[j] < MAX_OBJECTS + 1) {
+						int thisSourceCollected = 0;
+						for (n = 0; n < *doneListLength; n++) {
+							if (doneList[n] = energySources[j])
+								thisSourceCollected = 1;
+						}
+						if (thisSourceCollected == 0) {
+							simulatedEnergy += 15728640;
+							if (simulatedEnergy > 524288000)
+								simulatedEnergy = 524288000;
+							doneList[*doneListLength] = energySources[j];
+							doneListLength++;
+						}
 					}
+					else if (simulatedEnergy < 262144000)
+						simulatedEnergy = 262144000;
 				}
 			}
 		}
-		return 0;
+		return simulatedEnergy;
 	}
+}
+
+void addItemToToDoList(int* toDoList, int* toDoListLength, int itemID)
+{
+	// First make sure it's not already in there
+	for (int i = 0; i < *toDoListLength; i++)
+		if (toDoList[i] == itemID)
+			return;
+	// Next let's make sure it's not the reactor, because we don't wanna go there until we have loops.
+	if (Objects[itemID].type == OBJ_CNTRLCEN)
+			return;
+
+	toDoList[*toDoListLength] = itemID;
+	(*toDoListLength)++;
+}
+
+void removeItemFromToDoList(int* toDoList, int* toDoListLength, int itemID)
+{
+	if (*toDoListLength == 0)
+		return;
+
+	int offset = 0;
+	for (offset = 0; offset < *toDoListLength; offset++)
+		if (toDoList[offset] == itemID)
+			break;
+	if (offset + 1 < *toDoListLength)
+		memmove(toDoList + offset, toDoList + offset + 1, (*toDoListLength - offset - 1) * sizeof(int));
+	(*toDoListLength)--;
 }
 
 int calculateParTime() // Here is where we have an algorithm run a simulated path through a level to determine how long the player should take. It always assumes slowest scenario to ensure the player can beat it.
@@ -1661,9 +1726,9 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 	double levelDistance = 0; // Variable to track how much distance it's travelled.
 	double levelHealth = 0; // Variable to track how much damage it's had to do.
 	int simulatedEnergy = 262144000; // Variable to tell it when to refill its energy. It is always equipped with Laser 1 and never uses anything else.
-	int toDoList[MAX_OBJECTS + MAX_TRIGGERS] = {0}; // List of remaining objects the algorithm has to travel to.
-	int doneList[MAX_OBJECTS + MAX_TRIGGERS] = {0}; // List of objects the algorithm has already travelled to.
-	int blacklist[MAX_OBJECTS + MAX_TRIGGERS] = {0}; // List of objects the algorithm is currently not allowed to travel to.
+	int toDoList[MAX_OBJECTS + MAX_TRIGGERS] = { 0 }; // List of remaining objects the algorithm has to travel to.
+	int doneList[MAX_OBJECTS + MAX_TRIGGERS] = { 0 }; // List of objects the algorithm has already travelled to.
+	int blacklist[MAX_OBJECTS + MAX_TRIGGERS] = { 0 }; // List of objects the algorithm is currently not allowed to travel to.
 	int nearestID = 0; // ID of the nearest relevant thing, so we can get its position and health.
 	int segnum = ConsoleObject->segnum; // Start the algorithm off where the player spawns.
 	int initialSegnum = ConsoleObject->segnum; // Version of segnum that stays at its initial value, to ensure the player is put in the right spot.
@@ -1676,163 +1741,162 @@ int calculateParTime() // Here is where we have an algorithm run a simulated pat
 	int c;
 	int id; // ID we're currently pathing to.
 	int highestHP; // The shields of the strongest enemy in a relevant matcen.
-	int skip;
-	int triggerSelfDestructAt = 0; // How many items should be on toDoList before we allow algo to go to reactor/boss/exit?
+	int loops = 0; // How many times the pathmaking process has repeated. This determines what toDoList is populated with, to make sure things are gone to in the right order.
 	Ranking.pathfinds = 0; // If par time still not calculated after a million pathfinding operations, assume softlock and give up, returning current values. 1000000 should be mathematically impossible, even with 1000 objects.
 	double pathLength; // Store create_path_partime's result in pathLength to compare to current shortest.
 	double shortestPathLength = -1; // For storing the shortest path found so far to determine which object to draw to first.
-	for (i = 0; i <= Num_triggers && toDoListLength == 0; i++) {
-		if (Triggers[i].flags == TRIGGER_EXIT) {
-			for (j = 0; j <= Num_walls; j++) {
-				if (Walls[j].trigger == i) {
-					toDoList[toDoListLength] = Walls[j].segnum + MAX_OBJECTS + 1;
-					toDoListLength++;
-					triggerSelfDestructAt++;
-					unlockID = create_path_partime(segnum, Walls[j].segnum, 1);
+	while (loops < 3 && Ranking.pathfinds < 1000000) {
+		if (loops == 0) {
+			for (i = 0; i <= Highest_object_index; i++) { // Populate the to-do list with all robots and hostages. Ignore robots not worth over zero, as the player isn't gonna go for those. This should never happen, but it's just a failsafe.
+				if ((Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].score_value > 0 && Robot_info[Objects[i].id].boss_flag == 0) || Objects[i].type == OBJ_HOSTAGE) {
+					toDoList[toDoListLength] = i;
+					toDoListLength++;;
+					unlockID = create_path_partime(segnum, Objects[i].segnum, 1, simulatedEnergy, doneList, &doneListLength);
 					if (unlockID > -1) {
-						skip = 0; // The skip variable is to ensure keys and triggers are only added once.
-						for (c = 0; c < toDoListLength && skip == 0; c++) {
-							if (toDoList[c] == unlockID) {
-								skip = 1;
+						addItemToToDoList(toDoList, &toDoListLength, unlockID);
+					}
+				}
+			}
+		}
+		if (loops == 1) {
+			for (i = 0; i <= Highest_object_index; i++) { // Populate the to-do list with all reactors and bosses.
+				if ((Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].boss_flag != 0) || Objects[i].type == OBJ_CNTRLCEN) {
+					toDoList[toDoListLength] = i;
+					toDoListLength++;;
+					unlockID = create_path_partime(segnum, Objects[i].segnum, 1, simulatedEnergy, doneList, &doneListLength);
+					if (unlockID > -1) {
+						addItemToToDoList(toDoList, &toDoListLength, unlockID);
+					}
+				}
+			}
+		}
+		if (loops == 2) { // Put the exit on the list.
+			for (i = 0; i <= Num_triggers && toDoListLength == 0; i++) {
+				if (Triggers[i].flags == TRIGGER_EXIT) {
+					for (j = 0; j <= Num_walls; j++) {
+						if (Walls[j].trigger == i) {
+							toDoList[toDoListLength] = Walls[j].segnum + MAX_OBJECTS + 1;
+							toDoListLength++;
+							unlockID = create_path_partime(segnum, Walls[j].segnum, 1, simulatedEnergy, doneList, &doneListLength);
+							if (unlockID > -1) {
+								addItemToToDoList(toDoList, &toDoListLength, unlockID);
 							}
 						}
-						if (skip == 0) {
-							toDoList[toDoListLength] = unlockID;
-							toDoListLength++;
+					}
+				}
+			}
+		}
+		while (toDoListLength > 0) {
+			shortestPathLength = -1;
+			for (i = 0; i < toDoListLength; i++) { // Find which object on the to-do list is the closest, ignoring the reactor/boss if it's not the only thing left.
+				id = toDoList[i];
+				if (id > MAX_OBJECTS) {
+					pathLength = create_path_partime(segnum, id -  MAX_OBJECTS - 1, 0, simulatedEnergy, doneList, &doneListLength);
+					unlockID = create_path_partime(segnum, id - MAX_OBJECTS - 1, 1, simulatedEnergy, doneList, &doneListLength); // Just in case there are multiple layers of triggers unlocking doors (D1 level 21 red room).
+					if (unlockID > -1) {
+						for (c = 0; c < doneListLength; c++) { // Check everything the algorithm has done to see if we have what unlocks the obstacle. If so, mark it as unlocked so it can pass through.
+							if (doneList[c] == unlockID) {
+								unlockID = -1;
+							}
 						}
 					}
-				}
-			}
-		}
-	}
-	for (i = 0; i <= Highest_object_index; i++) { // Populate the to-do list with all robots and hostages, as well as the reactor.
-		if (Objects[i].type == OBJ_ROBOT || Objects[i].type == OBJ_HOSTAGE || Objects[i].type == OBJ_CNTRLCEN) {
-			toDoList[toDoListLength] = i;
-			toDoListLength++;
-			if (Objects[i].type == OBJ_CNTRLCEN || (Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].boss_flag == 1))
-				triggerSelfDestructAt++;
-			unlockID = create_path_partime(segnum, Objects[i].segnum, 1);
-			if (unlockID > -1) {
-				skip = 0; // The skip variable is to ensure keys and triggers are only added once.
-				for (c = 0; c < toDoListLength && skip == 0; c++) {
-					if (toDoList[c] == unlockID) {
-						skip = 1;
-					}
-				}
-				if (skip == 0) {
-					toDoList[toDoListLength] = unlockID;
-					toDoListLength++;
-				}
-			}
-		}
-	}
-	while (toDoListLength > 0 && Ranking.pathfinds < 1000000) { // The exit pathing starts running when this reaches 0. By design, if that finishes without a hitch, the level will be over so this while loop can end.
-		shortestPathLength = -1;
-		for (i = 0; i < toDoListLength; i++) { // Find which object on the to-do list is the closest, ignoring the reactor/boss if it's not the only thing left.
-			id = toDoList[i];
-			if (!(toDoListLength > triggerSelfDestructAt && (Objects[id].type == OBJ_CNTRLCEN || (Objects[id].type == OBJ_ROBOT && Robot_info[id].boss_flag == 1)) || ((id > MAX_OBJECTS && toDoListLength > 1) && (Triggers[id].flags == TRIGGER_EXIT || Triggers[id].flags == TRIGGER_SECRET_EXIT)))) { // @.@
-				if (id > MAX_OBJECTS) {
-					pathLength = create_path_partime(segnum, toDoList[i] - 1001, 0);
-					unlockID = create_path_partime(segnum, toDoList[i] - 1001, 1); // Just in case there are multiple layers of triggers unlocking doors (D1 level 21 red room).
 					if (unlockID > -1) {
-						toDoList[toDoListLength] = unlockID;
-						toDoListLength++;
+						addItemToToDoList(toDoList, &toDoListLength, unlockID);
+						removeItemFromToDoList(toDoList, &toDoListLength, id);
+						blacklist[blacklistLength] = id;
+						blacklistLength++;
 					}
 				}
 				else
-					pathLength = create_path_partime(segnum, Objects[id].segnum, 0);
+					pathLength = create_path_partime(segnum, Objects[id].segnum, 0, simulatedEnergy, doneList, &doneListLength);
 				if (pathLength < shortestPathLength || shortestPathLength < 0) {
 					shortestPathLength = pathLength;
 					nearestID = id;
 				}
 			}
-		}
-		if (nearestID > MAX_OBJECTS)
-			unlockID = create_path_partime(segnum, toDoList[i] - 1001, 1);
-		else
-			unlockID = create_path_partime(segnum, Objects[nearestID].segnum, 1);
-		if (unlockID > -1) {
-			for (i = 0; i < doneListLength; i++) { // Check everything the algorithm has done to see if we have what unlocks the obstacle. If so, mark it as unlocked so it can pass through.
-				if (doneList[i] == unlockID) {
-					unlockID = -1;
+			int nearestTargetSegnum = (nearestID > MAX_OBJECTS) ? (nearestID - MAX_OBJECTS - 1) : Objects[nearestID].segnum;
+			unlockID = create_path_partime(segnum, nearestTargetSegnum, 1, simulatedEnergy, doneList, &doneListLength);
+			if (unlockID > -1) {
+				for (i = 0; i < doneListLength; i++) { // Check everything the algorithm has done to see if we have what unlocks the obstacle. If so, mark it as unlocked so it can pass through.
+					if (doneList[i] == unlockID) {
+						unlockID = -1;
+					}
 				}
 			}
-			if (unlockID < 0) { // Clear the blacklist now that we know there was a locked door, and that algo has what unlocks it.
-				for (i = 0; i < blacklistLength; i++) {
-					toDoList[toDoListLength + i] = blacklist[i];
+			if (unlockID > -1) {
+				removeItemFromToDoList(toDoList, &toDoListLength, nearestID);
+				blacklist[blacklistLength] = nearestID;
+				blacklistLength++;
+			}
+			else {
+				removeItemFromToDoList(toDoList, &toDoListLength, nearestID);
+				doneList[doneListLength] = nearestID;
+				doneListLength++;
+				if (nearestID > MAX_OBJECTS || Objects[nearestID].type == OBJ_CNTRLCEN || (Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].boss_flag != 0) || Objects[nearestID].type == OBJ_POWERUP) { // We don't have to specify what powerup since keys are the only ones the algorithm looks for.
+					for (i = 0; i < blacklistLength; i++) { // Clear the blacklist, because we just unlocked something.
+						toDoList[toDoListLength + i] = blacklist[i];
+					}
+					toDoListLength += blacklistLength;
+					blacklistLength = 0;
 				}
-				toDoListLength += blacklistLength;
-				blacklistLength = 0;
-			}
-		}
-		if (unlockID > -1) {
-			toDoListLength--;
-			skip = 0; // Set this to 1 when skipping to offset which index of the list is being read.
-			for (i = 0; i < toDoListLength; i++) {
-				if (toDoList[i] == nearestID) {
-					skip = 1;
+				simulatedEnergy = create_path_partime(segnum, nearestTargetSegnum, 3, simulatedEnergy, doneList, &doneListLength); // Do energy stuff.
+				if (nearestID < MAX_OBJECTS) { // We don't fight triggers.
+					if (Objects[nearestID].type == OBJ_ROBOT || Objects[nearestID].type == OBJ_CNTRLCEN) { // We don't fight keys or hostages.
+						levelHealth += Objects[nearestID].shields;
+						simulatedEnergy -= Objects[nearestID].shields; // Subtract how much energy killing this robot would cost with laser 1. This variable's max value is scaled to be 1:1 with damage.
+						if (Objects[nearestID].contains_type == OBJ_ROBOT) { // Now we account for robots guaranteed to drop from this robot, if any.
+							levelHealth += Robot_info[Objects[nearestID].contains_id].strength * Objects[nearestID].contains_count;
+							simulatedEnergy -= Robot_info[Objects[nearestID].contains_id].strength * Objects[nearestID].contains_count;
+						}
+						if (Objects[nearestID].contains_type == OBJ_POWERUP && Objects[nearestID].contains_id == POW_ENERGY) {
+							simulatedEnergy += 15728640 * Objects[nearestID].contains_count; // If the robot is guaranteed to drop energy, give it to algo so it doesn't visit fuelcens more than needed.
+							if (simulatedEnergy > 524288000)
+								simulatedEnergy = 524288000; // Cap algo's energy at 200, like the player's.
+						}
+					}
 				}
-				toDoList[i] = toDoList[i + skip];
-			}
-			blacklist[blacklistLength] = nearestID;
-			blacklistLength++;
-		}
-		else {
-			toDoListLength--;
-			skip = 0; // Set this to 1 when skipping to offset which index of the list is being read.
-			for (i = 0; i < toDoListLength; i++) {
-				if (toDoList[i] == nearestID) {
-					skip = 1;
+				highestHP = 0; //create_path_partime(segnum, nearestTargetSegnum, 2); // For matcen check. Disabled because Boli's par time was massively inflated.
+				if (highestHP > 0) {
+					levelHealth += highestHP * 7;
+					simulatedEnergy -= highestHP * 7;
 				}
-				toDoList[i] = toDoList[i + skip];
-			}
-			doneList[doneListLength] = nearestID;
-			doneListLength++;
-			levelHealth += Objects[nearestID].shields + Robot_info[Objects[nearestID].contains_id].strength * Objects[nearestID].contains_count;
-			simulatedEnergy -= Objects[nearestID].shields; // Subtract how much energy this much damage would cost with laser 1.
-			if (nearestID > MAX_OBJECTS)
-				highestHP = create_path_partime(segnum, toDoList[i] - 1001, 2);
-			else
-				highestHP = create_path_partime(segnum, Objects[nearestID].segnum, 2);
-			if (highestHP > 0) {
-				levelHealth += highestHP * 7;
-				simulatedEnergy -= highestHP * 7;
-			}
-			if (create_path_partime(segnum, Objects[nearestID].segnum, 3) == 1 || (nearestID > MAX_OBJECTS && create_path_partime(segnum, toDoList[i] - 1001, 3) == 1))
-				simulatedEnergy = 262144000; // Algo passed through a fuelcen on its path, so its energy is recharged.
-			printf("Path from segment %i to %i: %.3fs\n", segnum, Objects[nearestID].segnum, shortestPathLength / 3709337.6);
-			segnum = Objects[nearestID].segnum;
-			levelDistance += shortestPathLength;
-			shortestPathLength = -1;
-			if (simulatedEnergy < 0) { // Algo's energy ran out. Search for the nearest fuelcen, go to it and recharge.
-				for (i = 0; i <= Highest_segment_index; i++) {
-					if (Segments[i].special == SEGMENT_IS_FUELCEN) {
-						pathLength = create_path_partime(segnum, i, 0);
-						if (pathLength < shortestPathLength || shortestPathLength < 0) {
-							shortestPathLength = pathLength;
-							nearestID = i;
-							unlockID = create_path_partime(segnum, i, 1);
-							if (unlockID > -1) {
-								for (i = 0; i < doneListLength; i++) {
-									if (doneList[i] == unlockID) {
+				printf("Path from segment %i to %i: %.3fs\n", segnum, nearestTargetSegnum, shortestPathLength / 3709337.6);
+				segnum = nearestTargetSegnum;
+				levelDistance += shortestPathLength;
+				shortestPathLength = -1;
+				if (simulatedEnergy < 0 && !((loops == 1 && toDoListLength == 0) || loops == 2)) { // Algo's energy's out. If not running for exit, search for nearest fuelcen, go to it and recharge.
+					for (i = 0; i <= Highest_segment_index; i++) {
+						if (Segments[i].special == SEGMENT_IS_FUELCEN) {
+							pathLength = create_path_partime(segnum, i, 0, simulatedEnergy, doneList, &doneListLength);
+							unlockID = create_path_partime(segnum, i, 1, simulatedEnergy, doneList, &doneListLength);
+							if (unlockID > -1) { // If nearest fuelcen is locked behind an inaccessible door, pick another one if available.
+								for (j = 0; j < doneListLength; j++) {
+									if (doneList[j] == unlockID) {
 										unlockID = -1;
 									}
 								}
 							}
-							highestHP = create_path_partime(segnum, nearestID, 2);
-							if (highestHP > -1) {
-								levelHealth += highestHP * 7;
-								simulatedEnergy -= highestHP * 7;
-							} // I know we're out of energy here but it'd be unfair not to account for matcens in the way of the fuelcen. In practice, players will come to these at low energy, not zero.
+							if (unlockID < 0 && (pathLength < shortestPathLength || shortestPathLength < 0)) {
+								shortestPathLength = pathLength;
+								nearestID = i;
+								highestHP = 0; //create_path_partime(segnum, nearestTargetSegnum, 2); // For matcen check. Disabled because Boli's par time was massively inflated.
+								if (highestHP > 0) {
+									levelHealth += highestHP * 7;
+									simulatedEnergy -= highestHP * 7;
+								} // I know we're out of energy here but it'd be unfair not to account for matcens in the way of the fuelcen. In practice, players will come to these at low energy, not zero.
+							}
 						}
 					}
+					simulatedEnergy = 262144000; // We always reset energy to avoid a softlock, even if a valid path to a fuelcen couldn't be found.
+					if (shortestPathLength > -1) { // Only update algo's location and increment level distance if a fuelcen was found.
+						printf("Path from segment %i to %i: %0.3fs (FUELCEN)\n", segnum, nearestID, shortestPathLength / 3709337.6);
+						segnum = nearestID;
+						levelDistance += shortestPathLength;
+					}
 				}
-				simulatedEnergy = 262144000;
-				printf("Path from segment %i to %i: %0.3fs (FUELCEN)\n", segnum, nearestID, shortestPathLength / 3709337.6);
-				segnum = nearestID;
-				levelDistance += shortestPathLength;
 			}
 		}
+		loops++;
 	}
 	ConsoleObject->segnum = initialSegnum;
 	printf("Par time: %.3fs (%.3f movement, %.3f combat)\n", levelDistance / 3709337.6 + levelHealth / 5242880, levelDistance / 3709337.6, levelHealth / 5242880);
@@ -1862,15 +1926,19 @@ void StartNewLevel(int level_num)
 	StartNewLevelSub(level_num, 1, 0);
 
 	int i;
+	double levelHealth = 0; // For testing purposes.
 	for (i = 0; i <= Highest_object_index; i++) {
 		if (Objects[i].type == OBJ_ROBOT) {
 			Ranking.maxScore += Robot_info[Objects[i].id].score_value;
+			levelHealth += Objects[i].shields;
 			if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0) {
 				Ranking.maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
+				levelHealth += Robot_info[Objects[i].contains_id].strength * Objects[i].contains_count;
 			}
 		}
 		if (Objects[i].type == OBJ_CNTRLCEN) {
 			Ranking.maxScore += CONTROL_CEN_SCORE;
+			levelHealth += Objects[i].shields;
 		}
 		if (Objects[i].type == OBJ_HOSTAGE) {
 			Ranking.maxScore += HOSTAGE_SCORE;
@@ -1880,6 +1948,7 @@ void StartNewLevel(int level_num)
 	Ranking.maxScore = (int)Ranking.maxScore;
 	Ranking.parTime = calculateParTime();
 	Ranking.parTime = (int)Ranking.parTime; // Truncate the par time so it looks better/legible on the result screen, and leaves room for the time bonus.
+	printf("Expected combat time: %.3fs\n", levelHealth / 5242880);
 }
 
 int previewed_spawn_point = 0; 
