@@ -1071,7 +1071,7 @@ void DoEndLevelScoreGlitz(int network)
 			sprintf(parTime, "%i:%.0f", parMinutes, parSeconds);
 		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.excludePoints);
 		sprintf(m_str[c++], "Time: %s/%s\t%i", time, parTime, time_points);
-		sprintf(m_str[c++], "Hostages: %i/%i\t%i", Players[Player_num].hostages_on_board - Ranking.secret_hostages_on_board, Players[Player_num].hostages_level, hostage_points);
+		sprintf(m_str[c++], "Hostages: %i/%i\t%i", Players[Player_num].hostages_on_board, Players[Player_num].hostages_level, hostage_points);
 		sprintf(m_str[c++], "Skill: %s\t%.0f", diffname, skill_points2);
 		if (all_hostage_points > 0) {
 			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
@@ -1079,7 +1079,6 @@ void DoEndLevelScoreGlitz(int network)
 		}
 		else
 			sprintf(m_str[c++], "Deaths: %.0f\t%i\n", Ranking.deathCount, death_points);
-
 		sprintf(m_str[c++], "%s%0.0f", TXT_TOTAL_SCORE, Ranking.rankScore);
 
 		double rankPoints = (Ranking.rankScore / Ranking.maxScore) * 12;

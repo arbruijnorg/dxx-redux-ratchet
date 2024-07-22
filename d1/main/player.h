@@ -125,14 +125,15 @@ typedef struct player {
 typedef struct ranking { // This struct contains variables for the ranking system mod. Most of them don't have to be doubles. It's either for math compatibility or consistency.
 	double  deathCount;              // Number of times the player died during the level.
 	double  rankScore;               // The version of score used for this mod, as to not disturb the vanilla score system.
-	double  excludePoints;           // Number of points gotten from sources we want to not count toward rank calculation, but still contribute to vanilla score.
-	double  maxScore;				 // The current level's S-rank score.
+	double  excludePoints;           // Number of points gotten from sources we still want to contribute to vanilla score, but not count toward rank calculation.
+	double  maxScore;				 // The current level's S-rank score. Won't include hostage points until the result screen, to make calculation of other bonuses easier.
 	double  level_time;              // Time variable used in rank calculation. Updates to match Players[Player_num].time_level at specific points to protect players from being penalized for not skipping things.
 	double  parTime;                 // The algorithmically-generated required time for the current level.
 	double  quickload;				 // Whether the player has quickloaded into the current level.
 	double  calculatedScore;		 // Stores the score determined in CalculateRank.
 	int     rank;					 // Stores the rank determined in CalculateRank.
 	int     pathfinds;               // Keeps track of pathfinding attempts in parTime calculator, so it can automatically stop after an unnecessary amount to avoid softlocks.
+	vms_vector lastPosition;         // Tracks the last place the parTime algorithm went to within the same segment.
 } __pack__ ranking;
 
 // Same as above but structure how Savegames expect
