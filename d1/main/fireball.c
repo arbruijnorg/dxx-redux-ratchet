@@ -1231,7 +1231,7 @@ void do_explosion_sequence(object *obj)
 			//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
 			if (del_obj->contains_type == OBJ_POWERUP)
 				maybe_replace_powerup_with_energy(del_obj);
-			fireball_flag_hack = 0; //fixed drops, so don't set the no score flag
+			fireball_flag_hack = 0; // Fixed drops, so don't set the no score flag.
 			object_create_egg(del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
 			robot_info	*robptr = &Robot_info[del_obj->id];
@@ -1241,7 +1241,7 @@ void do_explosion_sequence(object *obj)
 					del_obj->contains_type = robptr->contains_type;
 					del_obj->contains_id = robptr->contains_id;
 					maybe_replace_powerup_with_energy(del_obj);
-					fireball_flag_hack = 1; //random drops, so set the no score flag
+					fireball_flag_hack = 1; // Random drops, so set the no score flag.
 					object_create_egg(del_obj);
 				}
 			}

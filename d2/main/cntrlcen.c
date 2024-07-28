@@ -232,8 +232,8 @@ void do_countdown_frame()
 				Ranking.deathCount++;
 				if (Current_level_num < 0)
 					Ranking.secretDeathCount++;
-				Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 			}
+			Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 			DoPlayerDead();		//kill_player();
 		}																				
 	}
@@ -257,12 +257,8 @@ void do_controlcen_destroyed_stuff(object *objp)
 
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;
-	if (Player_is_dead) {
-		Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
-		Ranking.freezeTimer = 1;
-		if (Current_level_num > 0)
+	if (Player_is_dead && Current_level_num > 0)
 			Ranking.secretDeathCount--;
-	}
 
 	// If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
 	if (Current_level_num < 0)

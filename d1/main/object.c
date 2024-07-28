@@ -1600,8 +1600,6 @@ void dead_player_frame(void)
 void start_player_death_sequence(object* player)
 {
 	Ranking.deathCount++;
-	if (Control_center_destroyed)
-	Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536);
 	int	objnum;
 
 	Assert(player == ConsoleObject);

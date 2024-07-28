@@ -1570,13 +1570,11 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		for (i = 0; i <= Highest_object_index; i++) {
 			if (Objects[i].type == OBJ_ROBOT) {
 				Ranking.secretMaxScore += Robot_info[Objects[i].id].score_value;
-				if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0) {
+				if (Objects[i].contains_type == OBJ_ROBOT)
 					Ranking.secretMaxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
-				}
 			}
-			if (Objects[i].type == OBJ_CNTRLCEN) {
+			if (Objects[i].type == OBJ_CNTRLCEN)
 				Ranking.secretMaxScore += CONTROL_CEN_SCORE;
-			}
 			if (Objects[i].type == OBJ_HOSTAGE) {
 				Ranking.secretMaxScore += HOSTAGE_SCORE;
 				Ranking.hostages_secret_level++;
@@ -2286,16 +2284,13 @@ void StartNewLevel(int level_num)
 	for (i = 0; i <= Highest_object_index; i++) {
 		if (Objects[i].type == OBJ_ROBOT) {
 			Ranking.maxScore += Robot_info[Objects[i].id].score_value;
-			if (Objects[i].contains_type == OBJ_ROBOT && Objects[i].contains_count > 0) {
+			if (Objects[i].contains_type == OBJ_ROBOT)
 				Ranking.maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
-			}
 		}
-		if (Objects[i].type == OBJ_CNTRLCEN) {
+		if (Objects[i].type == OBJ_CNTRLCEN)
 			Ranking.maxScore += CONTROL_CEN_SCORE;
-		}
-		if (Objects[i].type == OBJ_HOSTAGE) {
+		if (Objects[i].type == OBJ_HOSTAGE)
 			Ranking.maxScore += HOSTAGE_SCORE;
-		}
 	}
 	Ranking.maxScore *= 3;
 	Ranking.maxScore = (int)Ranking.maxScore;
