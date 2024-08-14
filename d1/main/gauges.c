@@ -1401,6 +1401,12 @@ void show_time()
 		gr_printf(SWIDTH-FSPACX(40),GHEIGHT-(LINE_SPACING*11),"%d:0%.03f", mins, secs);
 	else
 		gr_printf(SWIDTH - FSPACX(40), GHEIGHT - (LINE_SPACING * 11), "%d:%.03f", mins, secs);
+	mins = Ranking.parTime / 60;
+	secs = Ranking.parTime - mins * 60;
+	if (secs < 10 || secs == 60)
+		gr_printf(SWIDTH - FSPACX(45), GHEIGHT - (LINE_SPACING * 10), "Par: %d:0%.0f", mins, secs);
+	else
+		gr_printf(SWIDTH - FSPACX(45), GHEIGHT - (LINE_SPACING * 10), "Par: %d:%.0f", mins, secs);
 }
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
@@ -4305,11 +4311,12 @@ void draw_hud()
 	if (!((Game_mode & GM_MULTI) || !(Newdemo_state == ND_STATE_NORMAL || Newdemo_state == ND_STATE_RECORDING) || Ranking.quickload == 1)) {
 		hud_show_pointstonextlife();
 		hud_show_pointsleftinlevel();
+		show_time();
 	}
 
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
 		hud_show_timer_count();
-
+	
 	//	Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
 	{
@@ -4332,9 +4339,6 @@ void draw_hud()
 				newdemo_record_player_flags(Players[pnum].flags);
 			}
 		}
-
-		if (!((Game_mode & GM_MULTI) || !(Newdemo_state == ND_STATE_NORMAL || Newdemo_state == ND_STATE_RECORDING) || Ranking.quickload == 1))
-			show_time();
 
 		HUD_render_message_frame();
 

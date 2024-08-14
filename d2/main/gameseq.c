@@ -893,31 +893,7 @@ void CalculateRank(int level_num)
 	if (rankPoints2 > -5)
 		Ranking.rank = 1;
 	if (rankPoints2 >= 0)
-		Ranking.rank = 2;
-	if (rankPoints2 >= 1)
-		Ranking.rank = 3;
-	if (rankPoints2 >= 2)
-		Ranking.rank = 4;
-	if (rankPoints2 >= 3)
-		Ranking.rank = 5;
-	if (rankPoints2 >= 4)
-		Ranking.rank = 6;
-	if (rankPoints2 >= 5)
-		Ranking.rank = 7;
-	if (rankPoints2 >= 6)
-		Ranking.rank = 8;
-	if (rankPoints2 >= 7)
-		Ranking.rank = 9;
-	if (rankPoints2 >= 8)
-		Ranking.rank = 10;
-	if (rankPoints2 >= 9)
-		Ranking.rank = 11;
-	if (rankPoints2 >= 10)
-		Ranking.rank = 12;
-	if (rankPoints2 >= 11)
-		Ranking.rank = 13;
-	if (rankPoints2 >= 12)
-		Ranking.rank = 14;
+		Ranking.rank = (int)rankPoints2 + 2;
 }
 
 //starts a new game on the given level
@@ -1582,8 +1558,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		}
 		Ranking.secretMaxScore *= 3;
 		Ranking.secretMaxScore = (int)Ranking.secretMaxScore;
-		//Ranking.secretParTime = calculatesecretParTime();
-		Ranking.secretParTime = (int)Ranking.secretParTime; // Truncate the par time so it looks better/legible on the result screen, and leaves room for the time bonus.
+		//Ranking.secretParTime = calculateParTime();
 	}
 
 	First_secret_visit = 0;
@@ -2295,7 +2270,6 @@ void StartNewLevel(int level_num)
 	Ranking.maxScore *= 3;
 	Ranking.maxScore = (int)Ranking.maxScore;
 	//Ranking.parTime = calculateParTime();
-	Ranking.parTime = (int)Ranking.parTime; // Truncate the par time so it looks better/legible on the result screen, and leaves room for the time bonus.
 }
 
 int previewed_spawn_point = 0; 

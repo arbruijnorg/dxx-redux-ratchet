@@ -133,9 +133,6 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	double     quickload;				           // Whether the player has quickloaded into the current level.
 	double     calculatedScore;		               // Stores the score determined in CalculateRank.
 	int        rank;					           // Stores the rank determined in CalculateRank.
-	int        pathfinds;                          // Keeps track of pathfinding attempts in parTime calculator, so it can automatically stop after an unnecessary amount to avoid softlocks.
-	vms_vector lastPosition;                       // Tracks the last place the parTime algorithm went to within the same segment.
-	int        matcenLives[MAX_ROBOT_CENTERS];     // Tracks the number of lives all matcens have left. Their cooldowns aren't tracked, because the time taken to fight one is already basically as long.
 } __pack__ ranking;
 
 // Same as above but structure how Savegames expect
