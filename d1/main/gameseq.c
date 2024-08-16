@@ -1511,7 +1511,7 @@ int find_connecting_side(point_seg* from, point_seg* to) // Sirius' function.
 #define SHIP_MOVE_SPEED 3709337.6
 #define LASER_SPEED 7864320
 #define STARTING_VULCAN_AMMO 163840000 // There may already be an existing macro related to the ammo cap but I couldn't find one.
-#define VULCAN_EST_EPS 4259.84 // Vulcan equivalent of energy_used_per_shield, treating 5000 ammo as 100 energy.
+#define VULCAN_EST_EPS 0.065 // Vulcan equivalent of energy_used_per_shield, treating 5000 ammo as 100 energy.
 #define OBJECTIVE_TYPE_INVALID 0
 #define OBJECTIVE_TYPE_OBJECT 1
 #define OBJECTIVE_TYPE_TRIGGER 2
@@ -1561,17 +1561,19 @@ typedef struct
 	int laser_level; // Use 1-4 for dual lasers, 5-8 for quad 1-4.
 } partime_calc_state;
 
-int calculate_combat_time(partime_calc_state* state, object* obj, robot_info* robInfo) // Tell algo to use the weapon that's fastest for the current enemy.
+double calculate_combat_time(partime_calc_state* state, object* obj, robot_info* robInfo) // Tell algo to use the weapon that's fastest for the current enemy.
 {
 	int weapon_id = 0; // Just a shortcut for the relevant index in algo's inventory.
-	double thisWeaponCombatTime; // How much time does this enemy take to kill with the current weapon?
+	double thisWeaponCombatTime = -1; // How much time does this enemy take to kill with the current weapon?
 	double lowestCombatTime = -1; // Track the time of the fastest weapon so far.
 	double energyUsed = 0; // To calculate energy cost.
 	double ammoUsed = 0; // Same thing but vulcan.
+	double lowestEps = 0; // To keep track of which EPS to remove from the combat time.
+	int topWeapon; // So when depleting energy/ammo, the right one is depleted. Also so the console shows the right weapon.
 	//fix offspringHealth; // So multipliers done to offspring don't bleed into their parents' values.
 	for (int n = 0; n < state->num_weapons; n++) {
 		weapon_id = state->heldWeapons[n];
-		double ammo_used_per_shield = fixdiv(Weapon_info[Primary_weapon_to_weapon_info[1]].ammo_usage, Weapon_info[Primary_weapon_to_weapon_info[1]].strength[Difficulty_level]);
+		double ammo_used_per_shield = (Weapon_info[Primary_weapon_to_weapon_info[1]].ammo_usage / f2fl(Weapon_info[Primary_weapon_to_weapon_info[1]].strength[Difficulty_level])) * 13; // Gotta multiply by 13 to account for what the display does.
 		fix gunpoints = 2; // Most weapons shoot two projectiles.
 		if (weapon_id == 1) // Vulcan shoots one.
 			gunpoints = 1;
@@ -1585,7 +1587,9 @@ int calculate_combat_time(partime_calc_state* state, object* obj, robot_info* ro
 			if (state->laser_level > 4)
 				dps *= 1 + (state->laser_level * 0.2);
 		}
-		double energy_used_per_shield = fixdiv(Weapon_info[Primary_weapon_to_weapon_info[weapon_id]].energy_usage, (fixmul(Weapon_info[Primary_weapon_to_weapon_info[weapon_id]].strength[Difficulty_level], gunpoints))) / 65536;
+		double energy_used_per_shield = f2fl(Weapon_info[Primary_weapon_to_weapon_info[weapon_id]].energy_usage) / f2fl(Weapon_info[Primary_weapon_to_weapon_info[weapon_id]].strength[Difficulty_level] * gunpoints);
+		if (weapon_id == 4)
+			energy_used_per_shield = 0.01666666667; // Why is fusion's energy_usage 0????? Have to manually set this too.
 		if (Difficulty_level == 0) // Trainee has 0.5x energy consumption.
 			energy_used_per_shield *= 0.5;
 		if (Difficulty_level == 1) // Rookie has 0.75x energy consumption.
@@ -1596,8 +1600,8 @@ int calculate_combat_time(partime_calc_state* state, object* obj, robot_info* ro
 		double sizeFactor = (double)ConsoleObject->size / obj->size; // An enemy's size directly impacts how hard it is to hit. Anything bigger than your ship gives less time, and anything smaller gives more.
 		// Add the time it takes to kill this robot, but also give players more time to fight based on enemy speed, to account for robots evading shots. It's unrealistic to expect 100% accuracy on insane.
 		fix evadeFactor = i2f(32 * robInfo->evade_speed[Difficulty_level]) > robInfo->max_speed[Difficulty_level] ? // Account for -25% evade speed to robots whose evade speed initially exceeds their max speed.
-			fixdiv(i2f(24 * robInfo->evade_speed[Difficulty_level]), (fix)SHIP_MOVE_SPEED) :
-			fixdiv(i2f(32 * robInfo->evade_speed[Difficulty_level]), (fix)SHIP_MOVE_SPEED);
+		fixdiv(i2f(24 * robInfo->evade_speed[Difficulty_level]), (fix)SHIP_MOVE_SPEED) :
+		fixdiv(i2f(32 * robInfo->evade_speed[Difficulty_level]), (fix)SHIP_MOVE_SPEED);
 		evadeFactor *= LASER_SPEED / projectile_speed;
 		fix adjustedRobotHealth = fixmul(obj->shields, F1_0 + evadeFactor * sizeFactor);
 		if (obj->ctype.ai_info.behavior == AIB_HIDE || obj->ctype.ai_info.behavior == AIB_RUN_FROM) // Give the player even more time to dispatch a robot if it runs away, since they will have to persue it.
@@ -1623,47 +1627,55 @@ int calculate_combat_time(partime_calc_state* state, object* obj, robot_info* ro
 			//offspringHealth = fixmul(obj->shields, F1_0 + evadeFactor * sizeFactor);
 			//adjustedRobotHealth += offspringHealth * (robInfo->contains_count * (robInfo->contains_prob / 16));
 		//}
-		thisWeaponCombatTime = (adjustedRobotHealth / dps) * energy_used_per_shield; // Energy use matters for weapon choice. If one is barely faster but uses way more energy, algo will go with second best to cut fuelcen time.
-		if (weapon_id = 1)
-			thisWeaponCombatTime = (adjustedRobotHealth / dps) * VULCAN_EST_EPS; // Vulcan uses no energy, so we use time to go from 5000 ammo to 0 (5.2s) so it doesn't always win.
+		if (weapon_id == 1) {
+			if (state->vulcanAmmo >= adjustedRobotHealth * ammo_used_per_shield) // Make sure we have enough ammo for this robot before using vulcan.
+				thisWeaponCombatTime = (adjustedRobotHealth / dps) * VULCAN_EST_EPS; // Vulcan uses no energy, so we use time to go from 5000 ammo to 0 (5.2s) so it doesn't always win.
+			else
+				thisWeaponCombatTime = lowestCombatTime * 10000; // Set vulcan's time to some absurdly high amount that'll never happen, so algo won't use it without ammo.
+		}
+		else
+			thisWeaponCombatTime = (adjustedRobotHealth / dps) * energy_used_per_shield; // Energy use matters for weapon choice. If one is barely faster but uses way more energy, algo will go with second best to cut fuelcen time.
 		if (thisWeaponCombatTime < lowestCombatTime || lowestCombatTime == -1) { // If it should be used, update algo's weapon stats to the new one's for use in combat time calculation.
-			lowestCombatTime = thisWeaponCombatTime / energy_used_per_shield; // Undo the energy part, as it's not actually part of combat time.
-			if (weapon_id = 1)
-				lowestCombatTime = thisWeaponCombatTime / VULCAN_EST_EPS;
+			lowestCombatTime = thisWeaponCombatTime;
+			lowestEps = energy_used_per_shield;
+			if (weapon_id == 1)
+				lowestEps = VULCAN_EST_EPS;
 			energyUsed = adjustedRobotHealth * energy_used_per_shield;
 			ammoUsed = adjustedRobotHealth * ammo_used_per_shield;
+			topWeapon = weapon_id;
 		}
 	}
-	state->simulatedEnergy -= energyUsed;
-	state->vulcanAmmo -= ammoUsed;
-	if (weapon_id == 0) {
+	lowestCombatTime /= lowestEps; // Now undo the energy part, as it's not actually part of combat time.
+	if (topWeapon == 1)
+		state->vulcanAmmo -= ammoUsed;
+	else
+		state->simulatedEnergy -= energyUsed;
+	if (topWeapon == 0) {
 		if (state->laser_level > 4)
-			printf("Took %fs to fight Object %i with quad laser %i).\n", lowestCombatTime / 65536, obj->id, state->laser_level - 4);
+			printf("Took %fs to fight Object %i with quad laser %i).\n", lowestCombatTime, obj->signature - 1, state->laser_level - 4);
 		else
-			printf("Took %fs to fight Object %i with laser %i.\n", lowestCombatTime / 65536, obj->id, state->laser_level);
+			printf("Took %fs to fight Object %i with laser %i.\n", lowestCombatTime, obj->signature - 1, state->laser_level);
 	}
-	if (weapon_id == 1)
-		printf("Took %fs to fight Object %i with vulcan.\n", lowestCombatTime / 65536, obj->id);
-	if (weapon_id == 2)
-		printf("Took %fs to fight Object %i with spreadfire.\n", lowestCombatTime / 65536, obj->id);
-	if (weapon_id == 3)
-		printf("Took %fs to fight Object %i with plasma.\n", lowestCombatTime / 65536, obj->id);
-	if (weapon_id == 4)
-		printf("Took %fs to fight Object %i with fusion.\n", lowestCombatTime / 65536, obj->id);
+	if (topWeapon == 1)
+		printf("Took %fs to fight Object %i with vulcan.\n", lowestCombatTime, obj->signature - 1);
+	if (topWeapon == 2)
+		printf("Took %fs to fight Object %i with spreadfire.\n", lowestCombatTime, obj->signature - 1);
+	if (topWeapon == 3)
+		printf("Took %fs to fight Object %i with plasma.\n", lowestCombatTime, obj->signature - 1);
+	if (topWeapon == 4)
+		printf("Took %fs to fight Object %i with fusion.\n", lowestCombatTime, obj->signature - 1);
 	return lowestCombatTime;
 }
 
-int calculate_combat_time_matcen(partime_calc_state* state, robot_info* robInfo) // We need a matcen version of this function, because matcens don't use the Objects struct.
+double calculate_combat_time_matcen(partime_calc_state* state, robot_info* robInfo) // We need a matcen version of this function, because matcens don't use the Objects struct.
 {
-	int weapon_id; // Just a shortcut for the relevant index in algo's inventory.
-	double thisWeaponMatcenHealth; // How much damage worth of shooting to we have to do for this enemy in this matcen?
+	int weapon_id = 0; // Just a shortcut for the relevant index in algo's inventory.
+	double thisWeaponMatcenHealth = -1; // How much damage worth of shooting to we have to do for this enemy in this matcen?
 	double lowestMatcenHealth = -1; // Track the lowest amount so far.
-	double energyUsed; // To calculate energy cost. Eventually (vulcan lol), energy cost will be part of algo's weapon choice, so if one is slightly faster but costs way more energy, also will use second best instead to cut fuelcen time.
-	double ammoUsed; // Same thing but vulcan.
-	fix offspringHealth; // So multipliers done to offspring don't bleed into their parents' values.
+	double lowestEps = 0; // To keep track of which EPS to remove from the combat time.
 	for (int n = 0; n < state->num_weapons; n++) {
 		weapon_id = state->heldWeapons[n];
-		double ammo_used_per_shield = fixdiv(Weapon_info[Primary_weapon_to_weapon_info[1]].ammo_usage, Weapon_info[Primary_weapon_to_weapon_info[1]].strength[Difficulty_level]);
+		double ammo_used_per_shield = (Weapon_info[Primary_weapon_to_weapon_info[1]].ammo_usage / f2fl(Weapon_info[Primary_weapon_to_weapon_info[1]].strength[Difficulty_level])) * 13; // Gotta multiply by 13 to account for what the display does.
 		fix gunpoints = 2; // Most weapons shoot two projectiles.
 		if (weapon_id == 1) // Vulcan shoots one.
 			gunpoints = 1;
@@ -1678,7 +1690,9 @@ int calculate_combat_time_matcen(partime_calc_state* state, robot_info* robInfo)
 				if (state->laser_level > 4)
 					dps *= 1 + (state->laser_level * 0.2);
 			}
-			double energy_used_per_shield = fixdiv(Weapon_info[Primary_weapon_to_weapon_info[weapon_id]].energy_usage, (fixmul(Weapon_info[Primary_weapon_to_weapon_info[weapon_id]].strength[Difficulty_level], gunpoints))) / 65536;
+			double energy_used_per_shield = f2fl(Weapon_info[Primary_weapon_to_weapon_info[weapon_id]].energy_usage) / f2fl(Weapon_info[Primary_weapon_to_weapon_info[weapon_id]].strength[Difficulty_level] * gunpoints);
+			if (weapon_id == 4)
+				energy_used_per_shield = 1 / 60; // Why is fusion's energy_usage 0????? Have to manually set this too.
 			if (Difficulty_level == 0) // Trainee has 0.5x energy consumption.
 				energy_used_per_shield *= 0.5;
 			if (Difficulty_level == 1) // Rookie has 0.75x energy consumption.
@@ -1689,7 +1703,7 @@ int calculate_combat_time_matcen(partime_calc_state* state, robot_info* robInfo)
 			double sizeFactor = (double)ConsoleObject->size / Polygon_models[robInfo->model_num].rad; // An enemy's size directly impacts how hard it is to hit. Anything bigger than your ship gives less time, and anything smaller gives more.
 			fix evadeFactor;
 			fix adjustedRobotHealth;
-			//fix offspringHealth;
+			//fix offspringHealth; // So multipliers done to offspring don't bleed into their parents' values.
 			evadeFactor = i2f(32 * robInfo->evade_speed[Difficulty_level]) > robInfo->max_speed[Difficulty_level] ?
 				fixdiv(i2f(24 * robInfo->evade_speed[Difficulty_level]), (fix)SHIP_MOVE_SPEED) :
 				fixdiv(i2f(32 * robInfo->evade_speed[Difficulty_level]), (fix)SHIP_MOVE_SPEED);
@@ -1706,22 +1720,29 @@ int calculate_combat_time_matcen(partime_calc_state* state, robot_info* robInfo)
 				//offspringHealth* (robInfo->contains_count * (robInfo->contains_prob / 16));
 				//adjustedRobotHealth += offspringHealth;
 			//}
-			thisWeaponMatcenHealth = adjustedRobotHealth * energy_used_per_shield; // Energy use matters for weapon choice. If one is barely faster but uses way more energy, algo will go with second best to cut fuelcen time.
-			if (weapon_id = 1)
-				thisWeaponMatcenHealth = adjustedRobotHealth * VULCAN_EST_EPS; // Vulcan uses no energy, so we use time to go from 5000 ammo to 0 (5.2s) so it doesn't always win.
+			if (weapon_id == 1) {
+				if (state->vulcanAmmo >= adjustedRobotHealth * ammo_used_per_shield) // Make sure we have enough ammo for this robot before using vulcan.
+					thisWeaponMatcenHealth = adjustedRobotHealth * VULCAN_EST_EPS; // Vulcan uses no energy, so we use time to go from 5000 ammo to 0 (5.2s) so it doesn't always win.
+				else
+					thisWeaponMatcenHealth = lowestMatcenHealth;
+			}
+			else
+				thisWeaponMatcenHealth = adjustedRobotHealth * energy_used_per_shield; // Energy use matters for weapon choice. If one is barely faster but uses way more energy, algo will go with second best to cut fuelcen time.
 			if (thisWeaponMatcenHealth < lowestMatcenHealth || lowestMatcenHealth == -1) { // If it should be used, update algo's weapon stats to the new one's for use in combat time calculation.
 				state->energy_used_per_shield = energy_used_per_shield; // We need to calculate this externally for the end of matcen calc.
-				state->ammo_used_per_shield = ammo_used_per_shield; // Same here.
+				state->ammo_used_per_shield = 0; // Same here. Energy weapons don't use ammo.
 				state->dps = dps; // So we can convert health into time for matcenTime. We don't use time from the getgo like in the normal function because we don't have a final robot yet.
-				lowestMatcenHealth = thisWeaponMatcenHealth / energy_used_per_shield; // Undo the energy part, as it's not actually part of combat time.
-				if (weapon_id = 1)
-					lowestMatcenHealth = thisWeaponMatcenHealth / VULCAN_EST_EPS;
-				energyUsed = adjustedRobotHealth * energy_used_per_shield;
-				ammoUsed = adjustedRobotHealth * ammo_used_per_shield;
+				lowestMatcenHealth = thisWeaponMatcenHealth; // Undo the energy part, as it's not actually part of combat time.
+				lowestEps = energy_used_per_shield;
+				if (weapon_id == 1) {
+					lowestEps = VULCAN_EST_EPS;
+					state->energy_used_per_shield = 0; // Vulcan doesn't use energy
+					state->ammo_used_per_shield = ammo_used_per_shield; // but it does use ammo.
+				}
 			}
 		}
 	}
-	return lowestMatcenHealth;
+	return lowestMatcenHealth / lowestEps;
 }
 
 int getObjectiveSegnum(partime_objective objective)
@@ -2096,7 +2117,7 @@ void update_energy_for_path_partime(partime_calc_state* state, point_seg* path, 
 		}
 		// If there are energy powerups in this segment, collect them
 		for (int objNum = 0; objNum <= Highest_object_index; objNum++) { // This next if line's gonna be long. Basically making sure any of the weapons in the condition are ignored if we don't already have them.
-			if (Objects[objNum].type == OBJ_POWERUP && (Objects[objNum].id == POW_ENERGY || Objects[objNum].id == POW_VULCAN_AMMO || (Objects[objNum].id == POW_VULCAN_WEAPON && do_we_have_this_weapon(&state, 1)) || (Objects[objNum].id == POW_SPREADFIRE_WEAPON && do_we_have_this_weapon(&state, 2)) || (Objects[objNum].id == POW_PLASMA_WEAPON && do_we_have_this_weapon(&state, 3)) || (Objects[objNum].id == POW_FUSION_WEAPON && do_we_have_this_weapon(&state, 4)) || (Objects[objNum].id == POW_LASER && !(state->laser_level == 4 || state->laser_level == 8)) || (Objects[objNum].id == POW_QUAD_FIRE && state->laser_level < 5)) && Objects[objNum].segnum == path[i].segnum) {
+			if (Objects[objNum].type == OBJ_POWERUP && (Objects[objNum].id == POW_ENERGY || Objects[objNum].id == POW_VULCAN_AMMO || (Objects[objNum].id == POW_VULCAN_WEAPON && do_we_have_this_weapon(state, 1)) || (Objects[objNum].id == POW_SPREADFIRE_WEAPON && do_we_have_this_weapon(&state, 2)) || (Objects[objNum].id == POW_PLASMA_WEAPON && do_we_have_this_weapon(&state, 3)) || (Objects[objNum].id == POW_FUSION_WEAPON && do_we_have_this_weapon(&state, 4)) || (Objects[objNum].id == POW_LASER && !(state->laser_level == 4 || state->laser_level == 8)) || (Objects[objNum].id == POW_QUAD_FIRE && state->laser_level < 5)) && Objects[objNum].segnum == path[i].segnum) {
 				// ...make sure we didn't already get this one
 				int thisSourceCollected = 0;
 				for (int j = 0; j < state->doneListSize; j++)
@@ -2105,7 +2126,7 @@ void update_energy_for_path_partime(partime_calc_state* state, point_seg* path, 
 						break;
 					}
 				if (!thisSourceCollected) {
-					if (Objects[objNum].id == POW_VULCAN_AMMO)
+					if (Objects[objNum].id == POW_VULCAN_AMMO || Objects[objNum].id == POW_VULCAN_WEAPON)
 						state->vulcanAmmo += STARTING_VULCAN_AMMO / 2;
 					else
 						state->simulatedEnergy += state->energy_gained_per_pickup;
@@ -2123,49 +2144,51 @@ void update_energy_for_path_partime(partime_calc_state* state, point_seg* path, 
 	// How much energy does it take to handle the matcens along the way?
 	// Check for matcens blocking the path, return the total HP of all the robots that could possibly come out in one round.
 	fix matcenHealth;
-	fix matcenTime = 0;
+	double matcenTime = 0;
 	fix lowestRobotHealth = -1;
-	for (int i = 0; i < path_count; i++) {
-		segment* segp = &Segments[path[i].segnum];
-		if (segp->special == SEGMENT_IS_ROBOTMAKER &&
-			RobotCenters[segp->matcen_num].robot_flags[0] != 0 &&
-			state->matcenLives[segp->matcen_num] > 0)
-		{
-			uint	flags;
-			sbyte	legal_types[32];		//	32 bits in a word, the width of robot_flags.
-			int	num_types, robot_index;
-			robot_index = 0;
-			num_types = 0;
-			flags = RobotCenters[segp->matcen_num].robot_flags[0];
-			while (flags) {
-				if (flags & 1)
-					legal_types[num_types++] = robot_index;
-				flags >>= 1;
-				robot_index++;
+	if (Num_robot_centers > 0) { // Don't bother constantly scanning the path for matcens on levels with no matcens.
+		for (int i = 0; i < path_count; i++) { // For now, every matcen segment on the path will be factored into par time, but soon, only matcens triggered along the path will count.
+			segment* segp = &Segments[path[i].segnum];
+			if (segp->special == SEGMENT_IS_ROBOTMAKER &&
+				RobotCenters[segp->matcen_num].robot_flags[0] != 0 &&
+				state->matcenLives[segp->matcen_num] > 0)
+			{
+				uint	flags;
+				sbyte	legal_types[32];		//	32 bits in a word, the width of robot_flags.
+				int	num_types, robot_index;
+				robot_index = 0;
+				num_types = 0;
+				flags = RobotCenters[segp->matcen_num].robot_flags[0];
+				while (flags) {
+					if (flags & 1)
+						legal_types[num_types++] = robot_index;
+					flags >>= 1;
+					robot_index++;
+				}
+				// Assume the worst case. Find the highest robot HP in this matcen after evadeFactor and use that for all robots spawned.
+				lowestRobotHealth = -1;
+				int n;
+				fix adjustedRobotHealth;
+				for (n = 0; n < num_types; n++) {
+					robot_info* robInfo = &Robot_info[legal_types[n]];
+					adjustedRobotHealth = calculate_combat_time_matcen(state, robInfo);
+					if (adjustedRobotHealth < lowestRobotHealth || lowestRobotHealth == -1)
+						lowestRobotHealth = adjustedRobotHealth;
+				}
+				// We won't account for energy pickups dropped by these guys, as they aren't guaranteed to be the robots that actually spawn.
+				matcenHealth = lowestRobotHealth * (Difficulty_level + 3);
+				state->matcenLives[segp->matcen_num]--;
+				matcenTime += matcenHealth / state->dps; // Calculate matcenTime per matcen rather than once at the end, as DPS potentially changes with each one.
+				state->simulatedEnergy -= fixmul(matcenHealth, state->energy_used_per_shield); // Do the same for energy
+				state->vulcanAmmo -= fixmul(matcenHealth, state->ammo_used_per_shield); // and ammo, as those also change per matcen.
 			}
-			// Assume the worst case. Find the highest robot HP in this matcen after evadeFactor and use that for all robots spawned.
-			lowestRobotHealth = -1;
-			int n;
-			fix adjustedRobotHealth;
-			for (n = 0; n < num_types; n++) {
-				robot_info* robInfo = &Robot_info[legal_types[n]];
-				adjustedRobotHealth = calculate_combat_time_matcen(&state, &robInfo);
-				if (adjustedRobotHealth < lowestRobotHealth || lowestRobotHealth == -1)
-					lowestRobotHealth = adjustedRobotHealth;
-			}
-			// We won't account for energy pickups dropped by these guys, as they aren't guaranteed to be the robots that actually spawn.
-			matcenHealth = lowestRobotHealth * (Difficulty_level + 3);
-			state->matcenLives[segp->matcen_num]--;
-			matcenTime += matcenHealth / state->dps; // Calculate matcenTime per matcen rather than once at the end, as DPS potentially changes with each one.
-			state->simulatedEnergy -= fixmul(matcenHealth, state->energy_used_per_shield); // Do the same for energy
-			state->vulcanAmmo -= fixmul(matcenHealth, state->ammo_used_per_shield); // and ammo, as those also change per matcen.
 		}
+		if ((matcenTime < 3.5 * (Difficulty_level + 2) + (lowestRobotHealth / state->dps)) && matcenTime > 0)
+			matcenTime = 3.5 * (Difficulty_level + 2) + (lowestRobotHealth / state->dps);
+		state->combatTime += matcenTime;
+		if (matcenTime > 0)
+			printf("Fought matcens for %.3fs\n", matcenTime);
 	}
-	if (matcenTime < 3.5 * (Difficulty_level + 2) + (lowestRobotHealth / state->dps))
-		matcenTime = 3.5 * (Difficulty_level + 2) + (lowestRobotHealth / state->dps);
-	state->combatTime += matcenTime;
-	if (matcenTime > 0)
-		printf("Fought matcens for %.3fs\n", matcenTime);
 }
 
 void update_energy_for_objective_partime(partime_calc_state* state, partime_objective objective)
@@ -2175,7 +2198,7 @@ void update_energy_for_objective_partime(partime_calc_state* state, partime_obje
 		object* obj = &Objects[objective.ID];
 		if (obj->type == OBJ_POWERUP && (obj->id == POW_LASER || obj->id == POW_QUAD_FIRE || obj->id == POW_VULCAN_WEAPON || obj->id == POW_SPREADFIRE_WEAPON || obj->id == POW_PLASMA_WEAPON || obj->id == POW_FUSION_WEAPON)) {
 			if (obj->id > 12) { // If the powerup we got is a new weapon, add it to the list of weapons algo has.
-				if (do_we_have_this_weapon(&state, obj->id - 12)) { // Weapons you already have give energy/ammo.
+				if (do_we_have_this_weapon(state, obj->id - 12)) { // Weapons you already have give energy/ammo.
 					if (obj->id == 13)
 						state->vulcanAmmo += STARTING_VULCAN_AMMO / 2;
 					else
@@ -2197,14 +2220,14 @@ void update_energy_for_objective_partime(partime_calc_state* state, partime_obje
 		}
 		if (obj->type == OBJ_ROBOT || obj->type == OBJ_CNTRLCEN) { // We don't fight keys, hostages or weapons.
 			robot_info* robInfo = &Robot_info[obj->id];
-			state->combatTime += calculate_combat_time(&state, &obj, &robInfo);
+			state->combatTime += calculate_combat_time(state, obj, robInfo);
 			if (obj->contains_type == OBJ_POWERUP && obj->contains_id == POW_ENERGY) {
 				// If the robot is guaranteed to drop energy, give it to algo so it doesn't visit fuelcens more than needed.
 				state->simulatedEnergy += state->energy_gained_per_pickup * obj->contains_count;
 			}
 			if (obj->contains_type == OBJ_POWERUP && (obj->contains_id == POW_LASER || obj->contains_id == POW_QUAD_FIRE || obj->contains_id == POW_VULCAN_WEAPON || obj->contains_id == POW_SPREADFIRE_WEAPON || obj->contains_id == POW_PLASMA_WEAPON || obj->contains_id == POW_FUSION_WEAPON)) {
 				if (obj->contains_id > 12) { // If the powerup we got is a new weapon, add it to the list of weapons algo has.
-					if (do_we_have_this_weapon(&state, obj->contains_id - 12)) { // Weapons you already have give energy/ammo.
+					if (do_we_have_this_weapon(state, obj->contains_id - 12)) { // Weapons you already have give energy/ammo.
 						if (obj->contains_id == 13)
 							state->vulcanAmmo += STARTING_VULCAN_AMMO / 2;
 						else
@@ -2344,7 +2367,7 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 					update_energy_for_path_partime(&state, path_start, path_count); // Do energy stuff.
 				}
 				update_energy_for_objective_partime(&state, nearestObjective);
-				printf("Now at %.3f energy\n", f2fl(state.simulatedEnergy));
+				printf("Now at %.3f energy, %.0f vulcan ammo\n", f2fl(state.simulatedEnergy), f2fl(state.vulcanAmmo));
 
 				int nearestObjectiveSegnum = getObjectiveSegnum(nearestObjective);
 				printf("Path from segment %i to %i: %.3fs\n", segnum, nearestObjectiveSegnum, pathLength / SHIP_MOVE_SPEED);
