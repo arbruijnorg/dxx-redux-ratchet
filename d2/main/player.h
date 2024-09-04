@@ -143,6 +143,8 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	double  freezeTimer;             // Tells normal levels' in-game timer whether it should be frozen or not.
 	double  calculatedScore;		 // Stores the score determined in CalculateRank.
 	int     rank;				     // Stores the rank determined in CalculateRank.
+	double  missedRngDrops;	     	 // Tracks the points from randomly-dropped robots that were ignored by the player, so they're subtracted at the end.
+	int     alreadyBeaten;           // Tracks whether the current level has been beaten before, so points remaining and par time HUD elements are not shown on a new level.
 
 	// Below are the variables used for secret levels. Since we can play them in the middle of a normal one, we have to distinguish between them so results don't overlap.
 	double	secretRankScore;
@@ -155,6 +157,7 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	double  secretQuickload;		  // Same thing as secretDeathCount, but with quickloading.
 	double  secretParTime;
 	double  hostages_secret_level;    // Secret equivalent of Players[Player_num].hostages_level.
+	double  secretMissedRngDrops;
 } __pack__ ranking;
 
 // Same as above but structure how Savegames expect

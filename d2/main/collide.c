@@ -184,10 +184,16 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 
 			if (result) {
 				if (obj->matcen_creator != 0 || obj->flags & OF_ROBOT_DROPPED) {
-					if (Current_level_num > 0)
+					if (Current_level_num > 0) {
 						Ranking.excludePoints += Robot_info[obj->id].score_value;
-					else
+						if (obj->flags & OF_ROBOT_DROPPED)
+							Ranking.missedRngDrops += Robot_info[obj->id].score_value;
+					}
+					else {
 						Ranking.secretExcludePoints += Robot_info[obj->id].score_value;
+						if (obj->flags & OF_ROBOT_DROPPED)
+							Ranking.secretMissedRngDrops += Robot_info[obj->id].score_value;
+					}
 				}
 				if (!(other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature)) {
 					if (Current_level_num > 0)
@@ -997,10 +1003,16 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 			apply_damage_to_robot(robot, robot->shields + 1, playerobj - Objects);
 			if (playerobj == ConsoleObject)	{
 				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED) {
-					if (Current_level_num > 0)
+					if (Current_level_num > 0) {
 						Ranking.excludePoints += Robot_info[robot->id].score_value;
-					else
+						if (robot->flags & OF_ROBOT_DROPPED)
+							Ranking.missedRngDrops += Robot_info[robot->id].score_value;
+					}
+					else {
 						Ranking.secretExcludePoints += Robot_info[robot->id].score_value;
+						if (robot->flags & OF_ROBOT_DROPPED)
+							Ranking.secretMissedRngDrops += Robot_info[robot->id].score_value;
+					}
 				}
 				add_points_to_score(Robot_info[robot->id].score_value);
 			}
@@ -1707,10 +1719,16 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
 			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature || !(Game_mode & GM_MULTI_COOP)) {
 				if (robot->matcen_creator != 0 || robot->flags & OF_ROBOT_DROPPED) {
-					if (Current_level_num > 0)
+					if (Current_level_num > 0) {
 						Ranking.excludePoints += Robot_info[robot->id].score_value;
-					else
+						if (robot->flags & OF_ROBOT_DROPPED)
+							Ranking.missedRngDrops += Robot_info[robot->id].score_value;
+					}
+					else {
 						Ranking.secretExcludePoints += Robot_info[robot->id].score_value;
+						if (robot->flags & OF_ROBOT_DROPPED)
+							Ranking.secretMissedRngDrops += Robot_info[robot->id].score_value;
+					}
 				}
 				add_points_to_score(Robot_info[robot->id].score_value);
 				detect_escort_goal_accomplished(robot-Objects);

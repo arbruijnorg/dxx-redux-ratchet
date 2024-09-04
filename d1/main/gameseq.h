@@ -108,7 +108,7 @@ void editor_reset_stuff_on_level();
 extern void DoEndLevelScoreGlitz(int network);
 
 // Calculate scores and ranks based on saved performance data
-extern void CalculateRank(int level_num);
+extern int CalculateRank(int level_num);
 
 // stuff for multiplayer
 extern int NumNetPlayerPositions;

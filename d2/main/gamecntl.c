@@ -1541,7 +1541,7 @@ char AcidCheatOn=0;
 char old_IntMethod;
 
 #define CHEAT_MAX_LEN 15
-#define NUM_CHEATS    28
+#define NUM_CHEATS    30
 
 typedef struct cheat_code
 {
@@ -1559,6 +1559,7 @@ cheat_code cheat_codes[NUM_CHEATS] = {
 	{ "joshuaakira", &cheats.lamer },
 	{ "whammazoom", &cheats.lamer },
 	{ "honestbob", &cheats.wowie },
+	{ "guile", &cheats.cloak },
 	{ "algroove", &cheats.allkeys },
 	{ "alifalafel", &cheats.accessory },
 	{ "almighty", &cheats.invul },
@@ -1578,6 +1579,7 @@ cheat_code cheat_codes[NUM_CHEATS] = {
 	{ "helpvishnu", &cheats.buddyclone },
 	{ "gowingnut", &cheats.buddyangry },
 	{ "bittersweet", &cheats.acid },
+	{ "bruin", &cheats.extralife },
 };
 
 int FinalCheats(int key)
@@ -1667,6 +1669,26 @@ int FinalCheats(int key)
 		HUD_init_message_literal(HM_DEFAULT, "Accessories!!");
 	}
 
+	if (cheat_codes[gotcha].stateptr == &cheats.cloak)
+	{
+		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) ? TXT_ON : TXT_OFF);
+		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
+		{
+			ai_do_cloak_stuff();
+			Players[Player_num].cloak_time = GameTime64;
+		}
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.extralife)
+	{
+		if (Players[Player_num].lives < 50)
+		{
+			Players[Player_num].lives++;
+			HUD_init_message_literal(HM_DEFAULT,F "Extra life!");
+		}
+	}
+	
 	if (cheat_codes[gotcha].stateptr == &cheats.invul)
 	{
 		Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;

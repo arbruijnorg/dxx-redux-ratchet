@@ -1590,18 +1590,20 @@ void show_time()
 		gr_printf(SWIDTH - FSPACX(40), GHEIGHT - (LINE_SPACING * 11), "%d:0%.03f", mins, secs);
 	else
 		gr_printf(SWIDTH - FSPACX(40), GHEIGHT - (LINE_SPACING * 11), "%d:%.03f", mins, secs);
-	if (Current_level_num > 0) {
-		mins = Ranking.parTime / 60;
-		secs = Ranking.parTime - mins * 60;
+	if (Ranking.alreadyBeaten) { // Only show par time if the level's been beaten before, so we don't spoil a new level's length or produce unwanted pressure.
+		if (Current_level_num > 0) {
+			mins = Ranking.parTime / 60;
+			secs = Ranking.parTime - mins * 60;
+		}
+		else {
+			mins = Ranking.secretParTime / 60;
+			secs = Ranking.secretParTime - mins * 60;
+		}
+		if (secs < 10 || secs == 60)
+			gr_printf(SWIDTH - FSPACX(45), GHEIGHT - (LINE_SPACING * 10), "Par: %d:0%.0f", mins, secs);
+		else
+			gr_printf(SWIDTH - FSPACX(45), GHEIGHT - (LINE_SPACING * 10), "Par: %d:%.0f", mins, secs);
 	}
-	else {
-		mins = Ranking.secretParTime / 60;
-		secs = Ranking.secretParTime - mins * 60;
-	}
-	if (secs < 10 || secs == 60)
-		gr_printf(SWIDTH - FSPACX(45), GHEIGHT - (LINE_SPACING * 10), "Par: %d:0%.0f", mins, secs);
-	else
-		gr_printf(SWIDTH - FSPACX(45), GHEIGHT - (LINE_SPACING * 10), "Par: %d:%.0f", mins, secs);
 }
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
@@ -4671,7 +4673,8 @@ void draw_hud()
 
 	if (!((Game_mode & GM_MULTI) || (!(Newdemo_state == ND_STATE_NORMAL || Newdemo_state == ND_STATE_RECORDING)) || (Ranking.quickload == 1 && Current_level_num > 0) || (Ranking.secretQuickload == 1 && Current_level_num < 0))) {
 		hud_show_pointstonextlife();
-		hud_show_pointsleftinlevel();
+		if (Ranking.alreadyBeaten) // Only show points remaining if the level's been beaten before, so we don't spoil what's in a new level.
+			hud_show_pointsleftinlevel();
 		show_time();
 	}
 

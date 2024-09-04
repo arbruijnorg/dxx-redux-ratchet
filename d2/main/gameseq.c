@@ -819,7 +819,7 @@ void InitPlayerObject()
 
 extern void init_seismic_disturbances(void);
 
-void CalculateRank(int level_num)
+int CalculateRank(int level_num)
 {
 	int levelHostages = 0;
 	int levelPoints = 0;
@@ -827,8 +827,9 @@ void CalculateRank(int level_num)
 	int playerPoints = 0;
 	double secondsTaken = 0;
 	int playerHostages = 0;
-	int difficulty = 0;
+	double difficulty = 0;
 	int deathCount = 0;
+	double missedRngDrops = 0;
 	double rankPoints2 = 0;
 	char buffer[256];
 	char filename[256];
@@ -839,7 +840,7 @@ void CalculateRank(int level_num)
 	if (fp == NULL)
 		rankPoints2 = -10; // If no data exists, just assume level never played and set rankPoints in the range that returns N/A.
 	else {
-		PHYSFSX_getsTerminated(fp, buffer); // Fetch level data starting here.
+		PHYSFSX_getsTerminated(fp, buffer); // Fetch level data starting here. If a parameter isn't present in the file, it'll default to 0 in calculation.
 		levelHostages = atoi(buffer);
 		if (levelHostages < 0) // If level is unplayed, we know because the first (and only) value in the file will be -1, which is impossible for the hostage count.
 			rankPoints2 = -10;
@@ -855,33 +856,28 @@ void CalculateRank(int level_num)
 			PHYSFSX_getsTerminated(fp, buffer);
 			playerHostages = atoi(buffer);
 			PHYSFSX_getsTerminated(fp, buffer);
-			difficulty = atoi(buffer);
+			difficulty = atof(buffer);
 			PHYSFSX_getsTerminated(fp, buffer);
 			deathCount = atoi(buffer);
+			PHYSFSX_getsTerminated(fp, buffer);
+			missedRngDrops = atof(buffer);
 		}
 	}
 	PHYSFS_close(fp);
 	double maxScore = levelPoints * 3;
 	maxScore = (int)maxScore;
-	double skillPoints = 0;
-	if (difficulty == 1)
-		skillPoints = playerPoints * 0.25;
-	if (difficulty == 2)
-		skillPoints = playerPoints * 0.5;
-	if (difficulty == 3)
-		skillPoints = playerPoints * 0.75;
-	if (difficulty == 4)
-		skillPoints = playerPoints;
+	double skillPoints = playerPoints * (difficulty / 4);
 	double timePoints = (maxScore / 1.5) / pow(2, secondsTaken / parTime);
+	timePoints = (int)timePoints;
 	if (secondsTaken < parTime)
 		timePoints = (maxScore / 2.4) * (1 - (secondsTaken / parTime) * 0.2);
-	double score = playerPoints + skillPoints + timePoints + playerHostages * (500 * (difficulty + 1));
+	double score = playerPoints + skillPoints + timePoints + missedRngDrops + playerHostages * (500 * (difficulty + 1));
 	maxScore += levelHostages * 7500;
 	double deathPoints = maxScore * 0.4 - maxScore * (0.4 / pow(2, deathCount));
+	deathPoints = (int)deathPoints;
 	score -= deathPoints;
 	if (playerHostages == levelHostages)
 		score += levelHostages * (1000 * (difficulty + 1));
-	score = (int)score;
 	if (rankPoints2 > -5) {
 		rankPoints2 = (score / maxScore) * 12;
 	}
@@ -950,9 +946,8 @@ void DoEndLevelScoreGlitz(int network)
 	if (Ranking.level_time == 0)
 		Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536); // Failsafe for if this isn't updated.
 	
-	int level_points, skill_points, death_points, shield_points, energy_points, time_points, hostage_points;
-	double skill_points2;
-	int	all_hostage_points, endgame_points;
+	int level_points, skill_points, death_points, shield_points, energy_points, time_points, hostage_points, all_hostage_points, endgame_points;
+	double skill_points2, missed_rng_drops;
 	char	all_hostage_text[64];
 	char	endgame_text[64];
 #define N_GLITZITEMS 12
@@ -999,7 +994,7 @@ void DoEndLevelScoreGlitz(int network)
 		all_hostage_points = Players[Player_num].hostages_on_board * 1000 * (Difficulty_level + 1);
 		// The devs did not account for the hostages on S4. As a result, you can miss out on the full rescue bonus by beating level 14 with more hostages on board than there are in the level.
 		// I could fix this by making the condition >=, but won't to preserve vanilla score behavior.
-		// This same oversight applies to any level that has access to a secret one with hostages.
+		// This same oversight applies to any level that has access to a secret one with hostages. I'll probably need to come back to this so the missing full rescue doesn't unfairly ruin S-ranks.
 
 	if (!cheats.enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level)) {		//player has finished the game!
 		endgame_points = Players[Player_num].lives * 10000;
@@ -1013,10 +1008,10 @@ void DoEndLevelScoreGlitz(int network)
 		all_hostage_points = Players[Player_num].hostages_on_board * 1000 * (Difficulty_level + 1);
 	else
 		all_hostage_points = 0;
-	Ranking.rankScore += skill_points2 + time_points + hostage_points + all_hostage_points;
-	death_points = Ranking.maxScore * 0.4 - Ranking.maxScore * (0.4 / pow(2, Ranking.deathCount));
-	death_points *= -1;
-	Ranking.rankScore += death_points;
+	death_points = (Ranking.maxScore * 0.4 - Ranking.maxScore * (0.4 / pow(2, Ranking.deathCount))) * -1;
+	Ranking.missedRngDrops *= ((double)Difficulty_level + 4) / 4; // Add would-be skill bonus into the penalty for ignored random offspring. This makes ignoring them on high difficulties more consistent and punishing.
+	missed_rng_drops = Ranking.missedRngDrops;
+	Ranking.rankScore += skill_points2 + time_points + hostage_points + all_hostage_points + death_points + missed_rng_drops;
 
 	int minutes = Ranking.level_time / 60;
 	double seconds = Ranking.level_time - minutes * 60;
@@ -1051,10 +1046,14 @@ void DoEndLevelScoreGlitz(int network)
 		sprintf(m_str[c++], "Skill: %s\t%.0f", diffname, skill_points2);
 		if (all_hostage_points > 0) {
 			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
-			sprintf(m_str[c++], "Full rescue bonus:\t%i\n", all_hostage_points);
+			sprintf(m_str[c++], "Full rescue bonus:\t%i", all_hostage_points);
 		}
 		else
-			sprintf(m_str[c++], "Deaths: %.0f\t%i\n", Ranking.deathCount, death_points);
+			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
+		if (Ranking.missedRngDrops < 0)
+			sprintf(m_str[c++], "Missed RNG drops: \t%.0f\n", Ranking.missedRngDrops);
+		else
+			strcpy(m_str[c++], "");
 		sprintf(m_str[c++], "%s%0.0f", TXT_TOTAL_SCORE, Ranking.rankScore);
 
 		double rankPoints = (Ranking.rankScore / Ranking.maxScore) * 12;
@@ -1098,11 +1097,18 @@ void DoEndLevelScoreGlitz(int network)
 			char filename[256];
 			char temp_filename[256];
 			sprintf(filename, "ranks/%s/%s/level%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num);
+			if (Current_level_num < 0)
+				sprintf(filename, "ranks/%s/%s/levelS%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num * -1);
 			sprintf(temp_filename, "ranks/%s/%s/temp.hi", Players[Player_num].callsign, Current_mission->filename);
 			fp = PHYSFS_openRead(filename);
-			if (!fp == NULL) {
-				CalculateRank(Current_level_num);
-				if (Ranking.rankScore > Ranking.calculatedScore && Ranking.rank > 14) { // Change to || Ranking.rank == 0 when done.
+			if (fp != NULL) {
+				if (Current_level_num > 0) {
+					CalculateRank(Current_level_num);
+				}
+				else {
+					CalculateRank(Current_mission->last_level - Current_level_num);
+				}
+				if (Ranking.rankScore > Ranking.calculatedScore || Ranking.rank == 0) {
 					temp = PHYSFS_openWrite(temp_filename);
 					PHYSFSX_printf(temp, "%i\n", Players[Player_num].hostages_level);
 					PHYSFSX_printf(temp, "%.0f\n", (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 3);
@@ -1112,6 +1118,7 @@ void DoEndLevelScoreGlitz(int network)
 					PHYSFSX_printf(temp, "%i\n", Players[Player_num].hostages_on_board);
 					PHYSFSX_printf(temp, "%i\n", Difficulty_level);
 					PHYSFSX_printf(temp, "%.0f\n", Ranking.deathCount);
+					PHYSFSX_printf(temp, "%.0f\n", Ranking.missedRngDrops);
 					if (Ranking.rank > 0)
 						sprintf(m_str[c++], "New record!");
 					PHYSFS_close(temp);
@@ -1126,10 +1133,9 @@ void DoEndLevelScoreGlitz(int network)
 				PHYSFS_close(fp);
 			}
 		}
-		int toRankS = Ranking.maxScore - Ranking.rankScore;
 		if (rankPoints < 12) {
 			strcpy(m_str[c++], "");
-			sprintf(m_str[c++], "%i points to S rank", toRankS);
+			sprintf(m_str[c++], "Vanilla score: %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
 		}
 	}
 	else {
@@ -1171,6 +1177,7 @@ void DoEndLevelScoreGlitz(int network)
 void DoEndSecretLevelScoreGlitz(int network)
 {
 	int level_points, skill_points, death_points, time_points, hostage_points, all_hostage_points;
+	double missed_rng_drops;
 #define N_GLITZITEMS 12
 	char				m_str[N_GLITZITEMS][31];
 	newmenu_item	m[N_GLITZITEMS + 1];
@@ -1199,10 +1206,10 @@ void DoEndSecretLevelScoreGlitz(int network)
 		all_hostage_points = Ranking.secret_hostages_on_board * 1000 * (Difficulty_level + 1);
 	else
 		all_hostage_points = 0;
-	Ranking.secretRankScore += skill_points + time_points + hostage_points + all_hostage_points;
-	death_points = Ranking.secretMaxScore * 0.4 - Ranking.secretMaxScore * (0.4 / pow(2, Ranking.secretDeathCount));
-	death_points = death_points * -1;
-	Ranking.secretRankScore += death_points;
+	death_points = (Ranking.secretMaxScore * 0.4 - Ranking.secretMaxScore * (0.4 / pow(2, Ranking.secretDeathCount)) * -1);
+	Ranking.secretMissedRngDrops *= ((double)Difficulty_level + 4) / 4; // Add would-be skill bonus into the penalty for ignored random offspring. This makes ignoring them on high difficulties more consistent and punishing.
+	missed_rng_drops = Ranking.secretMissedRngDrops;
+	Ranking.secretRankScore += skill_points + time_points + hostage_points + all_hostage_points + death_points + missed_rng_drops;
 
 	int minutes = Ranking.secretlevel_time / 60;
 	double seconds = Ranking.secretlevel_time - minutes * 60;
@@ -1237,11 +1244,14 @@ void DoEndSecretLevelScoreGlitz(int network)
 		sprintf(m_str[c++], "Skill: %s\t%i", diffname, skill_points);
 		if (all_hostage_points > 0) {
 			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.secretDeathCount, death_points);
-			sprintf(m_str[c++], "Full rescue bonus:\t%i\n", all_hostage_points);
+			sprintf(m_str[c++], "Full rescue bonus:\t%i", all_hostage_points);
 		}
 		else
-			sprintf(m_str[c++], "Deaths: %.0f\t%i\n", Ranking.secretDeathCount, death_points);
-
+			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.secretDeathCount, death_points);
+		if (Ranking.secretMissedRngDrops < 0)
+			sprintf(m_str[c++], "Missed RNG drops: \t%.0f\n", Ranking.secretMissedRngDrops);
+		else
+			strcpy(m_str[c++], "");
 		sprintf(m_str[c++], "%s%0.0f", TXT_TOTAL_SCORE, Ranking.secretRankScore);
 
 		double rankPoints = (Ranking.secretRankScore / Ranking.secretMaxScore) * 12;
@@ -1299,6 +1309,7 @@ void DoEndSecretLevelScoreGlitz(int network)
 					PHYSFSX_printf(temp, "%.0f\n", Ranking.secret_hostages_on_board);
 					PHYSFSX_printf(temp, "%i\n", Difficulty_level);
 					PHYSFSX_printf(temp, "%.0f\n", Ranking.secretDeathCount);
+					PHYSFSX_printf(temp, "%.0f\n", Ranking.secretMissedRngDrops);
 					if (Ranking.rank > 0)
 						sprintf(m_str[c++], "New record!");
 					PHYSFS_close(temp);
@@ -1313,10 +1324,9 @@ void DoEndSecretLevelScoreGlitz(int network)
 				PHYSFS_close(fp);
 			}
 		}
-		int toRankS = Ranking.maxScore - Ranking.rankScore;
 		if (rankPoints < 12) {
 			strcpy(m_str[c++], "");
-			sprintf(m_str[c++], "%i points to S rank", toRankS);
+			sprintf(m_str[c++], "Vanilla score: %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
 		}
 
 		for (i = 0; i < c; i++) {
@@ -1533,6 +1543,12 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		Ranking.secretRankScore = 0;
 
 		Ranking.secretMaxScore = 0;
+
+		Ranking.secretMissedRngDrops = 0;
+		
+		Ranking.alreadyBeaten = 0;
+		if (CalculateRank(Current_level_num) > 0)
+			Ranking.alreadyBeaten = 1;
 
 		Ranking.secretlast_score = Players[Player_num].score;
 
@@ -2242,6 +2258,11 @@ void StartNewLevel(int level_num)
 	Ranking.rankScore = 0;
 
 	Ranking.maxScore = 0;
+
+	Ranking.missedRngDrops = 0;
+	Ranking.alreadyBeaten = 0;
+	if (CalculateRank(Current_level_num) > 0)
+		Ranking.alreadyBeaten = 1;
 
 	Ranking.quickload = 0;
 
