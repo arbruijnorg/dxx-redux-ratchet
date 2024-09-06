@@ -890,6 +890,7 @@ int CalculateRank(int level_num)
 		Ranking.rank = 1;
 	if (rankPoints2 >= 0)
 		Ranking.rank = (int)rankPoints2 + 2;
+	return Ranking.rank;
 }
 
 //starts a new game on the given level
@@ -1133,10 +1134,8 @@ void DoEndLevelScoreGlitz(int network)
 				PHYSFS_close(fp);
 			}
 		}
-		if (rankPoints < 12) {
-			strcpy(m_str[c++], "");
-			sprintf(m_str[c++], "Vanilla score: %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
-		}
+		strcpy(m_str[c++], "");
+		sprintf(m_str[c++], "Vanilla score:\t %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
 	}
 	else {
 		sprintf(m_str[c++], "%s%i", TXT_SHIELD_BONUS, shield_points);
@@ -1324,10 +1323,8 @@ void DoEndSecretLevelScoreGlitz(int network)
 				PHYSFS_close(fp);
 			}
 		}
-		if (rankPoints < 12) {
-			strcpy(m_str[c++], "");
-			sprintf(m_str[c++], "Vanilla score: %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
-		}
+		strcpy(m_str[c++], "");
+		sprintf(m_str[c++], "Vanilla score:\t %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
 
 		for (i = 0; i < c; i++) {
 			m[i].type = NM_TYPE_TEXT;
@@ -1547,7 +1544,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		Ranking.secretMissedRngDrops = 0;
 		
 		Ranking.alreadyBeaten = 0;
-		if (CalculateRank(Current_level_num) > 0)
+		if (CalculateRank(Current_mission->last_level - level_num) > 0)
 			Ranking.alreadyBeaten = 1;
 
 		Ranking.secretlast_score = Players[Player_num].score;
@@ -2260,8 +2257,9 @@ void StartNewLevel(int level_num)
 	Ranking.maxScore = 0;
 
 	Ranking.missedRngDrops = 0;
+
 	Ranking.alreadyBeaten = 0;
-	if (CalculateRank(Current_level_num) > 0)
+	if (CalculateRank(level_num) > 0)
 		Ranking.alreadyBeaten = 1;
 
 	Ranking.quickload = 0;

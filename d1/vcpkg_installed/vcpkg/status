@@ -1,0 +1,229 @@
+Package: vcpkg-cmake-config
+Version: 2022-02-06
+Port-Version: 1
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 80a9c0dbf811eb0d8733f77d4b4a71084e1afa9bdafbc79ca2190a0d2e737fd4
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2023-05-04
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 66aab17d01e19aeeb07000b72713b3c32fca35778143d28272c899fcfd98019e
+Status: install ok installed
+
+Package: egl-registry
+Version: 2022-09-20
+Architecture: x64-windows
+Multi-Arch: same
+Abi: a2c2080a58c5bb6f55dcf87ce3d5d9964f9b3ebc2f856c9fc6c3aad9bf1e92cc
+Description: the EGL API and Extension Registry
+Status: install ok installed
+
+Package: opengl-registry
+Version: 2022-09-29
+Port-Version: 1
+Depends: egl-registry
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 5cf233f649f891aa548c705afe0337db9077b4a1d1261830e15ef7be13c9aba7
+Description: the API and Extension registries for the OpenGL family APIs
+Status: install ok installed
+
+Package: opengl
+Version: 2022-12-04
+Port-Version: 3
+Depends: opengl-registry
+Architecture: x64-windows
+Multi-Arch: same
+Abi: cba66bb8b6850f3b3ee57a88457e6486c472e4cfd4357b89bd1ac6078ff5fa96
+Description: Open Graphics Library (OpenGL)[3][4][5] is a cross-language, cross-platform application programming interface (API) for rendering 2D and 3D vector graphics.
+Status: install ok installed
+
+Package: glew
+Version: 2.2.0
+Port-Version: 3
+Depends: opengl, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 6c192439ecd1140b81a9efdc284228a7cedb34ae23a01a5ad7be997b5d8170d1
+Description: The OpenGL Extension Wrangler Library (GLEW) is a cross-platform open-source C/C++ extension loading library.
+Status: install ok installed
+
+Package: zlib
+Version: 1.3
+Depends: vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: cc45be0a4985f89038a6728d0d7e515f617e05c4d53671811e8e3dfcf976eb1d
+Description: A compression library
+Status: install ok installed
+
+Package: libpng
+Version: 1.6.39
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config, zlib
+Architecture: x64-windows
+Multi-Arch: same
+Abi: e8e4252593deb634019e556150efc39df2d169621efcd4a263d3f4b1f3576ef2
+Description: libpng is a library implementing an interface for reading and writing PNG (Portable Network Graphics) format files
+Status: install ok installed
+
+Package: physfs
+Version: 3.2.0
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 98586d052543f8aa70c543cba737c41887ab1408146c764bdf22b34dbfe0f012
+Description: a library to provide abstract access to various archives
+Status: install ok installed
+
+Package: vcpkg-tool-meson
+Version: 0.63
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 8b41bf92936f8d502da6b78363d4e37af3e6b0b3edd108f4ba9d4c05db4b91ab
+Description: Meson build system
+Status: install ok installed
+
+Package: pkgconf
+Version: 1.8.0
+Port-Version: 5
+Depends: vcpkg-tool-meson
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 03e808eff7426151ece2911ad3ff1e57dc30ecb7246d6d5d71e3d56729331032
+Description: pkgconf is a program which helps to configure compiler and linker flags for development libraries. It is similar to pkg-config from freedesktop.org.
+Status: install ok installed
+
+Package: vcpkg-pkgconfig-get-modules
+Version: 2023-09-06
+Depends: pkgconf
+Architecture: x64-windows
+Multi-Arch: same
+Abi: dba3822647394002b3b62e29a5e63847254e883d1f983d22fc88442d26d7d2cd
+Status: install ok installed
+
+Package: vcpkg-cmake-get-vars
+Version: 2023-03-02
+Depends: vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: a1e2df2ed827229c1b333ce6c622a0a7f1dafc31ff5deb82fd6f30c86bdb271f
+Status: install ok installed
+
+Package: vcpkg-msbuild
+Version: 2023-08-08
+Depends: vcpkg-cmake-get-vars, vcpkg-pkgconfig-get-modules
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 56e9eb7acccf3b98e4b294ef3deecf69894ae9da58e87aecfbecb757bf356bc4
+Status: install ok installed
+
+Package: sdl1
+Version: 1.2.15
+Port-Version: 19
+Depends: vcpkg-msbuild
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 554ebd5e0df4542af87080079c559753d043c6a47bacdaaad8fe6a3d9cbf0cd2
+Description: Simple DirectMedia Layer is a cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL and Direct3D.
+Status: install ok installed
+
+Package: yasm
+Version: 1.3.0
+Port-Version: 5
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 3772b8b841b92d391b42f2d58aded823d51c6803c6c74a2118e4783923fe6e64
+Description: Yasm is a complete rewrite of the NASM assembler under the new BSD License.
+Status: install ok installed
+
+Package: yasm
+Feature: tools
+Architecture: x64-windows
+Multi-Arch: same
+Description: Build yasm tools
+Status: install ok installed
+
+Package: yasm-tool-helper
+Version: 2020-03-11
+Port-Version: 1
+Depends: yasm
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 754945e1b0befffc5b8d07d7ad397185296df644fbbf8bf88e66e8e999f64923
+Description: Backfill that depends on yasm:host
+Status: install ok installed
+
+Package: mpg123
+Version: 1.31.3
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config, yasm-tool-helper
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 7917c76038ab0e3436b26c1854b6455d2c468e4fffff2894f8c21763760406c3
+Description: mpg123 is a real time MPEG 1.0/2.0/2.5 audio player/decoder for layers 1, 2 and 3 (MPEG 1.0 layer 3 also known as MP3).
+Status: install ok installed
+
+Package: libogg
+Version: 1.3.5
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: b060fb22e3024398cac8bff42d099da7632bc2d254da24a1fc9abdc5840cff89
+Description: Ogg is a multimedia container format, and the native file and stream format for the Xiph.org multimedia codecs.
+Status: install ok installed
+
+Package: libvorbis
+Version: 1.3.7
+Port-Version: 2
+Depends: libogg, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 2ea22ee6394abbd2e39da2dacd6035f1e2b44adc3a41c689ccd511d1e54e94ce
+Description: Ogg Vorbis is a fully open, non-proprietary, patent-and-royalty-free, general-purpose compressed audio format
+Status: install ok installed
+
+Package: openal-soft
+Version: 1.23.1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 75ea3d10e9ad14f6e4c134d0d4fafbbc240890d490d3230c37a9b252714c9ab1
+Description: OpenAL Soft is an LGPL-licensed, cross-platform, software implementation of the OpenAL 3D audio API.
+Status: install ok installed
+
+Package: libmikmod
+Version: 3.3.11.1
+Port-Version: 12
+Depends: openal-soft, vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 19be91afb3d780010b28bd30879035e45c409cb7bea3ca167df392e83299574c
+Description: Mikmod is a module player and library supporting many formats, including mod, s3m, it, and xm.
+Status: install ok installed
+
+Package: libflac
+Version: 1.4.2
+Depends: libogg, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 0a90477fef2a17171aca34b02e86951cf805b51179ae2b0d61673229c4f9c99d
+Description: Library for manipulating FLAC files
+Status: install ok installed
+
+Package: sdl1-mixer
+Version: 2023-03-25
+Port-Version: 2
+Depends: libflac, libmikmod, libogg, libvorbis, mpg123, sdl1
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 07ba00067975e6378ce8ca8761daca7b9bce6cf3be9dbecaa00932e247d5f826
+Description: An audio mixer that supports various file formats for Simple Directmedia Layer.
+Status: install ok installed
+

@@ -1685,7 +1685,7 @@ int FinalCheats(int key)
 		if (Players[Player_num].lives < 50)
 		{
 			Players[Player_num].lives++;
-			HUD_init_message_literal(HM_DEFAULT,F "Extra life!");
+			HUD_init_message_literal(HM_DEFAULT, "Extra life!");
 		}
 	}
 	

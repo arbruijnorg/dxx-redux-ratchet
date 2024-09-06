@@ -1,9 +1,0 @@
-Package: physfs
-Version: 3.2.0
-Port-Version: 1
-Depends: vcpkg-cmake, vcpkg-cmake-config
-Architecture: x64-windows
-Multi-Arch: same
-Abi: 98586d052543f8aa70c543cba737c41887ab1408146c764bdf22b34dbfe0f012
-Description: a library to provide abstract access to various archives
-Status: install ok installed

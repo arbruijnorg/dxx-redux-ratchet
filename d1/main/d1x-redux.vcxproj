@@ -99,11 +99,11 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;DXX_VERSION_MAJORi=1;DXX_VERSION_MINORi=0;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;DXX_VERSION_MAJORi=1;DXX_VERSION_MINORi=0;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -152,13 +152,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=1;DXX_VERSION_MINORi=0;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=1;DXX_VERSION_MINORi=0;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -207,13 +207,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=1;DXX_VERSION_MINORi=0;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=1;DXX_VERSION_MINORi=0;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -263,11 +263,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=1;DXX_VERSION_MINORi=0;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=0;DXX_VERSION_MINORi=9;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;DXX_VERSION_MAJORi=1;DXX_VERSION_MINORi=0;DXX_VERSION_MICROi=0;NETWORK;OGL;USE_SDLMIXER;USE_UDP;USE_TRACKER;HAVE_LIBPNG;OGL_MERGE;WINDOWS;HAVE_STRUCT_TIMEVAL;WINDOWS_IGNORE_PACKING_MISMATCH;NO_ASM;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\jesse\Downloads\dev\dxx-redux\d1\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\include;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include\SDL;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>

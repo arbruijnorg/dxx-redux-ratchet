@@ -1005,10 +1005,8 @@ void DoEndLevelScoreGlitz(int network)
 				PHYSFS_close(fp);
 			}
 		}
-		if (rankPoints < 12) {
-			strcpy(m_str[c++], "");
-			sprintf(m_str[c++], "Vanilla score: %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
-		}
+		strcpy(m_str[c++], "");
+		sprintf(m_str[c++], "Vanilla score:\t %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
 
 	}
 	else {
@@ -1551,7 +1549,6 @@ typedef struct
 	int pathfinds; // Keeps track of pathfinding attempts in parTime calculator, so it can automatically stop after an unnecessary amount to avoid softlocks.
 	vms_vector lastPosition; // Tracks the last place algo went to within the same segment.
 	int matcenLives[MAX_ROBOT_CENTERS]; // We need to track how many times we trip matcens, since each one can only be tripped three times.
-	double matcenLastTriggered[MAX_ROBOT_CENTERS]; // So matcen triggers are ignored if it hasn't been long enough sine the last one for them to be active again.
 	// Time spent clearing matcens.
 	double matcenTime;
 	// Track the locations of energy centers for when we need to make a pit stop...
@@ -1806,7 +1803,7 @@ double calculate_combat_time_matcen(partime_calc_state* state, robot_info* robIn
 				fixdiv(i2f(32 * robInfo->evade_speed[Difficulty_level]), (fix)SHIP_MOVE_SPEED);
 			evadeFactor *= LASER_SPEED / projectile_speed;
 			offspringHealth = fixmul(robInfo->strength, F1_0 + evadeFactor * sizeFactor);
-			offspringHealth* (robInfo->contains_count * (robInfo->contains_prob / 16));
+			offspringHealth *= (robInfo->contains_count * (robInfo->contains_prob / 16));
 			adjustedRobotHealth += offspringHealth;
 		}
 		if (weapon_id == 1) {
@@ -2038,25 +2035,17 @@ void addUnlockItemToToDoList(partime_calc_state* state, int lockedWallID)
 
 // Find a path from a start segment to an objective.
 // A lot of this is copied from the mark_player_path_to_segment function in game.c.
-int create_path_partime(int start_seg, int target_seg, point_seg** path_start, int* path_count, partime_calc_state* state)
+void create_path_partime(int start_seg, int target_seg, point_seg** path_start, int* path_count, partime_calc_state* state)
 {
 	object* objp = ConsoleObject;
 	short player_path_length = 0;
 	state->pathfinds++;
 	ConsoleObject->segnum = start_seg; // We're gonna teleport the player to every one of the starting segments, then put him back at spawn in time for the level to start.
 
-	if (create_path_points(objp, objp->segnum, target_seg, Point_segs_free_ptr, &player_path_length, 100, 0, 0, -1) == -1 ||
-		Point_segs_free_ptr[player_path_length - 1].segnum != target_seg)
-	{
-		// Clear path_start and path_count, so it's clear we didn't find anything
-		*path_start = NULL;
-		*path_count = 0;
-		return 0;
-	}
+	create_path_points(objp, objp->segnum, target_seg, Point_segs_free_ptr, &player_path_length, 100, 0, 0, -1);
 
 	*path_start = Point_segs_free_ptr;
 	*path_count = player_path_length;
-	return 1;
 }
 
 int find_first_locked_wall_partime(partime_calc_state* state, point_seg* path, int path_count)
@@ -2101,45 +2090,19 @@ double calculate_path_length_partime(partime_calc_state* state, point_seg* path,
 	// leave it for now.
 	double pathLength = 0;
 	if (path_count > 1) {
-		int i, j;
-		for (int i = 0; i < path_count - 1;) {
-			for (j = path_count - 1; j > i; j--) {
-				fvi_query fq;
-				fvi_info hit_data;
-				fq.p0 = &path[i].point;
-				fq.startseg = path[i].segnum;
-				fq.p1 = &path[j].point;
-				fq.rad = 0x10;
-				fq.thisobjnum = ConsoleObject;
-				fq.ignore_obj_list = NULL;
-				fq.flags = 0;
-				// If the unshortened vector (i -> i + 1) still hits something, use it anyway.
-				// Maybe it's a door.
-				if (find_vector_intersection(&fq, &hit_data) == 0 || j == i + 1) {
-					pathLength += vm_vec_dist(&path[i].point, &path[j].point);
-					state->levelDistance += vm_vec_dist(&path[i].point, &path[j].point);
-					j--;
-					break;
-				}
-			}
-			// j decrements at the end of the search so we have to go one segment past it.
-			i = j + 1;
-		}
+		for (int i = 0; i < path_count - 1; i++)
+			pathLength += vm_vec_dist(&path[i].point, &path[i + 1].point);
 		// For objects, once we reach the target segment we move to the object to "pick it up".
 		// Note: For now, this applies to robots, too.
-		if (objective.type == OBJECTIVE_TYPE_OBJECT) {
+		if (objective.type == OBJECTIVE_TYPE_OBJECT)
 			pathLength += vm_vec_dist(&path[path_count - 1].point, &Objects[objective.ID].pos);
-			state->levelDistance += vm_vec_dist(&state->lastPosition, &Objects[objective.ID].pos);
-		}
 		// Paths to unreachable triggers will remain incomplete, but that's alright. They should never be unreachable anyway.
 	}
 	// Objective is in the same segment as the player. If it's an object, we still move to it.
-	else if (objective.type == OBJECTIVE_TYPE_OBJECT) {
+	else if (objective.type == OBJECTIVE_TYPE_OBJECT)
 		pathLength = vm_vec_dist(&state->lastPosition, &Objects[objective.ID].pos);
-		state->levelDistance += vm_vec_dist(&state->lastPosition, &Objects[objective.ID].pos);
-	}
 
-	return pathLength; // We still need pathLength, despite now adding to levelDistance directly. This is because of fuelcen trip logic. You'll understand why if you look there.
+	return pathLength; // We still need pathLength, despite now adding to levelDistance directly, because individual paths need compared. Also fuelcen trip logic. You'll understand why if you look there.
 }
 
 partime_objective find_nearest_objective_partime(partime_calc_state* state, int addUnlocksToObjectiveList,
@@ -2162,7 +2125,7 @@ partime_objective find_nearest_objective_partime(partime_calc_state* state, int 
 			// We can't reach this objective right now; find the next one.
 			continue;
 		}
-		double pathLength = calculate_path_length_partime(&state, *path_start, *path_count, objective);
+		double pathLength = calculate_path_length_partime(state, *path_start, *path_count, objective);
 		if (pathLength < shortestPathLength || shortestPathLength < 0) {
 			shortestPathLength = pathLength;
 			nearestObjective = objective;
@@ -2206,7 +2169,7 @@ void update_energy_for_path_partime(partime_calc_state* state, point_seg* path, 
 		}
 		// If there are energy powerups in this segment, collect them
 		for (int objNum = 0; objNum <= Highest_object_index; objNum++) { // This next if line's gonna be long. Basically making sure any of the weapons in the condition only give energy if we already have them.
-			if (Objects[objNum].type == OBJ_POWERUP && (Objects[objNum].id == POW_ENERGY || Objects[objNum].id == POW_VULCAN_AMMO || (Objects[objNum].id == POW_VULCAN_WEAPON && do_we_have_this_weapon(state, 1)) || (Objects[objNum].id == POW_SPREADFIRE_WEAPON && do_we_have_this_weapon(&state, 2)) || (Objects[objNum].id == POW_PLASMA_WEAPON && do_we_have_this_weapon(&state, 3)) || (Objects[objNum].id == POW_FUSION_WEAPON && do_we_have_this_weapon(&state, 4)) || (Objects[objNum].id == POW_LASER && (state->laser_level == 4 || state->laser_level == 8)) || (Objects[objNum].id == POW_QUAD_FIRE && state->laser_level > 4)) && Objects[objNum].segnum == path[i].segnum) {
+			if (Objects[objNum].type == OBJ_POWERUP && (Objects[objNum].id == POW_ENERGY || Objects[objNum].id == POW_VULCAN_AMMO || (Objects[objNum].id == POW_VULCAN_WEAPON && do_we_have_this_weapon(state, 1)) || (Objects[objNum].id == POW_SPREADFIRE_WEAPON && do_we_have_this_weapon(state, 2)) || (Objects[objNum].id == POW_PLASMA_WEAPON && do_we_have_this_weapon(state, 3)) || (Objects[objNum].id == POW_FUSION_WEAPON && do_we_have_this_weapon(state, 4)) || (Objects[objNum].id == POW_LASER && (state->laser_level == 4 || state->laser_level == 8)) || (Objects[objNum].id == POW_QUAD_FIRE && state->laser_level > 4)) && Objects[objNum].segnum == path[i].segnum) {
 				// ...make sure we didn't already get this one
 				int thisSourceCollected = 0;
 				for (int j = 0; j < state->doneListSize; j++)
@@ -2269,7 +2232,7 @@ void update_energy_for_path_partime(partime_calc_state* state, point_seg* path, 
 						for (int c = 0; c < Triggers[Walls[wall_num].trigger].num_links; c++) { // Repeat this loop for every segment linked to this trigger.
 							if (Segments[Triggers[Walls[wall_num].trigger].seg[c]].special == SEGMENT_IS_ROBOTMAKER) { // Check them to see if they're matcens. 
 								segment* segp = &Segments[Triggers[Walls[wall_num].trigger].seg[c]]; // Whenever one is, set this variable as a shortcut so we don't have to put that long string of text every time.
- 								if (RobotCenters[segp->matcen_num].robot_flags[0] != 0 && state->matcenLives[segp->matcen_num] > 0 && state->matcenLastTriggered[segp->matcen_num] < (state->combatTime + state->levelDistance / SHIP_MOVE_SPEED) - (22 + (2 * Difficulty_level))) { // If the matcen has robots in it, and isn't dead or on cooldown, consider it triggered...
+ 								if (RobotCenters[segp->matcen_num].robot_flags[0] != 0 && state->matcenLives[segp->matcen_num] > 0) { // If the matcen has robots in it, and isn't dead or on cooldown, consider it triggered...
 									uint	flags;
 									sbyte	legal_types[32];		//	32 bits in a word, the width of robot_flags.
 									int	num_types, robot_index;
@@ -2293,7 +2256,6 @@ void update_energy_for_path_partime(partime_calc_state* state, point_seg* path, 
 									// We won't account for energy pickups dropped by these guys, as they aren't guaranteed to be the robots that actually spawn.
 									matcenHealth = averageRobotHealth * (Difficulty_level + 3);
 									state->matcenLives[segp->matcen_num]--;
-									state->matcenLastTriggered[segp->matcen_num] = state->combatTime + state->levelDistance / SHIP_MOVE_SPEED;
 									if (matcenHealth / state->dps < 3.5 * (Difficulty_level + 2) + (averageRobotHealth / state->dps)) // Calculate matcenTime per matcen rather than once at the end, as DPS potentially changes with each one.
 										matcenTime += 3.5 * (Difficulty_level + 2) + (averageRobotHealth / state->dps); // Each matcen enemy takes at least 3.5 seconds to kill because that's how long it takes to spawn, minus the last one.
 									else
@@ -2453,7 +2415,6 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 	// Initialize all matcens to 3 lives and guarantee them to be triggerable.
 	for (i = 0; i < Num_robot_centers; i++) {
 		state.matcenLives[i] = 3;
-		state.matcenLastTriggered[i] = -30;
 	}
 
 	// And energy stuff.
@@ -2473,13 +2434,16 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 					addObjectiveToList(state.toDoList, &state.toDoListSize, objective);
 				}
 			}
-			for (i = 0; i < state.toDoListSize; i++) { // Now we go through and blacklist any object behind a reactor wall.
+			for (i = 0; i < state.toDoListSize;) { // Now we go through and blacklist any object behind a reactor wall.
 				create_path_partime(ConsoleObject->segnum, getObjectiveSegnum(state.toDoList[i]), &path_start, &path_count, &state);
 				int lockedWallID = find_reactor_wall_partime(&state, path_start, path_count);
 				if (lockedWallID > -1) {
-					removeObjectiveFromList(state.toDoList, &state.toDoListSize, state.toDoList[i]);
-					addObjectiveToList(state.blackList, &state.blackListSize, state.toDoList[i]);
+					partime_objective objective = { OBJECTIVE_TYPE_OBJECT, state.toDoList[i].ID }; // Save a snapshot of what this index currently is, so the list shifting doesn't cause the wrong thing to be added.
+					removeObjectiveFromList(state.toDoList, &state.toDoListSize, objective);
+					addObjectiveToList(state.blackList, &state.blackListSize, objective);
 				}
+				else
+					i++;
 			}
 		}
 		if (state.loops == 1) {
@@ -2493,7 +2457,7 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 		if (state.loops == 2) {
 			int blackListSize = state.blackListSize; // We need a version that stays at the initial value, since state.blackListSize is actively decreased by the code below.
 			for (i = 0; i < blackListSize; i++) { // Put the stuff we blacklisted earlier back on the list now that the reactor/boss is dead.
-				partime_objective objective = {OBJECTIVE_TYPE_OBJECT, state.blackList[0].ID };
+				partime_objective objective = { OBJECTIVE_TYPE_OBJECT, state.blackList[0].ID };
 				removeObjectiveFromList(state.blackList, &state.blackListSize, objective);
 				addObjectiveToList(state.toDoList, &state.toDoListSize, objective);
 			}
@@ -2553,6 +2517,7 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 				// Now move ourselves to the objective for the next pathfinding iteration
 				segnum = nearestObjectiveSegnum;
 				state.lastPosition = getObjectivePosition(nearestObjective);
+				state.levelDistance += pathLength;
 			}
 			if (state.simulatedEnergy <= 0 && !(state.loops == 2)) { // Algo's energy's out. If not running for exit, search for nearest fuelcen, go to it and recharge.
 				partime_objective nearestEnergyCenter =
@@ -2622,8 +2587,14 @@ void StartNewLevel(int level_num)
 	Ranking.missedRngDrops = 0;
 
 	Ranking.alreadyBeaten = 0;
-	if (CalculateRank(Current_level_num) > 0)
-		Ranking.alreadyBeaten = 1;
+	if (level_num > 0) {
+		if (CalculateRank(level_num) > 0)
+			Ranking.alreadyBeaten = 1;
+	}
+	else {
+		if (CalculateRank(Current_mission->last_level - level_num) > 0)
+			Ranking.alreadyBeaten = 1;
+	}
 	
 	Ranking.quickload = 0;
 

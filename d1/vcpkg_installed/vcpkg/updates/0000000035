@@ -1,9 +1,0 @@
-Package: yasm-tool-helper
-Version: 2020-03-11
-Port-Version: 1
-Depends: yasm
-Architecture: x64-windows
-Multi-Arch: same
-Abi: 754945e1b0befffc5b8d07d7ad397185296df644fbbf8bf88e66e8e999f64923
-Description: Backfill that depends on yasm:host
-Status: install ok installed

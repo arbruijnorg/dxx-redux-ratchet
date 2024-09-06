@@ -1,7 +1,0 @@
-Package: vcpkg-pkgconfig-get-modules
-Version: 2023-09-06
-Depends: pkgconf
-Architecture: x64-windows
-Multi-Arch: same
-Abi: dba3822647394002b3b62e29a5e63847254e883d1f983d22fc88442d26d7d2cd
-Status: install ok half-installed

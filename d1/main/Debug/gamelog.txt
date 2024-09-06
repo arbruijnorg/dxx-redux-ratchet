@@ -1,0 +1,7 @@
+13:48:14 
+Error: Could not find a valid hog file (descent.hog)
+Possible locations are:
+	Directory containing D1X-Redux
+	~/Library/Preferences/D1X-Rebirth/Data
+	In a subdirectory called 'Data'
+Or use the -hogdir option to specify an alternate location.

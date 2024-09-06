@@ -129,12 +129,6 @@ typedef struct player_config
 	ubyte ObsPlayerChat[NUM_OBS_MODES];
 	ubyte ObsShowBombTimes[NUM_OBS_MODES];
 	ubyte NoChatSound;
-	ubyte RsoShowLivesIndicator;
-	ubyte RsoShowPointsRemainingIndicator;
-	ubyte RsoShowTimer;
-	ubyte RsoShowParTime;
-	ubyte RsoShowVanillaScore;
-	ubyte RsoShareSettings;
 } __pack__ player_config;
 
 extern struct player_config PlayerCfg;
