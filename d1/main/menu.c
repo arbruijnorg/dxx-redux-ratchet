@@ -534,11 +534,31 @@ int DoMenu()
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
 
+struct listbox
+{
+    window *wind;
+    char *title;
+    int nitems;
+    char **item;
+    int allow_abort_flag;
+    int (*listbox_callback)(listbox *lb, d_event *event, void *userdata);
+    int citem, first_item;
+    int marquee_maxchars, marquee_charpos, marquee_scrollback;
+    fix64 marquee_lasttime; // to scroll text if string does not fit in box
+    int box_w, height, box_x, box_y, title_height;
+    short swidth, sheight; float fntscalex, fntscaley; // with these we check if
+    int mouse_state;
+    void *userdata;
+};
+#define LB_ITEMS_ON_SCREEN 8
+
 int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
 {
 	char** list = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
 	Ranking.listbox_first_item = listbox_get_first_item(lb);
+	int rval;
+	int *ranks = (int *)userdata;
 
 	switch (event->type)
 	{
@@ -554,7 +574,21 @@ int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
 		break;
 	case EVENT_WINDOW_CLOSE:
 		break;
+	case EVENT_WINDOW_DRAW:
+		rval = listbox_draw(lb->wind, lb);
 
+		for (int i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )   {
+			int rank = ranks[i];
+			if (rank == 0)
+				continue;
+			grs_bitmap *bm = RankBitmaps[rank - 1];
+			int x = lb->box_x + lb->box_w - FSPACX(14); // align to right of listbox
+			int y = lb->box_y + (i - lb->first_item) * LINE_SPACING;
+			int w = FSPACX(14);
+			int h =  LINE_SPACING;
+			ogl_ubitmapm_cs(x, y, w, h, bm, -1, F1_0);
+		}
+		return rval;
 	default:
 		break;
 	}
@@ -570,6 +604,7 @@ void do_best_ranks_menu()
 	sprintf(message, "%s's %s records", Players[Player_num].callsign, Current_mission->mission_name);
 	char filename[256];
 	char** items = (char**)malloc(sizeof(char*) * numlines);
+	int* ranks = (int *)malloc(sizeof(int) * numlines);
 	char** Rank = (char**)malloc(sizeof(char*) * 15);
 	Rank[0] = "N/A";
 	Rank[1] = "E";
@@ -604,11 +639,13 @@ void do_best_ranks_menu()
 					snprintf(list[i], 64, "%i. ???: N/A", i + 1);
 				else
 					snprintf(list[i], 64, "S%i. ???: N/A", i - Current_mission->last_level + 1);
+				ranks[i] = 0;
 			}
 			else {
 				CalculateRank(i + 1);
-				if (i >= Ranking.listbox_first_item && Ranking.listbox_first_item < i + 8)
-					drawRankImage(Ranking.rank, i - Ranking.listbox_first_item); // Draw a rank image for each visible item on this listbox.
+				ranks[i] = Ranking.rank;
+				//if (i >= Ranking.listbox_first_item && Ranking.listbox_first_item < i + 8)
+				//	drawRankImage(Ranking.rank, i - Ranking.listbox_first_item); // Draw a rank image for each visible item on this listbox.
 				char level_name[36];
 				char buffer[LEVEL_NAME_LEN];
 				getLevelNameFromRankFile(i + 1, buffer);
@@ -629,7 +666,7 @@ void do_best_ranks_menu()
 			PHYSFS_close(fp);
 		}
 	}
-	listbox* lb = newmenu_listbox1(message, numlines, list, 1, 0, (int (*)(listbox*, d_event*, void*))ranks_menu_handler, NULL);
+	listbox* lb = newmenu_listbox1(message, numlines, list, 1, 0, (int (*)(listbox*, d_event*, void*))ranks_menu_handler, ranks);
 	window* wind = listbox_get_window(lb);
 	while (window_exists(wind))
 		event_process();
