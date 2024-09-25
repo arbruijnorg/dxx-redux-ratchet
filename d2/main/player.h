@@ -145,6 +145,7 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	int     rank;				     // Stores the rank determined in CalculateRank.
 	double  missedRngDrops;	     	 // Tracks the points from randomly-dropped robots that were ignored by the player, so they're subtracted at the end.
 	int     alreadyBeaten;           // Tracks whether the current level has been beaten before, so points remaining and par time HUD elements are not shown on a new level.
+	int     deleted;                 // Whether to tell the player their record file was deleted due to a level change.
 
 	// Below are the variables used for secret levels. Since we can play them in the middle of a normal one, we have to distinguish between them so results don't overlap.
 	double	secretRankScore;

@@ -182,12 +182,12 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 												if (Current_level_num > 0) {
 													Ranking.excludePoints += Robot_info[obj0p->id].score_value;
 													if (obj0p->flags & OF_ROBOT_DROPPED)
-														Ranking.missedRngDrops += Robot_info[obj->id].score_value;
+														Ranking.missedRngDrops += Robot_info[obj0p->id].score_value;
 												}
 												else {
 													Ranking.secretExcludePoints += Robot_info[obj0p->id].score_value;
 													if (obj0p->flags & OF_ROBOT_DROPPED)
-														Ranking.secretMissedRngDrops += Robot_info[obj->id].score_value;
+														Ranking.secretMissedRngDrops += Robot_info[obj0p->id].score_value;
 												}
 											}
 											if (!(parent == Players[Player_num].objnum)) {
@@ -1067,8 +1067,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 //				new_pos.z += (d_rand()-16384)*6;
 
 				objnum = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
-				if (fireball_flag_hack == 1)
-					Objects[objnum].flags |= OF_ROBOT_DROPPED;
 
 				if ( objnum < 0 ) {
 					Int3();
@@ -1083,6 +1081,8 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 #endif
 
 				obj = &Objects[objnum];
+				if (fireball_flag_hack || obj->id == Robot_info[obj->id].contains_id) // To prevent most infinite robot drop loops.
+					obj->flags |= OF_ROBOT_DROPPED;
 
 				//@@Took out this ugly hack 1/12/96, because Mike has added code
 				//@@that should fix it in a better way.
@@ -1386,7 +1386,7 @@ void do_explosion_sequence(object *obj)
 			fireball_flag_hack = 0; //fixed drops, so don't set the no score flag
 			object_create_egg(del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
-			robot_info	*robptr = &Robot_info[del_obj->id];
+			robot_info* robptr = &Robot_info[del_obj->id];
 			if (robptr->contains_count) {
 				if (((d_rand() * 16) >> 15) < robptr->contains_prob) {
 					del_obj->contains_count = ((d_rand() * robptr->contains_count) >> 15) + 1;

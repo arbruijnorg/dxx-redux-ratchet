@@ -626,23 +626,27 @@ int do_best_ranks_menu()
 			list[i] = (char*)malloc(sizeof(char) * 64);
 			if (fp == NULL) {
 				if (i < Current_mission->last_level)
-					snprintf(list[i], 64, "Level %i: N/A", i + 1);
+					snprintf(list[i], 64, "%i. ???: N/A", i + 1);
 				else
-					snprintf(list[i], 64, "Level S%i: N/A", i - Current_mission->last_level + 1);
+					snprintf(list[i], 64, "S%i. ???: N/A", i - Current_mission->last_level + 1);
 			}
 			else {
 				CalculateRank(i + 1);
+				char level_name[36];
+				char buffer[LEVEL_NAME_LEN];
+				getLevelNameFromRankFile(i + 1, buffer);
+				snprintf(level_name, LEVEL_NAME_LEN, buffer);
 				if (Ranking.rank > 0) {
 					if (i < Current_mission->last_level)
-						snprintf(list[i], 64, "Level %i: %.0f %s", i + 1, Ranking.calculatedScore, Rank[Ranking.rank]);
+						snprintf(list[i], 64, "%i. %s: %.0f %s", i + 1, level_name, Ranking.calculatedScore, Rank[Ranking.rank]);
 					else
-						snprintf(list[i], 64, "Level S%i: %.0f %s", i - Current_mission->last_level + 1, Ranking.calculatedScore, Rank[Ranking.rank]);
+						snprintf(list[i], 64, "S%i. %s: %.0f %s", i - Current_mission->last_level + 1, level_name, Ranking.calculatedScore, Rank[Ranking.rank]);
 				}
 				else {
 					if (i < Current_mission->last_level)
-						snprintf(list[i], 64, "Level %i: N/A", i + 1);
+						snprintf(list[i], 64, "%i. %s: N/A", i + 1, level_name);
 					else
-						snprintf(list[i], 64, "Level S%i: N/A", i - Current_mission->last_level + 1);
+						snprintf(list[i], 64, "S%i. %s: N/A", i - Current_mission->last_level + 1, level_name);
 				}
 			}
 			PHYSFS_close(fp);

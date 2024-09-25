@@ -1234,6 +1234,7 @@ void do_explosion_sequence(object *obj)
 			if (del_obj->contains_type == OBJ_POWERUP)
 				maybe_replace_powerup_with_energy(del_obj);
 			fireball_flag_hack = 0; // Fixed drops, so don't set the no score flag.
+			// Maybe address infinite robot drop loops here at some point, but the logistics for that make me wanna rip my hair out, so sorry for now U3AAH.
 			object_create_egg(del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
 			robot_info	*robptr = &Robot_info[del_obj->id];

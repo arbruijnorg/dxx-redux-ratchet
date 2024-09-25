@@ -135,6 +135,8 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	int        rank;					           // Stores the rank determined in CalculateRank.
 	double     missedRngDrops;					   // Tracks the points from randomly-dropped robots that were ignored by the player, so they're subtracted at the end.
 	int        alreadyBeaten;                      // Tracks whether the current level has been beaten before, so points remaining and par time HUD elements are not shown on a new level.
+	int        deleted;                            // Whether to tell the player their record file was deleted due to a level change.
+	int        listbox_first_item;                 // Globally tracks what the first item of the best ranks menu listbox is.
 } __pack__ ranking;
 
 // Same as above but structure how Savegames expect

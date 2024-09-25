@@ -1716,6 +1716,11 @@ int listbox_get_citem(listbox *lb)
 	return lb->citem;
 }
 
+int listbox_get_first_item(listbox* lb)
+{
+	return lb->first_item;
+}
+
 window *listbox_get_window(listbox *lb)
 {
 	return lb->wind;
@@ -1952,7 +1957,7 @@ void listbox_create_structure( listbox *lb)
 
 	lb->marquee_maxchars = lb->marquee_charpos = lb->marquee_scrollback = lb->marquee_lasttime = 0;
 	// The box is bigger than we can fit on the screen since at least one string is too long. Check how many chars we can fit on the screen (at least only - MEDIUM*_FONT is variable font!) so we can make a marquee-like effect.
-	if (lb->box_w + (BORDERX*2) > SWIDTH)
+	if (lb->box_w > SWIDTH)
 	{
 		int w = 0, h = 0, aw = 0;
 

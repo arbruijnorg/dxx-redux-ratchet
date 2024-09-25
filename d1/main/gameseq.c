@@ -712,6 +712,7 @@ int CalculateRank(int level_num)
 	int playerPoints = 0;
 	double secondsTaken = 0;
 	int playerHostages = 0;
+	double hostagePoints = 0;
 	double difficulty = 0;
 	int deathCount = 0;
 	double missedRngDrops = 0;
@@ -752,17 +753,20 @@ int CalculateRank(int level_num)
 	double maxScore = levelPoints * 3;
 	maxScore = (int)maxScore;
 	double skillPoints = playerPoints * (difficulty / 4);
+	skillPoints = (int)skillPoints;
 	double timePoints = (maxScore / 1.5) / pow(2, secondsTaken / parTime);
 	if (secondsTaken < parTime)
 		timePoints = (maxScore / 2.4) * (1 - (secondsTaken / parTime) * 0.2);
 	timePoints = (int)timePoints;
-	double score = playerPoints + skillPoints + timePoints + missedRngDrops + playerHostages * (500 * (difficulty + 1));
+	hostagePoints = playerHostages * 2500 * ((difficulty + 8) / 12);
+	if (playerHostages == levelHostages)
+		hostagePoints *= 3;
+	hostagePoints = (int)hostagePoints;
+	double score = playerPoints + skillPoints + timePoints + missedRngDrops + hostagePoints;
 	maxScore += levelHostages * 7500;
 	double deathPoints = maxScore * 0.4 - maxScore * (0.4 / pow(2, deathCount));
 	deathPoints = (int)deathPoints;
 	score -= deathPoints;
-	if (playerHostages == levelHostages)
-		score += levelHostages * (1000 * (difficulty + 1));
 	if (rankPoints2 > -5) {
 		rankPoints2 = (score / maxScore) * 12;
 	}
@@ -776,6 +780,72 @@ int CalculateRank(int level_num)
 	if (rankPoints2 >= 0)
 		Ranking.rank = (int)rankPoints2 + 2;
 	return Ranking.rank;
+}
+
+void getLevelNameFromRankFile(int level_num, char* buffer)
+{
+	char filename[256];
+	sprintf(filename, "ranks/%s/%s/level%d.hi", Players[Player_num].callsign, Current_mission->filename, level_num); // Find file for the requested level.
+	if (level_num > Current_mission->last_level)
+		sprintf(filename, "ranks/%s/%s/levelS%d.hi", Players[Player_num].callsign, Current_mission->filename, level_num - Current_mission->last_level);
+	PHYSFS_file* fp = PHYSFS_openRead(filename);
+	if (fp == NULL)
+		sprintf(buffer, "???");
+	else {
+		for (int i = 0; i < 10; i++)
+			PHYSFSX_getsTerminated(fp, buffer); // Get a line ten times because the tenth line has the level name.
+	}
+	PHYSFS_close(fp);
+}
+
+void maybeDeleteRankRecords(int level_num) // This function deletes record files if it detects a level has been altered (changes in number of points or hostages in a level).
+{ // Counting par time changes would make this much more effective, but that could change due to reasons unrelated to level, so let that slide.
+	Ranking.deleted = 0;
+	int levelHostages;
+	int levelPoints;
+	char buffer[256];
+	char filename[256];
+	sprintf(filename, "ranks/%s/%s/level%d.hi", Players[Player_num].callsign, Current_mission->filename, level_num); // Find file for the requested level.
+	if (level_num < 0)
+		sprintf(filename, "ranks/%s/%s/levelS%d.hi", Players[Player_num].callsign, Current_mission->filename, level_num * -1);
+	PHYSFS_file* fp = PHYSFS_openRead(filename);
+	if (fp == NULL) {
+		fp = PHYSFS_openWrite(filename); // File missing, make a new one.
+		PHYSFSX_printf(fp, "-1\n");
+		PHYSFSX_printf(fp, "\n");
+		PHYSFSX_printf(fp, "\n");
+		PHYSFSX_printf(fp, "\n");
+		PHYSFSX_printf(fp, "\n");
+		PHYSFSX_printf(fp, "\n");
+		PHYSFSX_printf(fp, "\n");
+		PHYSFSX_printf(fp, "\n");
+		PHYSFSX_printf(fp, "\n");
+		PHYSFSX_printf(fp, "???");
+	}
+	else {
+		PHYSFSX_getsTerminated(fp, buffer); // Fetch level data starting here, but only the first two things, as that's what we need to ensure hasn't changed.
+		levelHostages = atoi(buffer);
+		PHYSFSX_getsTerminated(fp, buffer);
+		levelPoints = atoi(buffer);
+		if (levelHostages > -1) {
+			if (levelPoints != Ranking.maxScore / 3 || levelHostages != Players[Player_num].hostages_level) { // Don't waste time on an already blank records file, and delete if level data doesn't match.
+				PHYSFS_delete(filename);
+				fp = PHYSFS_openWrite(filename); // Now that we've deleted the record for the no-longer-existent level, make a new fresh file.
+				PHYSFSX_printf(fp, "-1\n");
+				PHYSFSX_printf(fp, "\n");
+				PHYSFSX_printf(fp, "\n");
+				PHYSFSX_printf(fp, "\n");
+				PHYSFSX_printf(fp, "\n");
+				PHYSFSX_printf(fp, "\n");
+				PHYSFSX_printf(fp, "\n");
+				PHYSFSX_printf(fp, "\n");
+				PHYSFSX_printf(fp, "\n");
+				PHYSFSX_printf(fp, "???");
+				Ranking.deleted = 1; // Tell the player their records file has been deleted due to the level changing.
+			}
+		}
+	}
+	PHYSFS_close(fp);
 }
 
 //starts a new game on the given level
@@ -794,7 +864,16 @@ void StartNewGame(int start_level)
 		fp = PHYSFS_openRead(filename);
 		if (fp == NULL) { // If this level's rank data file doesn't exist, create it now so it can be written to on the rank screen.
 			fp = PHYSFS_openWrite(filename);
-			PHYSFSX_printf(fp, "-1");
+			PHYSFSX_printf(fp, "-1\n");
+			PHYSFSX_printf(fp, "\n");
+			PHYSFSX_printf(fp, "\n");
+			PHYSFSX_printf(fp, "\n");
+			PHYSFSX_printf(fp, "\n");
+			PHYSFSX_printf(fp, "\n");
+			PHYSFSX_printf(fp, "\n");
+			PHYSFSX_printf(fp, "\n");
+			PHYSFSX_printf(fp, "\n");
+			PHYSFSX_printf(fp, "???");
 		}
 		PHYSFS_close(fp);
 		i++;
@@ -822,10 +901,10 @@ void StartNewGame(int start_level)
 void DoEndLevelScoreGlitz(int network)
 {
 	if (Ranking.level_time == 0)
-	Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536); // Failsafe for if this isn't updated.
+		Ranking.level_time = (Players[Player_num].hours_level * 3600) + ((double)Players[Player_num].time_level / 65536); // Failsafe for if this isn't updated.
 
 	int level_points, skill_points, death_points, shield_points, energy_points, time_points, hostage_points, all_hostage_points, endgame_points;
-	double skill_points2, missed_rng_drops;
+	double skill_points2, missed_rng_drops, hostage_points2;
 	char	all_hostage_text[64];
 	char	endgame_text[64];
 #define N_GLITZITEMS 12
@@ -862,15 +941,18 @@ void DoEndLevelScoreGlitz(int network)
 		time_points = (Ranking.maxScore / 2.4) * (1 - (Ranking.level_time / Ranking.parTime) * 0.2);
 	Ranking.maxScore += Players[Player_num].hostages_level * 7500;
 	hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level + 1);
+	hostage_points2 = Players[Player_num].hostages_on_board * 2500 * (((double)Difficulty_level + 8) / 12);
 
 	all_hostage_text[0] = 0;
 	endgame_text[0] = 0;
 
 	if (Players[Player_num].hostages_on_board == Players[Player_num].hostages_level) {
 		all_hostage_points = Players[Player_num].hostages_on_board * 1000 * (Difficulty_level + 1);
+		hostage_points2 *= 3;
 	}
 	else
 		all_hostage_points = 0;
+	hostage_points2 = (int)hostage_points2;
 
 	if (!cheats.enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level)) {		//player has finished the game!
 		endgame_points = Players[Player_num].lives * 10000;
@@ -883,7 +965,7 @@ void DoEndLevelScoreGlitz(int network)
 	death_points = (Ranking.maxScore * 0.4 - Ranking.maxScore * (0.4 / pow(2, Ranking.deathCount))) * -1;
 	Ranking.missedRngDrops *= ((double)Difficulty_level + 4) / 4; // Add would-be skill bonus into the penalty for ignored random offspring. This makes ignoring them on high difficulties more consistent and punishing.
 	missed_rng_drops = Ranking.missedRngDrops;
-	Ranking.rankScore += skill_points2 + time_points + hostage_points + all_hostage_points + death_points + missed_rng_drops;
+	Ranking.rankScore += skill_points2 + time_points + hostage_points2 + death_points + missed_rng_drops;
 
 	int minutes = Ranking.level_time / 60;
 	double seconds = Ranking.level_time - minutes * 60;
@@ -914,14 +996,9 @@ void DoEndLevelScoreGlitz(int network)
 			sprintf(parTime, "%i:%.0f", parMinutes, parSeconds);
 		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.excludePoints);
 		sprintf(m_str[c++], "Time: %s/%s\t%i", time, parTime, time_points);
-		sprintf(m_str[c++], "Hostages: %i/%i\t%i", Players[Player_num].hostages_on_board, Players[Player_num].hostages_level, hostage_points);
+		sprintf(m_str[c++], "Hostages: %i/%i\t%.0f", Players[Player_num].hostages_on_board, Players[Player_num].hostages_level, hostage_points2);
 		sprintf(m_str[c++], "Skill: %s\t%.0f", diffname, skill_points2);
-		if (all_hostage_points > 0) {
-			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
-			sprintf(m_str[c++], "Full rescue bonus:\t%i", all_hostage_points);
-		}
-		else
-			sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
+		sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
 		if (Ranking.missedRngDrops < 0)
 			sprintf(m_str[c++], "Missed RNG drops: \t%.0f\n", Ranking.missedRngDrops);
 		else
@@ -961,6 +1038,8 @@ void DoEndLevelScoreGlitz(int network)
 
 		if (cheats.enabled) {
 			sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
+			strcpy(m_str[c++], "");
+			sprintf(m_str[c++], "Vanilla score:\t 0"); // Show 0 for vanilla score when cheating, as that's what players expect from the base game.
 		}
 		else {
 			sprintf(m_str[c++], "Rank:\t %s", rank);
@@ -970,7 +1049,7 @@ void DoEndLevelScoreGlitz(int network)
 			char temp_filename[256];
 			sprintf(filename, "ranks/%s/%s/level%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num);
 			if (Current_level_num < 0)
-			sprintf(filename, "ranks/%s/%s/levelS%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num * -1);
+				sprintf(filename, "ranks/%s/%s/levelS%i.hi", Players[Player_num].callsign, Current_mission->filename, Current_level_num * -1);
 			sprintf(temp_filename, "ranks/%s/%s/temp.hi", Players[Player_num].callsign, Current_mission->filename);
 			fp = PHYSFS_openRead(filename);
 			if (fp != NULL) {
@@ -986,11 +1065,12 @@ void DoEndLevelScoreGlitz(int network)
 					PHYSFSX_printf(temp, "%.0f\n", (Ranking.maxScore - Players[Player_num].hostages_level * 7500) / 3);
 					PHYSFSX_printf(temp, "%f\n", Ranking.parTime);
 					PHYSFSX_printf(temp, "%.0f\n", level_points - Ranking.excludePoints);
-					PHYSFSX_printf(temp, "%f\n", Ranking.level_time);
+					PHYSFSX_printf(temp, "%.3f\n", Ranking.level_time);
 					PHYSFSX_printf(temp, "%i\n", Players[Player_num].hostages_on_board);
 					PHYSFSX_printf(temp, "%i\n", Difficulty_level);
 					PHYSFSX_printf(temp, "%.0f\n", Ranking.deathCount);
 					PHYSFSX_printf(temp, "%.0f\n", Ranking.missedRngDrops);
+					PHYSFSX_printf(temp, "%s\n", Current_level_name);
 					if (Ranking.rank > 0)
 						sprintf(m_str[c++], "New record!");
 					PHYSFS_close(temp);
@@ -1001,15 +1081,22 @@ void DoEndLevelScoreGlitz(int network)
 				PHYSFS_close(fp);
 			}
 			else {
-				sprintf(m_str[c++], "Saving error. Start new game.");
+				sprintf(m_str[c++], "Saving error. Replay level.");
 				PHYSFS_close(fp);
 			}
+			strcpy(m_str[c++], "");
+			sprintf(m_str[c++], "Vanilla score:\t %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
 		}
-		strcpy(m_str[c++], "");
-		sprintf(m_str[c++], "Vanilla score:\t %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
-
 	}
 	else {
+		if (cheats.enabled) { // Zero out all the bonuses when cheating while the mod's off.
+			shield_points = 0;
+			energy_points = 0;
+			hostage_points = 0;
+			skill_points = 0;
+			all_hostage_points = 0;
+			endgame_points = 0;
+		}
 		sprintf(m_str[c++], "%s%i", TXT_SHIELD_BONUS, shield_points);
 		sprintf(m_str[c++], "%s%i", TXT_ENERGY_BONUS, energy_points);
 		sprintf(m_str[c++], "%s%i", TXT_HOSTAGE_BONUS, hostage_points);
@@ -1498,6 +1585,15 @@ void bash_to_shield (int i,char *s)
 	Objects[i].size = Powerup_info[POW_SHIELD_BOOST].size;
 }
 
+#define SHIP_MOVE_SPEED 3709337.6 // 56.6 units per second in one direction, this number is equal to one second of level distance.
+#define LASER_SPEED 7864320
+#define STARTING_VULCAN_AMMO 163840000 // There may already be an existing macro related to the ammo cap but I couldn't find one.
+#define VULCAN_EST_EPS 0.065 // Vulcan equivalent of energy_used_per_shield, treating 5000 ammo as 100 energy.
+#define OBJECTIVE_TYPE_INVALID 0
+#define OBJECTIVE_TYPE_OBJECT 1
+#define OBJECTIVE_TYPE_TRIGGER 2
+#define OBJECTIVE_TYPE_ENERGY 3
+
 int find_connecting_side(point_seg* from, point_seg* to) // Sirius' function.
 {
 	for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
@@ -1506,17 +1602,7 @@ int find_connecting_side(point_seg* from, point_seg* to) // Sirius' function.
 	// This shouldn't happen if consecutive nodes from a valid path were passed in
 	Int3();
 	return -1;
-}	
-
-#define SHIP_MOVE_SPEED 3709337.6
-#define LASER_SPEED 7864320
-#define STARTING_VULCAN_AMMO 163840000 // There may already be an existing macro related to the ammo cap but I couldn't find one.
-#define VULCAN_EST_EPS 0.065 // Vulcan equivalent of energy_used_per_shield, treating 5000 ammo as 100 energy.
-#define FUELCEN_RECHARGE_TIME 14837350.4
-#define OBJECTIVE_TYPE_INVALID 0
-#define OBJECTIVE_TYPE_OBJECT 1
-#define OBJECTIVE_TYPE_TRIGGER 2
-#define OBJECTIVE_TYPE_ENERGY 3
+}
 
 typedef struct
 {
@@ -1711,7 +1797,9 @@ double calculate_combat_time(partime_calc_state* state, object* obj, robot_info*
 			offspringHealth = fixmul(obj->shields, F1_0 + evadeFactor * sizeFactor);
 			if (robInfo->contains_id == 10) // The guys that drop bombs.
 				offspringHealth += ((offspringHealth * robInfo->max_speed[Difficulty_level]) / SHIP_MOVE_SPEED) * robInfo->contains_count; // Now apply chase bonus.
-			adjustedRobotHealth += offspringHealth * (robInfo->contains_count * (robInfo->contains_prob / 16));
+			offspringHealth *= (robInfo->contains_count * robInfo->contains_prob);
+			offspringHealth /= 16;
+			adjustedRobotHealth += offspringHealth;
 		}
 		// I'm not going any deeper than this (two layers), because you can have theoretically infinite. I've only seen three layers once (D1 level 13), and never beyond that, which would be asking for trouble on multiple fronts.
 		if (weapon_id == 1) {
@@ -1803,7 +1891,8 @@ double calculate_combat_time_matcen(partime_calc_state* state, robot_info* robIn
 				fixdiv(i2f(32 * robInfo->evade_speed[Difficulty_level]), (fix)SHIP_MOVE_SPEED);
 			evadeFactor *= LASER_SPEED / projectile_speed;
 			offspringHealth = fixmul(robInfo->strength, F1_0 + evadeFactor * sizeFactor);
-			offspringHealth *= (robInfo->contains_count * (robInfo->contains_prob / 16));
+			offspringHealth *= (robInfo->contains_count * robInfo->contains_prob);
+			offspringHealth /= 16;
 			adjustedRobotHealth += offspringHealth;
 		}
 		if (weapon_id == 1) {
@@ -1934,7 +2023,7 @@ int findReactorObjectID()
 void initLockedWalls(partime_calc_state* state)
 {
 	for (int i = 0; i < Num_walls; i++) {
-		if ((Walls[i].type == WALL_DOOR && (Walls[i].keys == KEY_BLUE || Walls[i].keys == KEY_GOLD || Walls[i].keys == KEY_RED)) || Walls[i].flags == WALL_DOOR_LOCKED) {
+		if ((Walls[i].type == WALL_DOOR && (Walls[i].keys == KEY_BLUE || Walls[i].keys == KEY_GOLD || Walls[i].keys == KEY_RED)) || Walls[i].flags & WALL_DOOR_LOCKED) {
 			partime_locked_wall_info* wallInfo = &state->lockedWalls[state->numLockedWalls];
 			partime_locked_wall_info* reactorInfo = &state->reactorWalls[state->numReactorWalls];
 			state->numLockedWalls++;
@@ -1948,7 +2037,7 @@ void initLockedWalls(partime_calc_state* state)
 			}
 
 			// ...or is it opened by a trigger?
-			if (Walls[i].flags == WALL_DOOR_LOCKED) {
+			if (Walls[i].flags & WALL_DOOR_LOCKED) {
 				int unlockWall = findTriggerWallForWall(i);
 				if (unlockWall != -1) {
 					wallInfo->unlockedBy.type = OBJECTIVE_TYPE_TRIGGER;
@@ -1966,6 +2055,7 @@ void initLockedWalls(partime_calc_state* state)
 					}
 				}
 			}
+			// Do single-side locked wall stuff here.
 		}
 	}
 }
@@ -2030,7 +2120,7 @@ void addUnlockItemToToDoList(partime_calc_state* state, int lockedWallID)
 	if (lockedWallID > state->numLockedWalls)
 		Int3(); // ID out of range
 
-	addObjectiveToList(state->toDoList, &state->toDoListSize, state->lockedWalls[lockedWallID].unlockedBy);
+		addObjectiveToList(state->toDoList, &state->toDoListSize, state->lockedWalls[lockedWallID].unlockedBy);
 }
 
 // Find a path from a start segment to an objective.
@@ -2120,7 +2210,7 @@ partime_objective find_nearest_objective_partime(partime_calc_state* state, int 
 		create_path_partime(start_seg, getObjectiveSegnum(objective), path_start, path_count, state);
 		int lockedWallID = find_first_locked_wall_partime(state, *path_start, *path_count);
 		if (lockedWallID > -1) {
-			if (addUnlocksToObjectiveList) 
+			if (addUnlocksToObjectiveList)
 				addUnlockItemToToDoList(state, lockedWallID);
 			// We can't reach this objective right now; find the next one.
 			continue;
@@ -2232,7 +2322,7 @@ void update_energy_for_path_partime(partime_calc_state* state, point_seg* path, 
 						for (int c = 0; c < Triggers[Walls[wall_num].trigger].num_links; c++) { // Repeat this loop for every segment linked to this trigger.
 							if (Segments[Triggers[Walls[wall_num].trigger].seg[c]].special == SEGMENT_IS_ROBOTMAKER) { // Check them to see if they're matcens. 
 								segment* segp = &Segments[Triggers[Walls[wall_num].trigger].seg[c]]; // Whenever one is, set this variable as a shortcut so we don't have to put that long string of text every time.
- 								if (RobotCenters[segp->matcen_num].robot_flags[0] != 0 && state->matcenLives[segp->matcen_num] > 0) { // If the matcen has robots in it, and isn't dead or on cooldown, consider it triggered...
+								if (RobotCenters[segp->matcen_num].robot_flags[0] != 0 && state->matcenLives[segp->matcen_num] > 0) { // If the matcen has robots in it, and isn't dead or on cooldown, consider it triggered...
 									uint	flags;
 									sbyte	legal_types[32];		//	32 bits in a word, the width of robot_flags.
 									int	num_types, robot_index;
@@ -2447,11 +2537,29 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 			}
 		}
 		if (state.loops == 1) {
+			int levelHasReactor = 0;
 			for (i = 0; i <= Highest_object_index; i++) { // Populate the to-do list with all reactors and bosses.
-				if ((Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].boss_flag != 0) || Objects[i].type == OBJ_CNTRLCEN) {
+				if (Objects[i].type == OBJ_CNTRLCEN) {
 					partime_objective objective = { OBJECTIVE_TYPE_OBJECT, i };
 					addObjectiveToList(state.toDoList, &state.toDoListSize, objective);
+					levelHasReactor = 1;
 				}
+			}
+			if (!levelHasReactor) {
+				int highestBossScore = 0;
+				int targetedBossID;
+				for (i = 0; i <= Highest_object_index; i++) {
+					if (Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].boss_flag) { // Look at every boss, adding only the highest point value.
+						if (Robot_info[Objects[i].id].score_value > highestBossScore) {
+							highestBossScore = Robot_info[Objects[i].id].score_value;
+							targetedBossID = i;
+							state.combatTime += 6; // Each boss has its own deathroll that lasts six seconds one at a time.
+						}
+					}
+				}
+				partime_objective objective = { OBJECTIVE_TYPE_OBJECT, targetedBossID };
+				addObjectiveToList(state.toDoList, &state.toDoListSize, objective);
+				// Let's hope no one makes a boss be worth negative points.
 			}
 		}
 		if (state.loops == 2) {
@@ -2477,8 +2585,8 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 
 		while (state.toDoListSize > 0) {
 			// Find which object on the to-do list is the closest, ignoring the reactor/boss if it's not the only thing left.
-				partime_objective nearestObjective =
-					find_nearest_objective_partime(&state, 1, segnum, state.toDoList, state.toDoListSize, &path_start, &path_count, &pathLength);
+			partime_objective nearestObjective =
+				find_nearest_objective_partime(&state, 1, segnum, state.toDoList, state.toDoListSize, &path_start, &path_count, &pathLength);
 
 			if (nearestObjective.type == OBJECTIVE_TYPE_INVALID) {
 				// This should only happen if there are no objectives in the list.
@@ -2514,7 +2622,7 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 
 				int nearestObjectiveSegnum = getObjectiveSegnum(nearestObjective);
 				printf("Path from segment %i to %i: %.3fs\n", segnum, nearestObjectiveSegnum, pathLength / SHIP_MOVE_SPEED);
-				// Now move ourselves to the objective for the next pathfinding iteration
+				// Now move ourselves to the objective for the next pathfinding iteration, unless the objective wasn't reachable with just flight, in which case move ourselves as far as we COULD fly.
 				segnum = nearestObjectiveSegnum;
 				state.lastPosition = getObjectivePosition(nearestObjective);
 				state.levelDistance += pathLength;
@@ -2539,12 +2647,12 @@ double calculateParTime() // Here is where we have an algorithm run a simulated 
 					state.simulatedEnergy += 100 * F1_0; // Increment by 100, don't set to 100. This is to account for algo going into the negatives on the last move.
 					if (nearestEnergyCenter.type != OBJECTIVE_TYPE_INVALID) { // Only add the trip to the level distance if we can even go anywhere.
 						state.levelDistance += pathLength * 2; // Add round trips when doing multiple increments, to account for going back and forth when emptying full tanks of energy on beefy matcens/bosses. Rare but important edge case.
-						state.levelDistance += FUELCEN_RECHARGE_TIME; // Account for the time taken on each recharge (four seconds for 100 energy). You'd be surprised how much this can add up.
+						state.levelDistance += SHIP_MOVE_SPEED * 4; // Account for the time taken on each recharge (four seconds for 100 energy). You'd be surprised how much this can add up.
 					}
 					else {
 						state.levelDistance += pathLength; // Add this, increment energy and break if we can't go anywhere, so we don't lose levelDistance from a failed fuelcen trip attempt, and aren't softlocked by our energy.
 						state.simulatedEnergy += 100 * F1_0;
-						state.levelDistance += FUELCEN_RECHARGE_TIME; // Also add the recharge time I guess.
+						state.levelDistance += SHIP_MOVE_SPEED * 4; // Also add the recharge time I guess.
 						break;
 					}
 				}
@@ -2585,26 +2693,24 @@ void StartNewLevel(int level_num)
 	Ranking.maxScore = 0;
 
 	Ranking.missedRngDrops = 0;
-
-	Ranking.alreadyBeaten = 0;
-	if (level_num > 0) {
-		if (CalculateRank(level_num) > 0)
-			Ranking.alreadyBeaten = 1;
-	}
-	else {
-		if (CalculateRank(Current_mission->last_level - level_num) > 0)
-			Ranking.alreadyBeaten = 1;
-	}
 	
 	Ranking.quickload = 0;
 
-	Ranking.level_time = 0; // Set this to 0 despite it going unused until set to time_level, so we can save a variable when telling the in-game timer which time variable to display.
+	Ranking.level_time = 0; // Set this to 0 despite it going unused until set to time_level, so we can save a variable when telling the in-game timer which time variable to display.\
 
 	StartNewLevelSub(level_num, 1, 0);
 
 	int i;
+	int highestBossScore = 0;
 	for (i = 0; i <= Highest_object_index; i++) {
-		if (Objects[i].type == OBJ_ROBOT) {
+		if (Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].boss_flag) { // Look at every boss, adding only the highest point value.
+			if (Robot_info[Objects[i].id].score_value > highestBossScore)
+				highestBossScore = Robot_info[Objects[i].id].score_value;
+		}
+	}
+	Ranking.maxScore += highestBossScore;
+	for (i = 0; i <= Highest_object_index; i++) {
+		if (Objects[i].type == OBJ_ROBOT && !Robot_info[Objects[i].id].boss_flag) { // Ignore bosses, we already decided which one to count before.
 			Ranking.maxScore += Robot_info[Objects[i].id].score_value;
 			if (Objects[i].contains_type == OBJ_ROBOT)
 				Ranking.maxScore += Robot_info[Objects[i].contains_id].score_value * Objects[i].contains_count;
@@ -2617,6 +2723,20 @@ void StartNewLevel(int level_num)
 	Ranking.maxScore *= 3; // This is not the final max score. Max score is still 7500 higher per hostage, but that's added last second so the time bonus can be weighted properly.
 	Ranking.maxScore = (int)Ranking.maxScore;
 	Ranking.parTime = calculateParTime();
+	maybeDeleteRankRecords(level_num);
+	Ranking.alreadyBeaten = 0;
+	if (level_num > 0) {
+		if (CalculateRank(level_num) > 0)
+			Ranking.alreadyBeaten = 1;
+	}
+	else {
+		if (CalculateRank(Current_mission->last_level - level_num) > 0)
+			Ranking.alreadyBeaten = 1;
+	}
+	if (Ranking.deleted) {
+		HUD_init_message_literal(HM_DEFAULT, "This level's changed! Your record for it has been wiped.");
+		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
+	}
 }
 
 int previewed_spawn_point = 0; 
