@@ -2314,7 +2314,7 @@ void ogl_update_window_clip()
 void loadRankImages()
 {
 	for (int i = 0; i < 14; i++) {
-		RankBitmaps[i] = gr_create_bitmap(36, 16);
+		RankBitmaps[i] = gr_create_bitmap(822, 360);
 		ogl_loadranktexture(RankBitmaps[i], GameCfg.TexFilt, 0, i);
 	}
 }
@@ -2322,9 +2322,9 @@ void loadRankImages()
 void drawRankImage(int rank, int isBestRanksMenu)
 {
 	if (isBestRanksMenu + 1) { // If we're on the best ranks menu, render a smaller image on the Y position of the listbox item requested. If not, render one big image under the stats.
-		ogl_ubitmapm_cs(0, -10 * isBestRanksMenu, 36, 16, RankBitmaps[rank - 1], -1, 1);
+		ogl_ubitmapm_cs(0, -10 * isBestRanksMenu, 822, 360, RankBitmaps[rank - 1], -1, 1);
 	}
 	else {
-		ogl_ubitmapm_cs(0, 0, 72, 32, RankBitmaps[rank - 1], -1, 1);
+		ogl_ubitmapm_cs(0, 0, 822, 360, RankBitmaps[rank - 1], -1, 1);
 	}
 }
