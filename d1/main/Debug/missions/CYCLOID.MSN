@@ -1,0 +1,5 @@
+name = The Cycloid
+type = normal
+briefing = cycbrief
+num_levels = 1
+cycloid.rdl

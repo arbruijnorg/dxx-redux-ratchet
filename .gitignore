@@ -13,6 +13,10 @@
 *.lib
 *.pdb
 *.hi
+*.py
+*.md
+*.txt
+*.yaml
 build
 
 # Packages #

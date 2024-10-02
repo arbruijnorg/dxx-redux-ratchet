@@ -111,7 +111,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 void ogl_loadbmtexture(grs_bitmap *bm, int filter_blueship_wing);
 int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
 void ogl_freetexture(ogl_texture *gltexture);
-extern void drawRankImage(int rank, int isBestRanksMenu);
+extern void loadRankImages();
 
 #ifdef OGLES
 // Replacement for gluPerspective
@@ -2314,17 +2314,7 @@ void ogl_update_window_clip()
 void loadRankImages()
 {
 	for (int i = 0; i < 14; i++) {
-		RankBitmaps[i] = gr_create_bitmap(822, 360);
+		RankBitmaps[i] = gr_create_bitmap(1080, 360);
 		ogl_loadranktexture(RankBitmaps[i], GameCfg.TexFilt, 0, i);
-	}
-}
-
-void drawRankImage(int rank, int isBestRanksMenu)
-{
-	if (isBestRanksMenu + 1) { // If we're on the best ranks menu, render a smaller image on the Y position of the listbox item requested. If not, render one big image under the stats.
-		ogl_ubitmapm_cs(0, -10 * isBestRanksMenu, 822, 360, RankBitmaps[rank - 1], -1, 1);
-	}
-	else {
-		ogl_ubitmapm_cs(0, 0, 822, 360, RankBitmaps[rank - 1], -1, 1);
 	}
 }

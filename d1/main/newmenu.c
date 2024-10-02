@@ -1437,7 +1437,7 @@ int newmenu_draw(window *wind, newmenu *menu)
 	// Redraw everything...
 	for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
 	{
-		draw_item( &menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode, menu->tabs_flag, menu->scroll_offset );
+		draw_item( &menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode, 0, menu->scroll_offset );
 	}
 
 	if (menu->is_scroll_box)

@@ -1,0 +1,20 @@
+Version: 1
+Lighting:
+  Ambient: '0, 0, 0, 1'
+  AccurateVolumes: 0
+  Bounces: 2
+  DistanceThreshold: 80
+  EnableColor: 0
+  EnableOcclusion: 1
+  Falloff: 0.1
+  MaxValue: 1
+  Multiplier: 1
+  Radius: 20
+  Reflectance: 0.225
+  Multithread: 1
+Segments: []
+Sides: []
+Walls: []
+CameraPosition: '208.98781, 56.841064, 49.12469'
+CameraTarget: '181.39984, -18.214077, 46.601894'
+CameraUp: '-0.92295986, 0.34499216, -0.17066249'

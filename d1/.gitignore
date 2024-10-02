@@ -13,6 +13,10 @@
 *.lib
 *.pdb
 *.hi
+*.py
+*.md
+*.txt
+*.yaml
 build
 
 # Packages #
@@ -72,3 +76,4 @@ d*x-rebirth
 /*/out/install
 /d1/vcpkg.json
 /d1/vcpkg-manifest-install.log
+/*/ranks

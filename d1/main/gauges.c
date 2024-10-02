@@ -1384,7 +1384,7 @@ extern int Piggy_bitmap_cache_next;
 
 void show_time()
 {
-	int mins = f2i(Players[Player_num].time_level) / 60;
+	int mins = f2i(Players[Player_num].time_level + Players[Player_num].hours_level * 3600) / 60;
 	double secs = (double)Players[Player_num].time_level / 65536 - mins * 60;
 	if (Ranking.level_time > 0) {
 		mins = Ranking.level_time / 60;

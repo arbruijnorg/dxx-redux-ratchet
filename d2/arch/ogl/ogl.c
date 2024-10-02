@@ -111,6 +111,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 void ogl_loadbmtexture(grs_bitmap *bm, int filter_blueship_wing);
 int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
 void ogl_freetexture(ogl_texture *gltexture);
+extern void loadRankImages();
 
 #ifdef OGLES
 // Replacement for gluPerspective
@@ -2110,5 +2111,13 @@ void ogl_update_window_clip()
 			Window_clip_right - Window_clip_left + 1,
 			Window_clip_bot - Window_clip_top + 1);
 		glEnable(GL_SCISSOR_TEST);
+	}
+}
+
+void loadRankImages()
+{
+	for (int i = 0; i < 14; i++) {
+		RankBitmaps[i] = gr_create_bitmap(1080, 360);
+		ogl_loadranktexture(RankBitmaps[i], GameCfg.TexFilt, 0, i);
 	}
 }

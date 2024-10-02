@@ -995,7 +995,7 @@ void DoEndLevelScoreGlitz(int network)
 		else
 			sprintf(parTime, "%i:%.0f", parMinutes, parSeconds);
 		sprintf(m_str[c++], "Level score:\t%.0f", level_points - Ranking.excludePoints);
-		sprintf(m_str[c++], "Time: %s/%s\t%i", time, parTime, time_points);
+		sprintf(m_str[c++], "Time: %s/%s     \t%i", time, parTime, time_points); // Add some spaces to ensure there's at least SOME distance between the stats and their points. This is the stuff that is most likely to overlap.
 		sprintf(m_str[c++], "Hostages: %i/%i\t%.0f", Players[Player_num].hostages_on_board, Players[Player_num].hostages_level, hostage_points2);
 		sprintf(m_str[c++], "Skill: %s\t%.0f", diffname, skill_points2);
 		sprintf(m_str[c++], "Deaths: %.0f\t%i", Ranking.deathCount, death_points);
@@ -1008,41 +1008,21 @@ void DoEndLevelScoreGlitz(int network)
 		double rankPoints = (Ranking.rankScore / Ranking.maxScore) * 12;
 		if (Ranking.maxScore == 0)
 			rankPoints = 12;
-		char* rank = "E";
+		int rank = 0;
 		if (rankPoints >= 0)
-		rank = "D-";
-		if (rankPoints >= 1)
-		rank = "D";
-		if (rankPoints >= 2)
-		rank = "D+";
-		if (rankPoints >= 3)
-		rank = "C-";
-		if (rankPoints >= 4)
-		rank = "C";
-		if (rankPoints >= 5)
-		rank = "C+";
-		if (rankPoints >= 6)
-		rank = "B-";
-		if (rankPoints >= 7)
-		rank = "B";
-		if (rankPoints >= 8)
-		rank = "B+";
-		if (rankPoints >= 9)
-		rank = "A-";
-		if (rankPoints >= 10)
-		rank = "A";
-		if (rankPoints >= 11)
-		rank = "A+";
-		if (rankPoints >= 12)
-		rank = "S";
-
+			rank = (int)rankPoints + 1;
+		grs_bitmap* bm = RankBitmaps[rank];
+		int x = grd_curscreen->sc_w * 0.4;
+		int y = LINE_SPACING * 10;
+		if (rank)
+			ogl_ubitmapm_cs(x, y, 486, 162, bm, -1, F1_0);
+		else
+			ogl_ubitmapm_cs(x, y, 525, 175, bm, -1, F1_0); // Make the E-rank bigger to compensate for the tilt.
 		if (cheats.enabled) {
-			sprintf(m_str[c++], "Rank:\t %s (Cheated, no save)", rank);
-			strcpy(m_str[c++], "");
-			sprintf(m_str[c++], "Vanilla score:\t 0"); // Show 0 for vanilla score when cheating, as that's what players expect from the base game.
+			strcpy(m_str[c++], "\n\n");
+			sprintf(m_str[c++], "Cheated, no save!"); // Don't show vanilla score when cheating, as players already know it'll always be zero.
 		}
 		else {
-			sprintf(m_str[c++], "Rank:\t %s", rank);
 			PHYSFS_File* fp;
 			PHYSFS_File* temp;
 			char filename[256];
@@ -1071,20 +1051,23 @@ void DoEndLevelScoreGlitz(int network)
 					PHYSFSX_printf(temp, "%.0f\n", Ranking.deathCount);
 					PHYSFSX_printf(temp, "%.0f\n", Ranking.missedRngDrops);
 					PHYSFSX_printf(temp, "%s\n", Current_level_name);
-					if (Ranking.rank > 0)
-						sprintf(m_str[c++], "New record!");
 					PHYSFS_close(temp);
 					PHYSFS_close(fp);
 					PHYSFS_delete(filename);
 					PHYSFSX_rename(temp_filename, filename);
 				}
 				PHYSFS_close(fp);
+				if (Ranking.rank > 0) {
+					sprintf(m_str[c++], "New record!");
+					strcpy(m_str[c++], "\n");
+				}
+				else
+					strcpy(m_str[c++], "\n\n");
 			}
 			else {
 				sprintf(m_str[c++], "Saving error. Replay level.");
 				PHYSFS_close(fp);
 			}
-			strcpy(m_str[c++], "");
 			sprintf(m_str[c++], "Vanilla score:\t %i", Players[Player_num].score); // Show players' base game score at the end of each level, so they can still compete with it when using the mod.
 		}
 	}

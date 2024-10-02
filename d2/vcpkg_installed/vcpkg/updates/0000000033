@@ -1,0 +1,6 @@
+Package: yasm
+Feature: tools
+Architecture: x64-windows
+Multi-Arch: same
+Description: Build yasm tools
+Status: install ok installed

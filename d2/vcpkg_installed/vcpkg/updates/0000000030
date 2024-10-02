@@ -1,0 +1,9 @@
+Package: yasm
+Version: 1.3.0
+Port-Version: 5
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: fbbf471cee790aac3ec9c05b16fa2864e5da885c6c415f115b915cff1f38e693
+Description: Yasm is a complete rewrite of the NASM assembler under the new BSD License.
+Status: install ok half-installed

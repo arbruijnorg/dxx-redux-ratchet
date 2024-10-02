@@ -25,7 +25,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{41C5CE14-BE34-3100-9846-CF465800241B}</ProjectGuid>
+    <ProjectGuid>{31781F1C-AFD2-3D5D-B0E7-71B920DDB26D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
     <Platform>x64</Platform>
@@ -108,11 +108,11 @@
     </Midl>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeLists.txt">
+    <CustomBuild Include="C:\development\dxx-redux\d1\CMakeLists.txt">
       <UseUtf8Encoding>Always</UseUtf8Encoding>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/jesse/Downloads/dev/dxx-redux/d1/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/development/dxx-redux/d1/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/development/dxx-redux/d1 -BC:/development/dxx-redux/d1 --check-stamp-file C:/development/dxx-redux/d1/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -120,12 +120,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\WindowsPaths.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeCCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeCXXCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeRCCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeSystem.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg.json;C:\Users\jesse\Downloads\dev\vcpkg\scripts\buildsystems\vcpkg.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeCCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeCXXCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeRCCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeSystem.cmake;C:\development\dxx-redux\d1\vcpkg.json;C:\development\vcpkg\scripts\buildsystems\vcpkg.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\development\dxx-redux\d1\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/jesse/Downloads/dev/dxx-redux/d1/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/development/dxx-redux/d1/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/development/dxx-redux/d1 -BC:/development/dxx-redux/d1 --check-stamp-file C:/development/dxx-redux/d1/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -133,12 +133,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\WindowsPaths.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeCCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeCXXCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeRCCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeSystem.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg.json;C:\Users\jesse\Downloads\dev\vcpkg\scripts\buildsystems\vcpkg.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeCCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeCXXCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeRCCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeSystem.cmake;C:\development\dxx-redux\d1\vcpkg.json;C:\development\vcpkg\scripts\buildsystems\vcpkg.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\development\dxx-redux\d1\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/jesse/Downloads/dev/dxx-redux/d1/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/development/dxx-redux/d1/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/development/dxx-redux/d1 -BC:/development/dxx-redux/d1 --check-stamp-file C:/development/dxx-redux/d1/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -146,12 +146,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\WindowsPaths.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeCCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeCXXCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeRCCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeSystem.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg.json;C:\Users\jesse\Downloads\dev\vcpkg\scripts\buildsystems\vcpkg.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeCCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeCXXCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeRCCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeSystem.cmake;C:\development\dxx-redux\d1\vcpkg.json;C:\development\vcpkg\scripts\buildsystems\vcpkg.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\development\dxx-redux\d1\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/jesse/Downloads/dev/dxx-redux/d1/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/development/dxx-redux/d1/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/development/dxx-redux/d1 -BC:/development/dxx-redux/d1 --check-stamp-file C:/development/dxx-redux/d1/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -159,66 +159,66 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.28\Modules\Platform\WindowsPaths.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeCCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeCXXCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeRCCompiler.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\3.28.1\CMakeSystem.cmake;C:\Users\jesse\Downloads\dev\dxx-redux\d1\vcpkg.json;C:\Users\jesse\Downloads\dev\vcpkg\scripts\buildsystems\vcpkg.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\jesse\Downloads\dev\dxx-redux\d1\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeCCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeCXXCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeRCCompiler.cmake;C:\development\dxx-redux\d1\CMakeFiles\3.30.3\CMakeSystem.cmake;C:\development\dxx-redux\d1\vcpkg.json;C:\development\vcpkg\scripts\buildsystems\vcpkg.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\development\dxx-redux\d1\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\ZERO_CHECK.vcxproj">
-      <Project>{EE26F9E3-68C6-319D-B16D-BA67008B409E}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\ZERO_CHECK.vcxproj">
+      <Project>{F7FE87B9-F245-3D44-90BD-960D9629B1EC}</Project>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\2d\2d.vcxproj">
-      <Project>{43C1A953-EFE3-3326-896E-BBFF80419DF9}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\2d\2d.vcxproj">
+      <Project>{C7AFD28F-38AB-36B4-B2AB-B8B0F9583BD5}</Project>
       <Name>2d</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\3d\3d.vcxproj">
-      <Project>{F1B380D3-3DA4-3ED3-B884-7E7880001880}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\3d\3d.vcxproj">
+      <Project>{7F9088AC-2E42-3720-9023-E2C4F4B9FFF8}</Project>
       <Name>3d</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\ogl\arch_ogl.vcxproj">
-      <Project>{47D72387-0FFB-35DB-A96E-3E632A457B92}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\arch\ogl\arch_ogl.vcxproj">
+      <Project>{ADBF2E38-CC05-33D0-A86C-7AB06B50E87D}</Project>
       <Name>arch_ogl</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\sdl\arch_sdl.vcxproj">
-      <Project>{2242B536-319B-3C43-93C9-DDC141DBDAB0}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\arch\sdl\arch_sdl.vcxproj">
+      <Project>{461C62DB-941F-3CC9-8DCF-40ADD2129D42}</Project>
       <Name>arch_sdl</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\arch\win32\arch_win32.vcxproj">
-      <Project>{85501F90-F171-3A75-9C00-094AF71C4F7D}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\arch\win32\arch_win32.vcxproj">
+      <Project>{1F864962-966E-3ACE-8A5E-2F8F52EB61D4}</Project>
       <Name>arch_win32</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\main\d1x-redux.vcxproj">
-      <Project>{674905ED-1CA0-390B-B84D-13C992D24617}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\main\d1x-redux.vcxproj">
+      <Project>{A3169CDF-8185-310D-B7E8-B6637CD2531F}</Project>
       <Name>d1x-redux</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\iff\iff.vcxproj">
-      <Project>{60EB3BCD-0395-3CD6-8E4D-4DF74BFE0E9F}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\iff\iff.vcxproj">
+      <Project>{F95231F6-B9AC-3A6D-A625-0B8D9AEB06A0}</Project>
       <Name>iff</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\maths\maths.vcxproj">
-      <Project>{32EDF0CF-F4AD-398A-865E-6965CEEFFCBD}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\maths\maths.vcxproj">
+      <Project>{0EA0E9A6-89A0-347D-8D55-81B4EFD7FEF0}</Project>
       <Name>maths</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\mem\mem.vcxproj">
-      <Project>{DD8A0187-C5A3-3AF1-A1AC-B775170C380D}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\mem\mem.vcxproj">
+      <Project>{B3034AF1-EC7D-3A52-B157-48103CAFB71E}</Project>
       <Name>mem</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\misc\misc.vcxproj">
-      <Project>{60061297-727C-33F1-9B10-2A7909226868}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\misc\misc.vcxproj">
+      <Project>{4BC910E1-8E3E-3C3B-9E4D-5C125A3D3DB0}</Project>
       <Name>misc</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\texmap\texmap.vcxproj">
-      <Project>{1E8FA7E4-610C-38CC-8D32-5696334152F6}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\texmap\texmap.vcxproj">
+      <Project>{34D49F0C-EAEE-31CA-9C01-EE7036026639}</Project>
       <Name>texmap</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\xmodel\xmodel.vcxproj">
-      <Project>{59BF092D-11D0-3974-B8E5-3433CD0818D0}</Project>
+    <ProjectReference Include="C:\development\dxx-redux\d1\xmodel\xmodel.vcxproj">
+      <Project>{838DF143-4EE8-3834-B2F5-1E29C643EDCD}</Project>
       <Name>xmodel</Name>
     </ProjectReference>
   </ItemGroup>

@@ -1,0 +1,9 @@
+Package: sdl1-mixer
+Version: 2023-03-25
+Port-Version: 2
+Depends: libflac, libmikmod, libogg, libvorbis, mpg123, sdl1
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 811549ef18dd40c9db1069f333187d366b87a4b819dcfbde130966e706122b1c
+Description: An audio mixer that supports various file formats for Simple Directmedia Layer.
+Status: install ok half-installed

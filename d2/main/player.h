@@ -147,7 +147,8 @@ typedef struct ranking { // This struct contains variables for the ranking syste
 	int     alreadyBeaten;           // Tracks whether the current level has been beaten before, so points remaining and par time HUD elements are not shown on a new level.
 	int     deleted;                 // Whether to tell the player their record file was deleted due to a level change.
 
-	// Below are the variables used for secret levels. Since we can play them in the middle of a normal one, we have to distinguish between them so results don't overlap.
+	// Below are the ranking mod variables used for secret levels. Since we can play them in the middle of a normal one, we have to distinguish between them so results don't overlap.
+	
 	double	secretRankScore;
 	double  secretExcludePoints;
 	double	secretMaxScore;

@@ -576,15 +576,17 @@ int ranks_menu_handler(listbox* lb, d_event* event, void* userdata)
 	case EVENT_WINDOW_DRAW:
 		rval = listbox_draw(lb->wind, lb);
 
-		for (int i = lb->first_item; i < lb->first_item + LB_ITEMS_ON_SCREEN; i++) {
+		for (int i = lb->first_item; i < lb->first_item + LB_ITEMS_ON_SCREEN && i < lb->nitems; i++) {
 			int rank = ranks[i];
 			if (rank == 0)
 				continue;
 			grs_bitmap* bm = RankBitmaps[rank - 1];
-			int x = lb->box_x + lb->box_w - FSPACX(14); // align to right of listbox
+			int x = lb->box_x + lb->box_w - FSPACX(25); // align to right of listbox
 			int y = lb->box_y + (i - lb->first_item) * LINE_SPACING;
-			int w = FSPACX(14);
-			int h = LINE_SPACING;
+			int h = LINE_SPACING * 0.7;
+			if (rank == 1)
+				h *= 1.0806; // Make the E-rank bigger to account for the tilt.
+			int w = h * 3;
 			ogl_ubitmapm_cs(x, y, w, h, bm, -1, F1_0);
 		}
 		return rval;
@@ -635,9 +637,9 @@ void do_best_ranks_menu()
 			list[i] = (char*)malloc(sizeof(char) * 64);
 			if (fp == NULL) {
 				if (i < Current_mission->last_level)
-					snprintf(list[i], 64, "%i. ???: N/A", i + 1);
+					snprintf(list[i], 64, "%i. ???:\tN/A   ", i + 1);
 				else
-					snprintf(list[i], 64, "S%i. ???: N/A", i - Current_mission->last_level + 1);
+					snprintf(list[i], 64, "S%i. ???:\tN/A   ", i - Current_mission->last_level + 1);
 				ranks[i] = 0;
 			}
 			else {
@@ -649,15 +651,15 @@ void do_best_ranks_menu()
 				snprintf(level_name, LEVEL_NAME_LEN, buffer);
 				if (Ranking.rank > 0) {
 					if (i < Current_mission->last_level)
-						snprintf(list[i], 64, "%i. %s: %.0f %s", i + 1, level_name, Ranking.calculatedScore, Rank[Ranking.rank]);
+						snprintf(list[i], 64, "%i. %s:\t%.0f   ", i + 1, level_name, Ranking.calculatedScore);
 					else
-						snprintf(list[i], 64, "S%i. %s: %.0f %s", i - Current_mission->last_level + 1, level_name, Ranking.calculatedScore, Rank[Ranking.rank]);
+						snprintf(list[i], 64, "S%i. %s:\t%.0f   ", i - Current_mission->last_level + 1, level_name, Ranking.calculatedScore);
 				}
 				else {
 					if (i < Current_mission->last_level)
-						snprintf(list[i], 64, "%i. %s: N/A", i + 1, level_name);
+						snprintf(list[i], 64, "%i. %s:\tN/A   ", i + 1, level_name);
 					else
-						snprintf(list[i], 64, "S%i. %s: N/A", i - Current_mission->last_level + 1, level_name);
+						snprintf(list[i], 64, "S%i. %s:\tN/A   ", i - Current_mission->last_level + 1, level_name);
 				}
 			}
 			PHYSFS_close(fp);

@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/jesse/Downloads/dev/dxx-redux/d1/misc
+# Install script for directory: C:/development/dxx-redux/d1/misc
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

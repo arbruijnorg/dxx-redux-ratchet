@@ -1,6 +1,6 @@
-^C:\USERS\JESSE\DOWNLOADS\DEV\DXX-REDUX\D1\ARCH\SDL\CMAKELISTS.TXT
+^C:\DEVELOPMENT\DXX-REDUX\D1\ARCH\SDL\CMAKELISTS.TXT
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jesse/Downloads/dev/dxx-redux/d1 -BC:/Users/jesse/Downloads/dev/dxx-redux/d1 --check-stamp-file C:/Users/jesse/Downloads/dev/dxx-redux/d1/arch/sdl/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/development/dxx-redux/d1 -BC:/development/dxx-redux/d1 --check-stamp-file C:/development/dxx-redux/d1/arch/sdl/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone

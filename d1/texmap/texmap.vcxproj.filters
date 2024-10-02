@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\texmap\ntmap.c">
+    <ClCompile Include="C:\development\dxx-redux\d1\texmap\ntmap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\texmap\scanline.c">
+    <ClCompile Include="C:\development\dxx-redux\d1\texmap\scanline.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\jesse\Downloads\dev\dxx-redux\d1\texmap\CMakeLists.txt" />
+    <CustomBuild Include="C:\development\dxx-redux\d1\texmap\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{7480831C-C916-3D0E-A250-E4FC518641D9}</UniqueIdentifier>
+      <UniqueIdentifier>{A4C8D66D-B4EC-32FD-8CD5-BE40F764A836}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
