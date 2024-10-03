@@ -898,6 +898,35 @@ void StartNewGame(int start_level)
 	game_disable_cheats();
 }
 
+int endlevel_current_rank;
+extern grs_bitmap nm_background1;
+grs_bitmap transparent;
+
+int endlevel_handler(newmenu *menu, d_event *event, void *userdata) {
+	switch (event->type) {
+		case EVENT_WINDOW_DRAW:
+			gr_palette_load( gr_palette );
+			show_fullscr(&nm_background1);
+
+			grs_bitmap *bm = RankBitmaps[endlevel_current_rank];
+			int x = grd_curscreen->sc_w * 0.4;
+			int y = LINE_SPACING * 10;
+			if (endlevel_current_rank)
+				ogl_ubitmapm_cs(x, y, 486, 162, bm, 0xfd, F1_0);
+			else
+				ogl_ubitmapm_cs(x, y, 525, 175, bm, 0xfd, F1_0); // Make the E-rank bigger to compensate for the tilt.
+
+			grs_bitmap oldbackground = nm_background1;
+			nm_background1 = transparent;
+
+			int ret = newmenu_draw(newmenu_get_window(menu), menu);
+
+			nm_background1 = oldbackground;
+			return ret;
+	}
+	return 0;
+}
+
 void DoEndLevelScoreGlitz(int network)
 {
 	if (Ranking.level_time == 0)
@@ -1014,6 +1043,7 @@ void DoEndLevelScoreGlitz(int network)
 		grs_bitmap* bm = RankBitmaps[rank];
 		int x = grd_curscreen->sc_w * 0.4;
 		int y = LINE_SPACING * 10;
+		endlevel_current_rank = rank;
 		if (rank)
 			ogl_ubitmapm_cs(x, y, 486, 162, bm, -1, F1_0);
 		else
@@ -1106,12 +1136,18 @@ void DoEndLevelScoreGlitz(int network)
 
 		Assert(c <= N_GLITZITEMS);
 
+		gr_init_bitmap_alloc (&transparent, BM_LINEAR, 0, 0, 1, 1, 1);
+		transparent.bm_data[0] = 255;
+		transparent.bm_flags |= BM_FLAG_TRANSPARENT;
+
 #ifdef NETWORK
 		if (network && (Game_mode & GM_NETWORK))
 			newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
 		else
 #endif	// Note link!
-			newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
+			newmenu_do2(NULL, title, c, m, endlevel_handler, NULL, 0, Menu_pcx_name);
+
+		gr_free_bitmap_data(&transparent);
 }
 
 int draw_rock(newmenu *menu, d_event *event, grs_bitmap *background)
